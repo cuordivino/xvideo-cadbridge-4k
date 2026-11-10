@@ -1011,13 +1011,16 @@ body::before {
   }
   /* Extra safe top padding so iOS Clock (12:55) & Dynamic Island NEVER touch the topbar! */
   .topbar {
-    padding-top: max(12px, var(--safe-top));
+    padding-top: max(14px, var(--safe-top));
     padding-bottom: 8px;
+  }
+  body.ios-standalone-portrait .topbar {
+    padding-top: max(50px, var(--safe-top)) !important;
   }
   /* When running as installed iOS WebApp/Home Screen, guarantee clearance below Dynamic Island */
   @media (display-mode: standalone) {
     .topbar {
-      padding-top: max(48px, var(--safe-top));
+      padding-top: max(50px, var(--safe-top)) !important;
     }
   }
   .brand-sub,
@@ -1042,6 +1045,24 @@ body::before {
   .voice-input-row .btn,
   .voice-input-row .send-cmd-btn {
     flex: 1 1 calc(50% - 6px);
+  }
+}
+
+/* Ultra-compact iPhone SE / Mini (<= 380px) */
+@media (max-width: 380px) {
+  .brand-title {
+    font-size: 0.78rem;
+  }
+  .badge {
+    font-size: 0.56rem;
+    padding: 2px 5px;
+  }
+  .cam-capture-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .macro-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
