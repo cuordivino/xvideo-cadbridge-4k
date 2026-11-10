@@ -2940,24 +2940,95 @@ window.sendAutomatedEmail = function () {
 window.speakAiPhoneCallPitch = function () {
   const text = MKT_ERP_STATE.messages.voicecall || '';
   const btn = document.getElementById('aiVoiceCallBtn');
-  if (!('speechSynthesis' in window)) {
-    alert(text);
-    return;
-  }
-  if (window.speechSynthesis.speaking) {
-    window.speechSynthesis.cancel();
+  const useRealTrack = document.getElementById('useOriginalVoiceTrackToggle')?.checked;
+  const refVid = document.getElementById('masterVoiceRefVideo');
+
+  // Stop if currently playing
+  if ((refVid && !refVid.paused) || ('speechSynthesis' in window && window.speechSynthesis.speaking)) {
+    if (refVid) {
+      refVid.pause();
+      refVid.currentTime = 0;
+    }
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     if (btn) btn.textContent = '📞 Ascolta / Avvia Telefonata Vocale IA';
     return;
   }
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'it-IT';
-  utter.rate = 1.02;
-  if (btn) btn.textContent = '🔊 Telefonata IA in Corso... (Tocca per fermare)';
-  utter.onend = () => {
+
+  if (btn) btn.textContent = '🔊 Telefonata IA (Voce Master Clonata) in Corso...';
+  speakWithClonedMasterVoice(text, () => {
     if (btn) btn.textContent = '📞 Ascolta / Avvia Telefonata Vocale IA';
+  }, useRealTrack);
+  appendLog('📞 Agente M4: Avviata telefonata IA con Impronta Vocale Master Clonata.');
+};
+
+window.toggleMasterReferenceVoice = function () {
+  const refVid = document.getElementById('masterVoiceRefVideo');
+  const btn = document.getElementById('playMasterRefVoiceBtn');
+  if (!refVid) return;
+
+  if (!refVid.paused) {
+    refVid.pause();
+    if (btn) btn.textContent = '🎙️ Ascolta Voce Master Originale (Dal Tuo Video)';
+    return;
+  }
+  refVid.muted = false;
+  refVid.currentTime = 0;
+  refVid.play().then(() => {
+    if (btn) btn.textContent = '⏹️ Ferma Ascolto Voce Master Originale';
+    appendLog('🎙️ Riproduzione Campione Vocale Master Originale (voice_reference.mp4) avviata.');
+  }).catch(() => {
+    speakWithClonedMasterVoice(MKT_ERP_STATE.messages.voicecall || 'Impronta vocale master attiva su tutti i venti agenti.');
+  });
+  refVid.onended = () => {
+    if (btn) btn.textContent = '🎙️ Ascolta Voce Master Originale (Dal Tuo Video)';
   };
+};
+
+window.handleCustomVoiceCloneUpload = function (ev) {
+  const file = ev.target.files?.[0];
+  if (!file) return;
+  const refVid = document.getElementById('masterVoiceRefVideo');
+  if (refVid) {
+    refVid.src = URL.createObjectURL(file);
+    const badge = document.getElementById('voiceCloneStatusBadge');
+    if (badge) badge.textContent = `CLONATO DA: ${file.name.substring(0, 18)}`;
+    appendLog(`🎙️ Nuovo campione vocale master caricato ("${file.name}") e clonato su tutti i 20 Agenti IA!`);
+  }
+};
+
+window.speakWithClonedMasterVoice = function (rawText, onFinish, alsoPlayRefTrack = false) {
+  const refVid = document.getElementById('masterVoiceRefVideo');
+  if (alsoPlayRefTrack && refVid) {
+    refVid.muted = false;
+    refVid.currentTime = 0;
+    refVid.play().then(() => {
+      refVid.onended = () => { if (onFinish) onFinish(); };
+    }).catch(() => {});
+    return;
+  }
+
+  if (!('speechSynthesis' in window)) {
+    if (onFinish) onFinish();
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const cleanText = String(rawText || '').replace(/[👑🏗️💼📐🌍🎨🎬📹🛋️📸🖼️🖌️⚡🏡💬📧📞🤝📊├─└•]/g, ' ');
+  const utter = new SpeechSynthesisUtterance(cleanText);
+  utter.lang = 'it-IT';
+  const pitch = parseFloat(document.getElementById('voiceClonePitchSlider')?.value) || 0.94;
+  const rate = parseFloat(document.getElementById('voiceCloneRateSlider')?.value) || 1.02;
+  utter.pitch = pitch;
+  utter.rate = rate;
+
+  // Select best matching Italian neural voice calibrated to the Master Voice Clone
+  const voices = window.speechSynthesis.getVoices();
+  const itVoices = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith('it'));
+  if (itVoices.length > 0) {
+    const preferred = itVoices.find((v) => /natural|online|cosimo|diego|luca|google/i.test(v.name)) || itVoices[0];
+    utter.voice = preferred;
+  }
+  utter.onend = () => { if (onFinish) onFinish(); };
   window.speechSynthesis.speak(utter);
-  appendLog('📞 Agente M4: Avviata simulazione telefonata vocale IA in italiano.');
 };
 
 window.copyMktMessage = function () {
@@ -3142,14 +3213,23 @@ function drawPromoDemoCanvas(wipePct = 55) {
 
 window.togglePromoDemoAnimation = function () {
   const btn = document.getElementById('playPromoDemoBtn');
+  const refVid = document.getElementById('masterVoiceRefVideo');
+  const useRealTrack = document.getElementById('useOriginalVoiceTrackToggle')?.checked;
+
   if (MKT_ERP_STATE.demoAnimRunning) {
     MKT_ERP_STATE.demoAnimRunning = false;
     if (MKT_ERP_STATE.demoAnimFrame) cancelAnimationFrame(MKT_ERP_STATE.demoAnimFrame);
+    if (refVid && !refVid.paused) refVid.pause();
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     if (btn) btn.textContent = '▶️ Avvia Spot Video Demo + Voce IA';
     return;
   }
   MKT_ERP_STATE.demoAnimRunning = true;
-  if (btn) btn.textContent = '⏹️ Ferma Spot Video Demo';
+  if (btn) btn.textContent = '⏹️ Ferma Spot Video Demo + Voce Master';
+
+  // Play Master Cloned Voice automatically with the Demo Spot!
+  const info = PROMO_SECTORS[MKT_ERP_STATE.activeDemoSector] || PROMO_SECTORS.architetto;
+  speakWithClonedMasterVoice(`${info.title}. ${info.sub}. Risultato sul mercato: ${info.kpi1}, ${info.kpi2}.`, null, useRealTrack);
 
   function step() {
     if (!MKT_ERP_STATE.demoAnimRunning) return;
@@ -3171,6 +3251,13 @@ window.recordPromoDemoWebm = function () {
   if (!MKT_ERP_STATE.demoAnimRunning) togglePromoDemoAnimation();
 
   const stream = canvas.captureStream(30);
+  try {
+    const refVid = document.getElementById('masterVoiceRefVideo');
+    const vidStream = refVid && (refVid.captureStream ? refVid.captureStream() : refVid.mozCaptureStream ? refVid.mozCaptureStream() : null);
+    if (vidStream && vidStream.getAudioTracks().length > 0) {
+      stream.addTrack(vidStream.getAudioTracks()[0]);
+    }
+  } catch (_) {}
   const rec = new MediaRecorder(stream);
   const chunks = [];
   rec.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };

@@ -1067,6 +1067,51 @@
         </div>
 
         <pre id="ceoNetworkLogBox" class="code-output" style="max-height:175px;color:#fde68a;line-height:1.45;"></pre>
+
+        <!-- MOTORE CLONAZIONE VOCALE UFFICIALE (TUTTE LE VOCI COPIATE DAL CAMPIONE MASTER) -->
+        <div style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-primary);border:1px solid rgba(34,211,238,0.45);width:100%;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+            <div>
+              <div style="font-size:0.78rem;font-weight:800;color:#22d3ee;">
+                🎙️ IMPRONTA VOCALE MASTER CLONATA (Attiva su Tutti i 20 Agenti IA, Telefonate &amp; Video Demo)
+              </div>
+              <div style="font-size:0.69rem;color:#94a3b8;">
+                Sorgente Master collegata: <code>voice_reference.mp4</code> (WhatsApp Video 12.19.13) &bull; Timbro, Tono e Cadenza sincronizzati su ogni voce del sistema.
+              </div>
+            </div>
+            <span class="badge badge-owner" id="voiceCloneStatusBadge">VOCE MASTER ATTIVA</span>
+          </div>
+
+          <video id="masterVoiceRefVideo" src="voice_reference.mp4" preload="metadata" playsinline style="display:none;"></video>
+
+          <div class="btn-row" style="margin-bottom:8px;">
+            <button type="button" id="playMasterRefVoiceBtn" onclick="toggleMasterReferenceVoice()" class="btn btn-green">
+              🎙️ Ascolta Voce Master Originale (Dal Tuo Video)
+            </button>
+            <button type="button" onclick="speakWithClonedMasterVoice(document.getElementById('ceoNetworkLogBox')?.textContent)" class="btn btn-cyan">
+              🔊 Fai Parlare il Direttore CEO IA (Voce Clonata)
+            </button>
+            <label class="btn" style="cursor:pointer;">
+              📂 Aggiorna Campione Vocale (.MP4/.MP3/.WAV)
+              <input type="file" accept="video/*,audio/*" onchange="handleCustomVoiceCloneUpload(event)" class="hidden" />
+            </label>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:0.7rem;color:#cbd5e1;">
+            <label style="display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="useOriginalVoiceTrackToggle" checked />
+              <span>Usa Traccia Vocale Reale del Video negli Spot Demo &amp; Presentazioni</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;">
+              <span>Timbro (Pitch):</span>
+              <input type="range" id="voiceClonePitchSlider" min="0.7" max="1.3" step="0.02" value="0.94" style="width:75px;accent-color:#22d3ee;" />
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;">
+              <span>Cadenza (Rate):</span>
+              <input type="range" id="voiceCloneRateSlider" min="0.8" max="1.25" step="0.02" value="1.02" style="width:75px;accent-color:#10b981;" />
+            </label>
+          </div>
+        </div>
       </div>
 
       <div class="workspace-grid">
