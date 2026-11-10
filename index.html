@@ -141,7 +141,10 @@
 
       <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%;">
         <button id="enterStudioSplashBtn" class="btn btn-primary" style="padding:12px 18px;font-size:0.86rem;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#10b981);color:#05070a;font-weight:900;width:100%;max-width:320px;">
-          🚀 Entra nello Studio 4K + 5 Agenti IA
+          🚀 Entra nello Studio 4K + 20 Agenti IA
+        </button>
+        <button type="button" onclick="authenticateWithFaceId(true)" class="btn allow-spectator-view" style="padding:11px 16px;font-size:0.82rem;border-radius:12px;border-color:rgba(16,185,129,0.55);color:#34d399;font-weight:800;width:100%;max-width:320px;">
+          😊 Entra con Face ID / Touch ID (iPhone &amp; iPad)
         </button>
         <button onclick="openHomeGuide()" class="btn btn-cyan" style="padding:10px 16px;font-size:0.8rem;border-radius:12px;width:100%;max-width:320px;">
           📲 Installa App su Home (iPhone / Android / PC)
@@ -181,6 +184,12 @@
         <span>IP:</span>
         <strong id="clientIpDisplay">...</strong>
       </div>
+      <button type="button" onclick="openQuickQrShareModal()" id="topQrShareBtn" class="btn btn-cyan" style="padding:6px 9px;font-size:0.72rem;width:auto;" title="Genera e Mostra QR Code Condivisione 1-a-1">
+        🔳 QR
+      </button>
+      <button type="button" onclick="authenticateWithFaceId(false)" class="btn allow-spectator-view" style="padding:6px 9px;font-size:0.72rem;width:auto;border-color:rgba(16,185,129,0.5);color:#34d399;" title="Accesso Rapido Face ID / Touch ID iPhone">
+        😊 Face ID
+      </button>
       <button onclick="openHomeGuide()" class="btn btn-green" style="padding:6px 9px;font-size:0.72rem;width:auto;">
         📲 Home
       </button>
@@ -937,13 +946,42 @@
             </div>
           </div>
 
-          <div id="qrCodeContainer" style="display:none;margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-md);border:1px solid var(--border-active);align-items:center;gap:12px;flex-wrap:wrap;">
-            <img id="qrCodeImg" alt="QR Code Invito 1-a-1" width="110" height="110" style="border-radius:8px;background:#fff;padding:6px;" />
-            <div style="flex:1;min-width:140px;">
-              <div style="font-weight:700;font-size:0.82rem;margin-bottom:4px;color:var(--accent-skp);">📲 Inquadra con iPhone o Android</div>
-              <div style="font-size:0.72rem;color:var(--text-secondary);">
-                Fai inquadrare questo QR Code o invia il link su WhatsApp: si bloccherà automaticamente sul primo IP che accede.
+          <div id="qrCodeContainer" style="display:flex;margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-md);border:1px solid var(--border-active);align-items:center;gap:12px;flex-wrap:wrap;">
+            <img id="qrCodeImg" alt="QR Code Invito 1-a-1" width="130" height="130" style="border-radius:8px;background:#fff;padding:6px;" />
+            <div style="flex:1;min-width:150px;">
+              <div style="font-weight:700;font-size:0.82rem;margin-bottom:4px;color:var(--accent-skp);">📲 QR Code Condivisione Diretta 1-a-1</div>
+              <div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:8px;">
+                Fai inquadrare questo QR Code col telefono dell'amico o invia il link su WhatsApp: entra in <strong>Spettatore Blindato</strong> e si blocca sul 1° IP.
               </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" onclick="openQuickQrShareModal()" class="btn btn-cyan" style="padding:6px 10px;font-size:0.7rem;">
+                  🔍 Ingrandisci QR a Schermo Intero
+                </button>
+                <button type="button" onclick="downloadInviteQrPng()" class="btn btn-green" style="padding:6px 10px;font-size:0.7rem;">
+                  📥 Scarica QR (.PNG)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEZIONE BIOMETRICA FACE ID / TOUCH ID IPHONE (PER PROPRIETARIO O ALTRI AUTORIZZATI) -->
+          <div style="margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-md);border:1px solid rgba(16,185,129,0.45);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+              <div style="font-weight:800;font-size:0.8rem;color:#34d399;">
+                😊 Accesso Biometrico Face ID / Touch ID su iPhone, iPad &amp; Dispositivi
+              </div>
+              <span class="badge badge-owner" id="faceIdStatusBadge">PRONTO</span>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:8px;">
+              Registra il <strong>Face ID / Touch ID</strong> sul tuo iPhone (o sul dispositivo di un collaboratore autorizzato) per entrare istantaneamente con il volto senza digitare codici.
+            </div>
+            <div class="btn-row">
+              <button type="button" onclick="registerBiometricFaceId()" class="btn btn-green">
+                😊 Registra Face ID per questo Dispositivo (Io o Collaboratore)
+              </button>
+              <button type="button" onclick="authenticateWithFaceId(false)" class="btn btn-cyan">
+                🔓 Verifica / Entra con Face ID Ora
+              </button>
             </div>
           </div>
 
@@ -1044,12 +1082,29 @@
           </div>
         </div>
 
+        <!-- MANTRA UFFICIALE DI CONTAMINAZIONE TRASVERSALE (CEO IA, DIRETTORI & 20 AGENTI) -->
+        <div style="padding:10px 12px;border-radius:10px;background:linear-gradient(135deg,rgba(251,191,36,0.14),rgba(34,211,238,0.10));border:1px solid rgba(251,191,36,0.55);margin-bottom:10px;width:100%;">
+          <div style="font-size:0.76rem;font-weight:900;color:#fbbf24;letter-spacing:0.02em;">
+            🧬 MANTRA FONDAMENTALE DI TUTTI GLI AGENTI, DIRETTORI DI REPARTO E DIRETTORE CEO IA:
+          </div>
+          <div style="font-size:0.75rem;color:#f8fafc;font-style:italic;margin-top:3px;line-height:1.45;">
+            «Ogni tipologia di prodotto può assimilare innovazione da tipologie di prodotti diversi: basta sempre saper cogliere le sfumature che altre ricerche in campi diversi hanno portato come vantaggio.»
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:0.66rem;color:#67e8f9;">
+            <span>⚡ <strong>Da FinTech &amp; Trading:</strong> Sicurezza Spettatore Blindato 1-a-1, Face ID &amp; Telemetria Live</span>
+            <span>&bull;</span>
+            <span>🎬 <strong>Da Cinema &amp; Gaming VFX:</strong> Temporal Lock Video-to-Video &amp; Ray-Tracing 1-Tap</span>
+            <span>&bull;</span>
+            <span>🚗 <strong>Da Automotive &amp; LiDAR:</strong> Raddrizzamento Ottico 2-Point sul Campo</span>
+          </div>
+        </div>
+
         <!-- SCHEMA VISIVO RETE DI CONNESSIONE GERARCHICA -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:10px;width:100%;">
           <div style="padding:10px;border-radius:10px;background:var(--bg-primary);border:1px solid rgba(251,191,36,0.5);">
             <div style="font-size:0.74rem;font-weight:800;color:#fbbf24;">👑 LIVELLO 0: APEX-CEO IA (DIRETTORE GENERALE)</div>
             <div style="font-size:0.69rem;color:#cbd5e1;margin-top:3px;">
-              Definisce KPI di fatturato, assegna i compiti ai 2 Direttori di Reparto, verifica la qualità 4K e approva il Bilancio Netto.
+              Applica il Mantra di Contaminazione Cross-Industry, coordina i 2 Direttori di Reparto, verifica i Render 4K e approva il Bilancio.
             </div>
           </div>
           <div style="padding:10px;border-radius:10px;background:var(--bg-primary);border:1px solid rgba(34,211,238,0.45);">
@@ -1066,49 +1121,61 @@
           </div>
         </div>
 
-        <pre id="ceoNetworkLogBox" class="code-output" style="max-height:175px;color:#fde68a;line-height:1.45;"></pre>
+        <pre id="ceoNetworkLogBox" class="code-output" style="max-height:185px;color:#fde68a;line-height:1.45;"></pre>
 
-        <!-- MOTORE CLONAZIONE VOCALE UFFICIALE (TUTTE LE VOCI COPIATE DAL CAMPIONE MASTER) -->
+        <!-- MOTORE SINTESI VOCALE CLONATA (SOLO TIMBRO CAMPIONE • TESTI 100% COERENTI CON RENDER 4K & VISTE • ZERO VIDEO/AUDIO ESTRANEI) -->
         <div style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-primary);border:1px solid rgba(34,211,238,0.45);width:100%;">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
             <div>
               <div style="font-size:0.78rem;font-weight:800;color:#22d3ee;">
-                🎙️ IMPRONTA VOCALE MASTER CLONATA (Attiva su Tutti i 20 Agenti IA, Telefonate &amp; Video Demo)
+                🎙️ VOCE MASTER CLONATA — Narrazione Coerente Sviluppo Render 4K, Viste Sul Campo &amp; Real Estate
               </div>
               <div style="font-size:0.69rem;color:#94a3b8;">
-                Sorgente Master collegata: <code>voice_reference.mp4</code> (WhatsApp Video 12.19.13) &bull; Timbro, Tono e Cadenza sincronizzati su ogni voce del sistema.
+                Impronta timbrica acquisita (Pitch 0.94 &bull; Cadenza 1.02) &bull; Video e sonoro di riferimento estranei eliminati &bull; Testi 100% dedicati a Render 4K, Viste e Architettura.
               </div>
             </div>
-            <span class="badge badge-owner" id="voiceCloneStatusBadge">VOCE MASTER ATTIVA</span>
+            <span class="badge badge-owner" id="voiceCloneStatusBadge">TIMBRO VOCALE CLONATO ATTIVO</span>
           </div>
 
-          <video id="masterVoiceRefVideo" src="voice_reference.mp4" preload="metadata" playsinline style="display:none;"></video>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px;margin-bottom:8px;width:100%;">
+            <button type="button" onclick="selectCoherentVoiceScript('render_campo')" class="btn btn-cyan" style="font-size:0.72rem;padding:7px 8px;">
+              🎬 1. Sviluppo Render 4K Sul Campo
+            </button>
+            <button type="button" onclick="selectCoherentVoiceScript('vizmaker_video')" class="btn" style="font-size:0.72rem;padding:7px 8px;">
+              📹 2. Video-to-Video &amp; 3D Assets
+            </button>
+            <button type="button" onclick="selectCoherentVoiceScript('mantra_ceo')" class="btn" style="font-size:0.72rem;padding:7px 8px;">
+              🧬 3. Mantra Innovazione &amp; CEO IA
+            </button>
+            <button type="button" onclick="selectCoherentVoiceScript('immobiliare_vendita')" class="btn" style="font-size:0.72rem;padding:7px 8px;">
+              🏡 4. Vendita Immobili Nuovi/Usati
+            </button>
+          </div>
+
+          <textarea
+            id="coherentVoiceScriptBox"
+            rows="3"
+            class="cmd-input"
+            style="width:100%;font-size:0.75rem;line-height:1.45;margin-bottom:8px;resize:vertical;"
+          >Benvenuti in XviDeo AI Professional Studio 4K. Direttamente dal tuo iPhone, iPad o portatile in cantiere, trasformiamo in dieci secondi qualsiasi foto, schizzo o ripresa video in viste architettoniche 4K fotorealistiche, animazioni Video-to-Video senza sfarfallio e tracciati esecutivi per AutoCAD e SketchUp. Perché ogni grande prodotto assimila il meglio della ricerca da ogni settore per offrirti la massima perfezione sul campo.</textarea>
 
           <div class="btn-row" style="margin-bottom:8px;">
             <button type="button" id="playMasterRefVoiceBtn" onclick="toggleMasterReferenceVoice()" class="btn btn-green">
-              🎙️ Ascolta Voce Master Originale (Dal Tuo Video)
+              🎙️ Ascolta Narrazione Render 4K (Voce Clonata)
             </button>
             <button type="button" onclick="speakWithClonedMasterVoice(document.getElementById('ceoNetworkLogBox')?.textContent)" class="btn btn-cyan">
-              🔊 Fai Parlare il Direttore CEO IA (Voce Clonata)
+              🔊 Fai Parlare il Direttore CEO IA (Report Rete)
             </button>
-            <label class="btn" style="cursor:pointer;">
-              📂 Aggiorna Campione Vocale (.MP4/.MP3/.WAV)
-              <input type="file" accept="video/*,audio/*" onchange="handleCustomVoiceCloneUpload(event)" class="hidden" />
-            </label>
           </div>
 
           <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:0.7rem;color:#cbd5e1;">
-            <label style="display:flex;align-items:center;gap:6px;">
-              <input type="checkbox" id="useOriginalVoiceTrackToggle" checked />
-              <span>Usa Traccia Vocale Reale del Video negli Spot Demo &amp; Presentazioni</span>
+            <label style="display:flex;align-items:center;gap:5px;">
+              <span>Timbro Clonazione (Pitch):</span>
+              <input type="range" id="voiceClonePitchSlider" min="0.7" max="1.3" step="0.02" value="0.94" style="width:85px;accent-color:#22d3ee;" />
             </label>
             <label style="display:flex;align-items:center;gap:5px;">
-              <span>Timbro (Pitch):</span>
-              <input type="range" id="voiceClonePitchSlider" min="0.7" max="1.3" step="0.02" value="0.94" style="width:75px;accent-color:#22d3ee;" />
-            </label>
-            <label style="display:flex;align-items:center;gap:5px;">
-              <span>Cadenza (Rate):</span>
-              <input type="range" id="voiceCloneRateSlider" min="0.8" max="1.25" step="0.02" value="1.02" style="width:75px;accent-color:#10b981;" />
+              <span>Cadenza Parlato (Rate):</span>
+              <input type="range" id="voiceCloneRateSlider" min="0.8" max="1.25" step="0.02" value="1.02" style="width:85px;accent-color:#10b981;" />
             </label>
           </div>
         </div>
@@ -1462,18 +1529,50 @@
       <div id="licenseErrorMsg" style="color:#F87171;font-size:0.75rem;margin-bottom:10px;display:none;"></div>
 
       <div class="btn-row" style="margin-bottom:8px;">
-        <button id="verifyLicenseBtn" class="btn btn-primary">
+        <button id="verifyLicenseBtn" class="btn btn-primary allow-spectator-view">
           ✅ Verifica &amp; Sblocca Studio
         </button>
-        <a id="buyOnGumroadBtn" href="https://gumroad.com/l/xvideo-cadbridge-4k" target="_blank" rel="noopener" class="btn btn-cyan">
+        <button type="button" onclick="authenticateWithFaceId(false)" class="btn btn-green allow-spectator-view">
+          😊 Sblocca con Face ID / Touch ID
+        </button>
+        <a id="buyOnGumroadBtn" href="https://gumroad.com/l/xvideo-cadbridge-4k" target="_blank" rel="noopener" class="btn btn-cyan allow-spectator-view">
           🛒 Acquista Licenza su Gumroad
         </a>
       </div>
 
       <div style="padding-top:8px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;color:var(--text-muted);flex-wrap:wrap;gap:6px;">
-        <span>🛡️ Sessioni 1-a-1 vincolate a singolo IP.</span>
+        <button type="button" onclick="registerBiometricFaceId()" class="btn allow-spectator-view" style="padding:5px 10px;font-size:0.7rem;color:#34d399;">
+          😊 Attiva Nuovo Face ID
+        </button>
         <button type="button" id="unlockOwnerQuickBtn" class="btn allow-spectator-view" style="padding:5px 10px;font-size:0.7rem;">
           🔓 Accesso Proprietario (Home iPhone / PC)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL RAPIDO QR CODE GIGANTE PER CONDIVISIONE ISTANTANEA 1-A-1 -->
+  <div id="qrQuickModal" class="modal-backdrop">
+    <div class="modal-card" style="text-align:center;">
+      <div class="card-header" style="justify-content:center;">
+        <div>
+          <div class="card-title">🔳 Condivisione Rapida QR Code 1-a-1</div>
+          <div class="card-subtitle" id="qrQuickModalSub">Modalità Spettatore Blindato • Blocco automatico sul 1° IP</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;margin:12px 0;">
+        <img id="qrQuickModalImg" alt="QR Code 1-a-1 Gigante" width="230" height="230" style="border-radius:14px;background:#ffffff;padding:10px;box-shadow:0 0 35px rgba(34,211,238,0.35);" />
+      </div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);margin-bottom:12px;word-break:break-all;" id="qrQuickModalUrlText"></div>
+      <div class="btn-row">
+        <button type="button" onclick="document.getElementById('shareNativeBtn')?.click()" class="btn btn-green">
+          📤 Condividi Link / WhatsApp
+        </button>
+        <button type="button" onclick="downloadInviteQrPng()" class="btn btn-cyan">
+          📥 Scarica Immagine QR
+        </button>
+        <button type="button" onclick="closeQuickQrShareModal()" class="btn">
+          Chiudi
         </button>
       </div>
     </div>
