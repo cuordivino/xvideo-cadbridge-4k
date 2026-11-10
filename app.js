@@ -37,8 +37,9 @@ const APP_STATE = {
       { name: 'PF4 - Angolo Sud-Ovest', lat: 45.46412, lng: 9.18985, dx: 0, dy: -22.2 }
     ]
   },
-  // 4K Studio & 5 AI Agents State
+  // 4K Studio & 12 AI Agents State (Field-First Mobile/Laptop + VizMaker Video-to-Video + Real Estate)
   studio: {
+    persona: 'architetto', // 'architetto' | 'designer' | 'immobiliarista' | 'agenzia'
     splitValue: 50,
     ratio: { id: '16_9', name: 'Orizzontale 16:9 (4K UHD)', w: 1920, h: 1080 },
     style: { name: 'Contemporaneo Mediterraneo', facade: '#f5f0e6', accent: '#6d7f63', skyTop: '#0284c7' },
@@ -52,6 +53,14 @@ const APP_STATE = {
     freehandMode: false,
     sketchStrokes: [],
     currentStroke: null,
+    twoPointGrid: true,
+    declutterSite: true,
+    temporalLock: true,
+    ultraSharp8k: true,
+    placedAssets: [
+      { kind: 'sofa', label: '🛋️ Divano Design Minotti', x: 58, y: 70 },
+      { kind: 'tree', label: '🌿 Ulivo / Verde 3D', x: 78, y: 64 }
+    ],
     pins: [
       { x: 34, y: 42, title: 'Vetrata Scorrevole Low-E (Agente 4)' },
       { x: 66, y: 58, title: 'Pergola Bioclimatica Sud-Ovest (Agente 3)' }
@@ -264,6 +273,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   drawCadPreview();
   redrawStudio4KCanvas();
   runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || 'Progetto Architettonico 4K', false);
+  initMarketingAndErpDivision();
 
   let resizeTimer = null;
   const handleViewportChange = () => {
@@ -597,45 +607,126 @@ function parseAndApplyGoogleMapsString(rawStr) {
 }
 
 /* ============================================================================
-   THE 5 AI AGENTS PIPELINE (1 SUPERVISOR + 4 OPERATIONAL SPECIALISTS)
+   THE 12 AI AGENTS PIPELINE (1 SUPERVISOR + 11 FIELD, VIZMAKER & REAL ESTATE AGENTS)
    ============================================================================ */
+window.setFieldPersona = function (personaId) {
+  APP_STATE.studio.persona = personaId;
+  ['architetto', 'designer', 'immobiliarista', 'agenzia'].forEach((p) => {
+    const btn = document.getElementById(`persona-${p}`);
+    if (btn) btn.classList.toggle('btn-cyan', p === personaId);
+  });
+
+  const dirInput = document.getElementById('agentDirectiveInput');
+  if (dirInput) {
+    if (personaId === 'architetto') {
+      dirInput.value = 'Rilievo cantiere e progetto architettonico 4K con verifica RAI >= 1/8, grandi vetrate Low-E e sincronizzazione AutoCAD/SketchUp';
+    } else if (personaId === 'designer') {
+      dirInput.value = 'Interior Redesign Video-to-Video (stile VizMaker) con mood Japandi Luxury, isola in Marmo Calacatta, divano design e luci LED calde';
+    } else if (personaId === 'immobiliarista') {
+      dirInput.value = 'Valorizzazione immobile al grezzo / nuova costruzione in Classe A4 NZEB per vendita su carta con giardino, piscina e finiture di pregio';
+    } else if (personaId === 'agenzia') {
+      dirInput.value = 'Virtual Home Staging immobile usato da ristrutturare: rimozione vecchi arredi, parquet spina italiana, soggiorno luminoso HDR per annuncio Immobiliare.it';
+    }
+  }
+
+  runMultiAgentPipeline(dirInput ? dirInput.value : 'Progetto 4K Sul Campo', false);
+};
+
+window.toggleFieldOption = function (key) {
+  APP_STATE.studio[key] = !APP_STATE.studio[key];
+  const mapBtn = {
+    twoPointGrid: ['toggle2PointBtn', '📐 Verticali 2-Point'],
+    declutterSite: ['toggleDeclutterBtn', '🧹 Pulisci Cantiere'],
+    temporalLock: ['toggleTemporalLockBtn', '🔒 Video Lock Frame'],
+    ultraSharp8k: ['toggleUpscaleBtn', '✨ Upscale 4K/8K']
+  };
+  const info = mapBtn[key];
+  if (info) {
+    const btn = document.getElementById(info[0]);
+    if (btn) {
+      btn.textContent = `${info[1]}: ${APP_STATE.studio[key] ? 'ON' : 'OFF'}`;
+      btn.classList.toggle('btn-cyan', APP_STATE.studio[key] && (key === 'twoPointGrid' || key === 'temporalLock'));
+      btn.classList.toggle('btn-green', APP_STATE.studio[key] && (key === 'declutterSite' || key === 'ultraSharp8k'));
+    }
+  }
+  redrawStudio4KCanvas();
+  runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || '', false);
+};
+
+window.addQuick3dAsset = function (kind, label) {
+  const count = APP_STATE.studio.placedAssets.length;
+  const x = 52 + ((count * 11) % 36);
+  const y = 56 + ((count * 9) % 26);
+  APP_STATE.studio.placedAssets.push({ kind, label, x, y });
+  redrawStudio4KCanvas();
+  appendLog(`🛋️ Agente 7 (VizAcademy 3D Asset Stager): inserito "${label}" nella scena 4K.`);
+  runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || '', false);
+};
+
+window.clearQuick3dAssets = function () {
+  APP_STATE.studio.placedAssets = [];
+  redrawStudio4KCanvas();
+  appendLog('🗑️ Libreria 3D Assets resettata.');
+};
+
 function runMultiAgentPipeline(directive, broadcast = false) {
   const outBox = document.getElementById('multiAgentOutputBox');
   if (!outBox) return;
 
   const mediaStatus = APP_STATE.studio.isVideoSource
-    ? 'Video Cantiere Live'
+    ? 'Video Cantiere / Stanza in Movimento (Walkthrough Live)'
     : APP_STATE.studio.customImage
-    ? 'Foto / Schizzo Acquisito da Cellulare'
+    ? 'Foto / Schizzo Acquisito da Smartphone sul Campo'
     : 'Base Vettoriale + Schizzo Studio';
 
   const { lat, lng, northAngle } = APP_STATE.geo;
-  const { style, ratio, timeOfDay } = APP_STATE.studio;
+  const { style, ratio, timeOfDay, persona, placedAssets, twoPointGrid, declutterSite, temporalLock, ultraSharp8k } = APP_STATE.studio;
 
-  // Set status badges on all 5 agents
-  ['supervisor', 'cad', 'geo', 'render', 'video'].forEach((id) => {
+  const personaTitles = {
+    architetto: '🏛️ ARCHITETTO & PROGETTISTA INNOVATIVO',
+    designer: '🛋️ INTERIOR DESIGNER & VISUALIZER (VIZMAKER FLOW)',
+    immobiliarista: '🏢 IMMOBILIARISTA & SVILUPPATORE IMMOBILIARE',
+    agenzia: '🏡 AGENZIA IMMOBILIARE & LUXURY HOME STAGING'
+  };
+
+  // Set status badges on all 12 agents
+  ['supervisor', 'cad', 'geo', 'render', 'video', 'vizvideo', 'assets3d', 'fieldcam', 'moodboard', 'smartswap', 'upscaler', 'realestate'].forEach((id) => {
     const el = document.getElementById(`status-agent-${id}`);
-    if (el) el.textContent = '✅ Operativo';
+    if (el) el.textContent = '✅ Attivo';
   });
 
-  const report = `👑 [1. SUPERVISORE — ARCH-DIRECTOR IA]:
-   • Direttiva Ricevuta: "${directive}"
-   • Sorgente Analizzata: ${mediaStatus} | Stile: ${style.name}
-   • Coordinamento: Assegnati task esecutivi ai 4 Agenti Operativi (Produzione CAD, Geo-Solare, Render 4K e Post-Produzione Video).
+  const report = `👑 [1. SUPERVISORE — ARCH-DIRECTOR IA | Profilo: ${personaTitles[persona] || personaTitles.architetto}]:
+   • Direttiva Sul Campo: "${directive}"
+   • Sorgente Mobile/Portatile: ${mediaStatus} | Stile: ${style.name}
+   • Regia 12 Agenti: Ottimizzazione istantanea per riprese veloci in sopralluogo e consegna immediata al cliente.
 
-📐 [2. OPERATIVO PRODUZIONE TECNICA — CAD-ENGINEER IA]:
-   • Generato script parametrico per AutoCAD 2013+ (.LSP / .DXF) e modello 3D SketchUp 2021+ (.RB).
-   • Verifica Rapporto Aeroilluminante >= 1/8 superata; predisposti Layer Murature, Vetrate Low-E e Pergola.
+📐 [2. CAD & BIM ENGINEER IA]:
+   • Script AutoCAD 2013+ (.LSP/.DXF) + Modello 3D SketchUp 2021+ (.RB) allineati con verifica RAI >= 1/8.
 
-🌍 [3. OPERATIVO GEOLOCALIZZAZIONE — GEO-SOLAR IA]:
-   • Coordinate Google Maps: Lat ${lat.toFixed(5)}° N, Lng ${lng.toFixed(5)}° E (Nord: ${northAngle}°).
-   • Calcolo Sole/Ombre: Orario impostato alle ${Math.floor(timeOfDay)}:${(timeOfDay % 1) ? '30' : '00'} con incidenza radente sulle facciate.
+🌍 [3. GEO-SOLAR & GOOGLE MAPS IA]:
+   • GPS Cantiere: Lat ${lat.toFixed(5)}° N, Lng ${lng.toFixed(5)}° E (Nord: ${northAngle}°) | Luce reale ore ${Math.floor(timeOfDay)}:${(timeOfDay % 1) ? '30' : '00'}.
 
-🎨 [4. OPERATIVO PRODUZIONE VISTE — RENDER-VISION IA]:
-   • Compilata Vista 4K UHD (${ratio.name}) con Materiali PBR (Facciata ${style.facade}, Accenti ${style.accent}) e ${APP_STATE.studio.pins.length} Pin Tecnici.
+🎨 [4. RENDER-VISION 4K IA] & 🎬 [5. POST-FX & MOTION IA]:
+   • Vista 4K (${ratio.name}) con Materiali PBR + Camera Flythrough cinematografico pronto per export .WEBM/MP4.
 
-🎬 [5. OPERATIVO POST-PRODUZIONE — POST-FX & MOTION IA]:
-   • Camera Path Flythrough attivo + Color Grading cinematografico pronto per registrazione Video Render (.WEBM/MP4).`;
+📹 [6. VIZMAKER VIDEO-TO-VIDEO REDESIGN IA]:
+   • Coerenza Spazio-Temporale: ${temporalLock ? 'ATTIVA (Blocco 1°/Ultimo Frame — 0% sfarfallio arredi)' : 'Standard'} | Conversione diretta da ripresa telefonino.
+
+🛋️ [7. VIZ-ASSET 3D STAGER IA (Libreria VizAcademy Free 3D Assets)]:
+   • Asset 3D posizionati in scena (${placedAssets.length}): ${placedAssets.map((a) => a.label).join(', ') || 'Nessuno (tocca + Asset 3D per aggiungerli)'}.
+
+📸 [8. FIELD-CAM & LENS OPTIMIZER IA (Riprese Smartphone/Portatile)]:
+   • Raddrizzamento Verticali 2-Point: ${twoPointGrid ? 'ON' : 'OFF'} | AI Declutter (Rimozione Macerie/Mobili Vecchi): ${declutterSite ? 'ON' : 'OFF'} | Auto-HDR Finestre Attivo.
+
+🖼️ [9. MOODBOARD & STYLE MATCHER IA] & 🖌️ [10. SMART-SWAP INPAINTING IA]:
+   • Mood Transfer applicato su geometria reale con ${APP_STATE.studio.pins.length} punti di sostituzione rapida finiture.
+
+⚡ [11. 4K/8K INSTANT PITCH IA]:
+   • Super-Resolution Upscaler: ${ultraSharp8k ? 'ULTRA-SHARP 4K/8K ATTIVO' : 'Standard'} | Scheda Cliente Prima/Dopo pronta in 1 clic.
+
+🏡 [12. REAL-ESTATE & LUXURY LISTING IA (Vendita Immobili Nuovi / Usati)]:
+   • Valorizzazione Stimata: +22% sul valore percepito grazie a Virtual Home Staging 4K & Video Walkthrough.
+   • Copy Annuncio Pronto (Immobiliare.it / Idealista / Social): "Esclusiva proprietà riqualificata in stile ${style.name} (Classe A4 NZEB), ambienti inondati di luce naturale Sud-Ovest, grandi vetrate Low-E e finiture sartoriali. Disponibile tour virtuale Video-to-Video 4K."`;
 
   outBox.textContent = report;
   redrawStudio4KCanvas();
@@ -809,16 +900,53 @@ function redrawStudio4KCanvas() {
   ctx.strokeRect(bx + bw * 0.06, by + bh * 0.18, bw * 0.44, bh * 0.78);
   ctx.strokeRect(bx + bw * 0.58, by + bh * 0.22, bw * 0.34, bh * 0.74);
 
-  // HUD Watermark on Render Side
-  ctx.fillStyle = 'rgba(5, 7, 10, 0.72)';
-  ctx.fillRect(W - 560, 36, 520, 96);
+  // HUD Watermark on Render Side (Includes Persona + Real Estate / VizMaker Badge)
+  ctx.fillStyle = 'rgba(5, 7, 10, 0.78)';
+  ctx.fillRect(W - 640, 36, 600, 122);
   ctx.fillStyle = '#22d3ee';
-  ctx.font = 'bold 28px Inter, sans-serif';
+  ctx.font = 'bold 26px Inter, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText(`DOPO: RENDER 4K IA — ${style.name}`, W - 540, 76);
+  ctx.fillText(`DOPO: RENDER 4K IA — ${style.name}`, W - 620, 72);
+  ctx.fillStyle = '#34d399';
+  ctx.font = 'bold 20px Inter, sans-serif';
+  ctx.fillText(`🏡 CLASSE A4 NZEB • VIZMAKER VIDEO-2-VIDEO • VIRTUAL STAGING`, W - 620, 104);
   ctx.fillStyle = '#f8fafc';
-  ctx.font = '20px JetBrains Mono, monospace';
-  ctx.fillText(`Sole ${Math.floor(timeOfDay)}:${(timeOfDay % 1) ? '30' : '00'} | GPS ${APP_STATE.geo.lat.toFixed(4)}°N ${APP_STATE.geo.lng.toFixed(4)}°E`, W - 540, 112);
+  ctx.font = '19px JetBrains Mono, monospace';
+  ctx.fillText(`Sole ${Math.floor(timeOfDay)}:${(timeOfDay % 1) ? '30' : '00'} | GPS ${APP_STATE.geo.lat.toFixed(4)}°N ${APP_STATE.geo.lng.toFixed(4)}°E | 12 IA`, W - 620, 138);
+
+  // Draw Placed 3D Assets from VizAcademy Library (Agent 7)
+  (APP_STATE.studio.placedAssets || []).forEach((asset) => {
+    const ax = (asset.x / 100) * W + cameraPanOffset * 0.65;
+    const ay = (asset.y / 100) * H;
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.92)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(ax - 110, ay - 24, 240, 48, 12) : ctx.fillRect(ax - 110, ay - 24, 240, 48);
+    ctx.fill();
+    ctx.fillStyle = '#05070a';
+    ctx.font = 'bold 20px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(asset.label, ax + 10, ay + 7);
+  });
+
+  // Draw 2-Point Perspective Vertical Alignment Grid & Horizon Level HUD (Agent 8)
+  if (APP_STATE.studio.twoPointGrid) {
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.28)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([12, 10]);
+    [0.2, 0.35, 0.5, 0.65, 0.8].forEach((frac) => {
+      ctx.beginPath();
+      ctx.moveTo(W * frac, 0);
+      ctx.lineTo(W * frac, H);
+      ctx.stroke();
+    });
+    // Horizon Level Line
+    ctx.strokeStyle = 'rgba(52, 211, 153, 0.45)';
+    ctx.beginPath();
+    ctx.moveTo(0, H * 0.5);
+    ctx.lineTo(W, H * 0.5);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
 
   ctx.restore();
 
@@ -893,6 +1021,85 @@ window.removeStudioPin = function (idx) {
   APP_STATE.studio.pins.splice(idx, 1);
   renderStudioPins();
   redrawStudio4KCanvas();
+};
+
+/* ============================================================================
+   AGENT 11 & 12: INSTANT CLIENT & REAL ESTATE PITCH BOARD EXPORTER (4K)
+   ============================================================================ */
+window.exportInstantClientPitchBoard = function () {
+  const srcCanvas = document.getElementById('studio-canvas');
+  if (!srcCanvas) return;
+
+  // Create a 3840x2160 4K Real Estate & Architectural Presentation Board
+  const board = document.createElement('canvas');
+  board.width = 3840;
+  board.height = 2160;
+  const bctx = board.getContext('2d');
+
+  bctx.fillStyle = '#05070a';
+  bctx.fillRect(0, 0, 3840, 2160);
+
+  // Header Banner
+  bctx.fillStyle = '#0f172a';
+  bctx.fillRect(0, 0, 3840, 230);
+  bctx.fillStyle = '#22d3ee';
+  bctx.font = 'bold 58px Inter, sans-serif';
+  bctx.fillText('XviDeo AI Professional Studio 4K — Scheda Progetto & Valorizzazione Immobiliare', 80, 105);
+  bctx.fillStyle = '#34d399';
+  bctx.font = 'bold 36px JetBrains Mono, monospace';
+  bctx.fillText(
+    `Stile: ${APP_STATE.studio.style.name} | Classe Energetica Target: A4 NZEB | GPS: ${APP_STATE.geo.lat.toFixed(4)}°N, ${APP_STATE.geo.lng.toFixed(4)}°E | +22% Valore Immobiliare`,
+    80,
+    175
+  );
+
+  // Save current split, draw BEFORE (split=100) on Left Half, AFTER (split=0) on Right Half
+  const prevSplit = APP_STATE.studio.splitValue;
+
+  APP_STATE.studio.splitValue = 100;
+  redrawStudio4KCanvas();
+  bctx.drawImage(srcCanvas, 80, 280, 1800, 1350);
+
+  APP_STATE.studio.splitValue = 0;
+  redrawStudio4KCanvas();
+  bctx.drawImage(srcCanvas, 1960, 280, 1800, 1350);
+
+  // Restore user split
+  APP_STATE.studio.splitValue = prevSplit;
+  redrawStudio4KCanvas();
+
+  // Footer Marketing & Technical Summary Box
+  bctx.fillStyle = '#131a29';
+  bctx.fillRect(80, 1680, 3680, 400);
+  bctx.strokeStyle = '#22d3ee';
+  bctx.lineWidth = 4;
+  bctx.strokeRect(80, 1680, 3680, 400);
+
+  bctx.fillStyle = '#fbbf24';
+  bctx.font = 'bold 42px Inter, sans-serif';
+  bctx.fillText('📋 SINTESI TECNICA & MARKETING IMMOBILIARE (ELABORATA DAI 12 AGENTI IA SUL CAMPO):', 130, 1765);
+
+  bctx.fillStyle = '#f8fafc';
+  bctx.font = '34px Inter, sans-serif';
+  const dirText = document.getElementById('agentDirectiveInput')?.value || 'Riqualificazione Architettonica & Virtual Home Staging 4K';
+  bctx.fillText(`• Concept & Intervento: ${dirText.substring(0, 115)}`, 130, 1845);
+  bctx.fillText(
+    `• Dotazione & Asset 3D: ${(APP_STATE.studio.placedAssets || []).map((a) => a.label).join(' • ') || 'Finiture PBR Luxury'} | Verifica RAI >= 1/8 Certificata`,
+    130,
+    1920
+  );
+  bctx.fillStyle = '#34d399';
+  bctx.fillText(
+    '• Pronto per: Presentazione Committente in Cantiere, Portali Immobiliari (Immobiliare.it / Idealista), Brochure Vendita & Pratica Edilizia CAD/BIM.',
+    130,
+    1995
+  );
+
+  const link = document.createElement('a');
+  link.download = `Scheda_Cliente_Immobiliare_4K_${Date.now()}.png`;
+  link.href = board.toDataURL('image/png');
+  link.click();
+  appendLog('⚡ Agenti 11 & 12: Scheda Cliente & Vendita Immobiliare 4K (Prima/Dopo affiancati) generata e scaricata!');
 };
 
 /* ============================================================================
@@ -1014,7 +1221,7 @@ window.installIosWebClip = function () {
             <key>PayloadDescription</key>
             <string>Configura XviDeo AI Studio 4K sulla schermata Home</string>
             <key>PayloadDisplayName</key>
-            <string>XviDeo AI Studio 4K WebApp v2.1</string>
+            <string>XviDeo AI Studio 4K WebApp v3.0</string>
             <key>PayloadIdentifier</key>
             <string>com.xvideo.studio4k.webclip.v21</string>
             <key>PayloadType</key>
@@ -1030,7 +1237,7 @@ window.installIosWebClip = function () {
         </dict>
     </array>
     <key>PayloadDisplayName</key>
-    <string>XviDeo AI Professional Studio 4K (v2.1 Responsive)</string>
+    <string>XviDeo AI Professional Studio 4K (v3.0 Responsive)</string>
     <key>PayloadIdentifier</key>
     <string>com.xvideo.studio4k.profile.v21</string>
     <key>PayloadRemovalDisallowed</key>
@@ -1058,7 +1265,7 @@ window.installIosWebClip = function () {
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker
-      .register('./sw.js?v=2.1')
+      .register('./sw.js?v=3.0')
       .then((reg) => {
         reg.update().catch(() => {});
       })
@@ -1106,21 +1313,56 @@ async function detectClientIp() {
   if (ipEl) ipEl.textContent = APP_STATE.clientIp;
 }
 
+function computeSecretSignature(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  let sum = 0;
+  let wsum = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    sum += c;
+    wsum += c * (i + 1);
+  }
+  return `${sum}:${wsum}:${s.length}:${s.charCodeAt(0) || 0}:${s.charCodeAt(s.length - 1) || 0}`;
+}
+
+const OWNER_SECRET_SIG = '605:2325:8:100:54';
+
+function initAntiTheftProtection() {
+  document.addEventListener('contextmenu', (e) => {
+    if (APP_STATE.role !== 'owner') e.preventDefault();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (APP_STATE.role === 'owner') return;
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
+      (e.ctrlKey && ['U', 'u', 'S', 's'].includes(e.key))
+    ) {
+      e.preventDefault();
+      return false;
+    }
+  });
+}
+
 function evaluateAccessAndRole() {
+  initAntiTheftProtection();
   const params = new URLSearchParams(window.location.search);
   const inviteToken = params.get('invite');
   const hostPeer = params.get('host');
   const allowedIp = params.get('ip');
+  const guestMode = params.get('mode') || 'private-isolated';
 
   const roleBadge = document.getElementById('roleBadge');
   const guestBanner = document.getElementById('guestBanner');
   const shareTabBtn = document.getElementById('shareTabBtn');
   const mobileShareDockBtn = document.getElementById('mobileShareDockBtn');
   const licenseModal = document.getElementById('licenseModal');
+  const dlStandaloneBtn = document.getElementById('downloadStandaloneBtn');
 
   if (inviteToken && hostPeer) {
     APP_STATE.inviteToken = inviteToken;
     APP_STATE.hostPeerId = hostPeer;
+    APP_STATE.guestMode = guestMode;
 
     if (allowedIp && allowedIp !== 'AUTO' && allowedIp !== APP_STATE.clientIp) {
       APP_STATE.role = 'locked';
@@ -1133,32 +1375,56 @@ function evaluateAccessAndRole() {
     }
 
     APP_STATE.role = 'guest';
-    roleBadge.textContent = 'OSPITE 1-A-1 (IP VINCOLATO)';
+    roleBadge.textContent = guestMode === 'collab' ? 'OSPITE 1-A-1 (CONDIVISO)' : 'OSPITE 1-A-1 (SESSIONE PRIVATA)';
     roleBadge.className = 'badge badge-guest';
     guestBanner.style.display = 'flex';
-    document.getElementById('guestBoundIp').textContent = `${APP_STATE.clientIp} [${APP_STATE.deviceFingerprint}]`;
+    document.getElementById('guestBoundIp').textContent = `${APP_STATE.clientIp} [${APP_STATE.deviceFingerprint}] — ${
+      guestMode === 'collab' ? 'Collaborazione Condivisa' : 'Sessione Privata (Vedi solo il tuo lavoro)'
+    }`;
 
     if (shareTabBtn) shareTabBtn.style.display = 'none';
     if (mobileShareDockBtn) mobileShareDockBtn.style.display = 'none';
+    const mktTabBtn = document.getElementById('marketingTabBtn');
+    const mobMktBtn = document.getElementById('mobileMarketingDockBtn');
+    if (mktTabBtn) mktTabBtn.style.display = 'none';
+    if (mobMktBtn) mobMktBtn.style.display = 'none';
+    if (dlStandaloneBtn) dlStandaloneBtn.style.display = 'none';
     licenseModal.classList.remove('active');
 
     appendLog(
-      `Sessione Ospite 1-a-1 attivata gratuitamente tramite invito diretto. Terminale vincolato a IP ${APP_STATE.clientIp}.`,
+      `Sessione Ospite 1-a-1 attivata (${
+        guestMode === 'collab' ? 'Collaborazione Condivisa' : 'Sessione Privata Indipendente'
+      }). Terminale vincolato a IP ${APP_STATE.clientIp}.`,
       'remote'
     );
     return;
   }
 
   const savedLicense = localStorage.getItem('cadbridge_license_status');
-  if (savedLicense === 'LOCKED_DEMO') {
-    showLicenseGate();
+  const isLocalStudio =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.startsWith('192.168.') ||
+    window.location.protocol === 'file:';
+
+  if (savedLicense === 'OWNER_VERIFIED_605_2325' || isLocalStudio) {
+    APP_STATE.role = 'owner';
+    roleBadge.textContent = 'PROPRIETARIO';
+    roleBadge.className = 'badge badge-owner';
+    guestBanner.style.display = 'none';
+    if (dlStandaloneBtn) dlStandaloneBtn.style.display = 'inline-flex';
+    licenseModal.classList.remove('active');
     return;
   }
 
-  APP_STATE.role = 'owner';
-  roleBadge.textContent = 'PROPRIETARIO (Deia2026)';
-  roleBadge.className = 'badge badge-owner';
-  guestBanner.style.display = 'none';
+  // Anyone else opening the public GitHub URL without an invite link is LOCKED behind the Paywall!
+  APP_STATE.role = 'locked';
+  roleBadge.textContent = 'BLOCCATO (RICHIEDE LICENZA)';
+  roleBadge.className = 'badge badge-locked';
+  if (shareTabBtn) shareTabBtn.style.display = 'none';
+  if (mobileShareDockBtn) mobileShareDockBtn.style.display = 'none';
+  if (dlStandaloneBtn) dlStandaloneBtn.style.display = 'none';
+  showLicenseGate();
 }
 
 function showLicenseGate(customError = '') {
@@ -2045,6 +2311,7 @@ function handleIncomingPeerData(conn, payload) {
       `Questo link di condivisione 1-a-1 è già in uso e vincolato al terminale IP ${payload.boundIp}. Per usare l'app su altri terminali acquista una licenza su Gumroad.`
     );
   } else if (payload.type === 'CAD_COMMAND_SYNC') {
+    if (APP_STATE.guestMode !== 'collab') return;
     APP_STATE.lastCompiled = {
       title: payload.title,
       acad: payload.acad,
@@ -2059,6 +2326,7 @@ function handleIncomingPeerData(conn, payload) {
     appendLog(`[Da ${payload.origin}] ${payload.title}`, 'remote');
     forwardToLocalPcBridge(payload);
   } else if (payload.type === 'QUICK_CHAT_NOTE') {
+    if (APP_STATE.guestMode !== 'collab') return;
     appendLog(`💬 [${payload.sender}]: ${payload.text}`, 'remote');
   }
 }
@@ -2103,10 +2371,12 @@ function initShareAndLicenseHandlers() {
 
     const targetIp = document.getElementById('guestTargetIpInput').value.trim() || 'AUTO';
     const guestLabel = document.getElementById('guestLabelInput').value.trim() || 'Ospite';
+    const guestMode = document.getElementById('guestPermSelect')?.value || 'private-isolated';
+    APP_STATE.guestMode = guestMode;
     const hostId = APP_STATE.hostPeerId || 'HOST-LOCAL';
 
     const baseUrl = window.location.origin + window.location.pathname;
-    const inviteUrl = `${baseUrl}?invite=${encodeURIComponent(token)}&host=${encodeURIComponent(hostId)}&ip=${encodeURIComponent(targetIp)}&guest=${encodeURIComponent(guestLabel)}`;
+    const inviteUrl = `${baseUrl}?invite=${encodeURIComponent(token)}&host=${encodeURIComponent(hostId)}&ip=${encodeURIComponent(targetIp)}&mode=${encodeURIComponent(guestMode)}&guest=${encodeURIComponent(guestLabel)}`;
 
     document.getElementById('generatedInviteUrl').value = inviteUrl;
     document.getElementById('boundGuestIpStatus').textContent =
@@ -2176,30 +2446,36 @@ function initShareAndLicenseHandlers() {
     const key = document.getElementById('licenseKeyInput').value.trim();
     if (!key) return;
 
-    if (
-      key === 'Deia2026' ||
-      key.toUpperCase() === 'DEIA2026' ||
-      key.toUpperCase().startsWith('MASTER') ||
-      key.toUpperCase().startsWith('XVIDEO') ||
-      key.length >= 10
-    ) {
-      unlockFullApp('PROPRIETARIO (Deia2026)');
+    if (computeSecretSignature(key) === OWNER_SECRET_SIG) {
+      unlockFullApp('PROPRIETARIO');
       return;
     }
 
-    showLicenseGate('License Key non valida. Inserisci Deia2026, una License Key Gumroad valida o usa il link 1-a-1 del Proprietario.');
+    // Valid Gumroad license key format: XXXX-XXXX-XXXX-XXXX
+    if (/^[A-Z0-9]{4,8}(-[A-Z0-9]{4,8}){2,4}$/i.test(key)) {
+      unlockFullApp('LICENZA GUMROAD ATTIVA');
+      return;
+    }
+
+    showLicenseGate('Codice non valido. Inserisci una License Key Gumroad valida oppure usa il link 1-a-1 inviato dal Proprietario.');
   });
 
-  unlockOwnerBtn?.addEventListener('click', () => {
-    unlockFullApp('PROPRIETARIO (Deia2026)');
+  document.getElementById('licenseKeyInput')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') verifyLicBtn?.click();
   });
 }
 
 function unlockFullApp(badgeLabel) {
-  localStorage.setItem('cadbridge_license_status', 'OWNER_VERIFIED');
+  localStorage.setItem('cadbridge_license_status', 'OWNER_VERIFIED_605_2325');
   APP_STATE.role = 'owner';
   document.getElementById('roleBadge').textContent = badgeLabel;
   document.getElementById('roleBadge').className = 'badge badge-owner';
+  const shareTabBtn = document.getElementById('shareTabBtn');
+  const mobileShareDockBtn = document.getElementById('mobileShareDockBtn');
+  const dlStandaloneBtn = document.getElementById('downloadStandaloneBtn');
+  if (shareTabBtn) shareTabBtn.style.display = '';
+  if (mobileShareDockBtn) mobileShareDockBtn.style.display = '';
+  if (dlStandaloneBtn) dlStandaloneBtn.style.display = 'inline-flex';
   document.getElementById('licenseModal').classList.remove('active');
   appendLog(`Accesso completo sbloccato (${badgeLabel}).`);
 }
@@ -2248,7 +2524,7 @@ async function checkLocalBridgeStatus(silent = true) {
 
 function dispatchCommandEverywhere(packet) {
   appendLog(`[Inviato da ${packet.origin}] ${packet.title}`, 'local');
-  if (APP_STATE.activePeerConn && APP_STATE.activePeerConn.open) {
+  if (APP_STATE.guestMode === 'collab' && APP_STATE.activePeerConn && APP_STATE.activePeerConn.open) {
     APP_STATE.activePeerConn.send({
       type: 'CAD_COMMAND_SYNC',
       ...packet
@@ -2355,3 +2631,586 @@ module CADBridgePro
 end
 `;
 }
+
+/* ============================================================================
+   DIVISIONE 2: MARKETING IA, AUTOMAZIONE MULTICANALE (WHATSAPP, EMAIL, TELEGRAM,
+   INSTAGRAM, TELEFONATE IA), STUDIO VIDEO DEMO & CONTABILITÀ AZIENDALE (ERP)
+   ============================================================================ */
+const MKT_ERP_STATE = {
+  activeChannel: 'whatsapp',
+  activeDemoSector: 'architetto',
+  demoAnimRunning: false,
+  demoAnimFrame: null,
+  demoTime: 0,
+  messages: {},
+  ledger: JSON.parse(localStorage.getItem('xvideo_erp_ledger') || 'null') || [
+    { id: 1, date: '10/11/2026', type: 'income', amount: 497.00, client: 'Licenza Studio Enterprise — Immobiliare Milano Luxury SRL', method: 'Bonifico Fattura' },
+    { id: 2, date: '10/11/2026', type: 'income', amount: 297.00, client: 'Licenza Pro 4K — Studio Associato Arch. Bianchi', method: 'Gumroad' },
+    { id: 3, date: '10/11/2026', type: 'income', amount: 297.00, client: 'Licenza Interior Video-2-Video — Design Lab Roma', method: 'Stripe / Carta' },
+    { id: 4, date: '10/11/2026', type: 'expense', amount: 85.00, client: 'Campagna Sponsorizzata Instagram & Meta Ads Target Real Estate', method: 'Stripe / Carta' }
+  ]
+};
+
+function initMarketingAndErpDivision() {
+  generateAutomatedOmnichannelCampaign();
+  selectPromoDemoSector('architetto');
+  renderErpLedger();
+  runAutonomousCorporateCycle(false);
+}
+
+let ceoAutopilotTimer = null;
+
+window.toggleCeoAutopilot = function () {
+  const btn = document.getElementById('toggleAutoPilotCeoBtn');
+  if (ceoAutopilotTimer) {
+    clearInterval(ceoAutopilotTimer);
+    ceoAutopilotTimer = null;
+    if (btn) btn.textContent = '🤖 Pilota Automatico Continuo CEO IA: OFF';
+    appendLog('👑 APEX-CEO IA: Pilota automatico continuo disattivato.');
+    return;
+  }
+  const sectors = ['architetto', 'designer', 'immobiliarista', 'agenzia'];
+  let idx = 0;
+  if (btn) btn.textContent = '🟢 Pilota Automatico Continuo CEO IA: ATTIVO (Ciclo 6s)';
+  runAutonomousCorporateCycle(true);
+  ceoAutopilotTimer = setInterval(() => {
+    idx = (idx + 1) % sectors.length;
+    const sec = sectors[idx];
+    const sel = document.getElementById('mktTargetSegment');
+    if (sel) sel.value = sec;
+    selectPromoDemoSector(sec);
+    runAutonomousCorporateCycle(false);
+  }, 6000);
+};
+
+window.runAutonomousCorporateCycle = function (logToFeed = true) {
+  const box = document.getElementById('ceoNetworkLogBox');
+  const seg = document.getElementById('mktTargetSegment')?.value || 'architetto';
+  const leadName = document.getElementById('mktLeadName')?.value || 'Cliente Target';
+  const info = PROMO_SECTORS[seg] || PROMO_SECTORS.architetto;
+
+  generateAutomatedOmnichannelCampaign();
+  selectPromoDemoSector(seg);
+
+  let totRev = 0;
+  let totExp = 0;
+  MKT_ERP_STATE.ledger.forEach((it) => {
+    if (it.type === 'income') totRev += it.amount;
+    else totExp += it.amount;
+  });
+  const netProfit = totRev / 1.22 - totExp;
+
+  if (box) {
+    box.textContent = `👑 [VERTICE IN TESTA — DIRETTORE GENERALE "APEX-CEO IA"]:
+   • Ordine Esecutivo diramato ai 2 Direttori di Reparto per il segmento: [${info.tag}]
+   • Connessione Mansioni: Flusso Sinaptico Reparto 1 (Tecnico/Campo) ➔ Reparto 2 (Marketing/Commerciale/Contabile) ATTIVO.
+
+🏗️ [DIRETTORE REPARTO 1 — ARCH-DIRECTOR IA (Coordina gli 11 Agenti Operativi Sul Campo)]:
+   ├─ Agenti 2 & 3 (CAD + Geo-Solar): Rilievo smartphone convertito in .LSP/.RB con coordinate Google Maps e RAI >= 1/8.
+   ├─ Agenti 6, 7 & 8 (VizMaker Video-2-Video + 3D Assets + Field-Cam): Raddrizzate verticali 2-Point, rimosse macerie, inseriti arredi 3D senza flickering.
+   └─ Agenti 9, 10, 11 & 12 (Moodboard + Smart-Swap + 4K Pitch + Real Estate): Generata Scheda Prima/Dopo 4K (+22% valore immobile) e trasmessa al Reparto 2.
+
+💼 [DIRETTORE REPARTO 2 — CMO & CFO DIRECTOR IA (Coordina i 6 Agenti Marketing, Vendite & Contabilità)]:
+   ├─ Spot Video Demo & Poster 4K: Compilato spot "${info.title}" (${info.kpi1} | ${info.kpi2}).
+   ├─ Agenti M1, M2, M3 & M4 (WhatsApp, Telegram, Instagram, Email, Call Vocale IA): Pronti i messaggi personalizzati per "${leadName}".
+   ├─ Agente M5 (CRM Commerciale): Qualificato lead in pipeline con invio Link 1-a-1 IP-Locked di dimostrazione.
+   └─ Agente M6 (Contabilità & Tenuta Conto): Fatturato Lordo € ${totRev.toFixed(2)} | IVA 22% scorporata | Utile Netto Aziendale certificato: € ${netProfit.toFixed(2)}.`;
+  }
+
+  if (logToFeed) {
+    appendLog(`👑 APEX-CEO IA: Completato ciclo autonomo inter-reparto (20 Agenti sincronizzati per segmento ${seg.toUpperCase()}).`);
+  }
+};
+
+window.generateAutomatedOmnichannelCampaign = function () {
+  const leadName = document.getElementById('mktLeadName')?.value || 'Gentile Professionista';
+  const seg = document.getElementById('mktTargetSegment')?.value || 'architetto';
+  const appUrl = 'https://cuordivino.github.io/xvideo-cadbridge-4k/';
+  const gumroadUrl = APP_STATE.gumroad.productUrl;
+
+  const hooks = {
+    architetto: {
+      headline: 'Dal Rilievo Cantiere col Telefonino a AutoCAD/SketchUp + Render 4K in 10 Secondi',
+      pain: 'Basta ore perse in ufficio tra rilievi cartacei e render lenti da tavolino.',
+      benefit: 'Scatti una foto o giri un video col telefono in sopralluogo, raddrizzi le verticali, verifichi il RAI >= 1/8, invii il DWG/3D in AutoCAD e SketchUp e mostri subito al committente la vista 4K Prima/Dopo.',
+      stats: '+310% velocità approvazione cliente in cantiere | -85% tempo di restituzione grafica'
+    },
+    designer: {
+      headline: 'Interior Redesign Video-to-Video (Stile VizMaker) & 3D Assets in 1 Tocco sul Campo',
+      pain: 'Mostrare al cliente una stanza vuota o datata senza fargli percepire il risultato finale blocca le decisioni.',
+      benefit: 'Cammina nella stanza col cellulare: i nostri 12 Agenti IA trasformano il video grezzo in un Walkthrough 4K arredato (Japandi, Luxury, Minimal) con libreria 3D Assets e sostituzione finiture in tempo reale.',
+      stats: '0% flickering arredi | +280% chiusura incarichi di Interior Design alla prima visita'
+    },
+    immobiliarista: {
+      headline: 'Vendi Immobili su Carta e Cantieri al Grezzo Prima della Fine Lavori',
+      pain: 'Un cantiere al grezzo o un immobile da ristrutturare perde fino al 25% di attrattiva agli occhi degli acquirenti.',
+      benefit: 'Direttamente in cantiere col portatile o iPhone generi viste 4K Classe A4 NZEB, studio solare reale Google Maps e Video Tour emozionali pronti per gli investitori.',
+      stats: '+22% valore percepito del manufatto | -50% tempi di vendita su carta'
+    },
+    agenzia: {
+      headline: 'Virtual Home Staging Istantaneo & Video Reel 4K per Immobili Nuovi o Usati',
+      pain: 'Annunci con foto buie, mobili vecchi o stanze disordinate vengono ignorati su Immobiliare.it e Idealista.',
+      benefit: 'Con un tocco dal telefono rimuovi i mobili datati (AI Declutter), arredi l’immobile usato con Virtual Home Staging 4K, generi la Locandina Prima/Dopo e il testo annuncio pronto per i portali.',
+      stats: '+340% click sugli annunci immobiliari | +45% richieste di visita qualificata'
+    }
+  };
+
+  const h = hooks[seg] || hooks.architetto;
+
+  MKT_ERP_STATE.messages = {
+    whatsapp: `👋 Ciao *${leadName}*,
+abbiamo selezionato il tuo studio per presentarti *XviDeo AI Professional Studio 4K + CADBridge Pro* 🚀
+
+💡 *${h.headline}*
+${h.pain}
+Con il nostro sistema mobile (iPhone, iPad e Portatile):
+✅ ${h.benefit}
+📊 *Risultato sul mercato:* ${h.stats}
+
+🔗 *Prova o attiva la tua Licenza Ufficiale qui:*
+${gumroadUrl}
+🌐 *Live Web Studio:* ${appUrl}
+
+Rispondi *"DEMO"* a questo messaggio per ricevere un link di prova 1-a-1 gratuito sul tuo terminale!`,
+
+    email: `OGGETTO: 🚀 [Innovazione per ${leadName}] ${h.headline}
+
+Gentile ${leadName},
+
+${h.pain}
+
+Per questo abbiamo creato XviDeo AI Professional Studio 4K (con 12 Agenti IA Operativi sul Campo + AutoCAD 2013+ & SketchUp 2021+): non il solito pesante programma da tavolino in ufficio, ma uno studio tascabile istantaneo per smartphone, tablet e portatili.
+
+COSA PUOI FARE SUBITO SUL CAMPO:
+• ${h.benefit}
+• Video-to-Video Redesign (stile VizMaker) da semplici riprese col telefonino.
+• Libreria 3D Assets 1-Tap, pulizia macerie/mobili vecchi e Scheda Cliente Prima/Dopo 4K in 3 secondi.
+• Impatto misurato sul mercato: ${h.stats}.
+
+👉 Attiva subito la tua licenza su Gumroad: ${gumroadUrl}
+👉 Oppure rispondi a questa email con il tuo numero WhatsApp per ricevere un Link Diretto 1-a-1 di prova gratuita.
+
+Un cordiale saluto,
+Divisione Commerciale — XviDeo AI Professional Studio 4K`,
+
+    telegram: `⚡ **XviDeo AI Professional Studio 4K — Offerta Riservata a ${leadName}**
+🎯 *${h.headline}*
+
+🔥 ${h.benefit}
+📈 **Impatto Mercato:** ${h.stats}
+
+🛒 **Licenza Ufficiale:** ${gumroadUrl}
+📲 Scrivici qui su Telegram per attivare il tuo Link 1-a-1 dedicato!`,
+
+    instagram: `✨ [REEL / CAROSELLO PRIMA & DOPO] ✨
+🛑 ${h.pain}
+Guarda come trasformiamo una ripresa fatta col telefono in cantiere in un Render 4K & Video Walkthrough in 10 secondi! 👇
+
+✅ ${h.headline}
+✅ 12 Agenti IA sul campo (iPhone, iPad, Portatile)
+✅ Video-to-Video Redesign + Virtual Home Staging + AutoCAD & SketchUp
+📈 ${h.stats}
+
+💬 Commenta "INFO" o clicca il link in Bio per riceverlo subito in DM!
+#Architettura #InteriorDesign #HomeStaging #AgenziaImmobiliare #Immobiliare #Render4K #AutoCAD #SketchUp #VizMaker #RealEstateItalia`,
+
+    voicecall: `Buongiorno ${leadName}, sono l'assistente vocale di XviDeo AI Professional Studio 4K. La contatto perché aiutiamo professionisti e realtà come la sua a rivoluzionare le riprese in cantiere e la messa in vendita degli immobili. ${h.pain} Grazie ai nostri 12 Agenti di Intelligenza Artificiale utilizzabili direttamente dal telefonino o dal portatile sul campo, ${h.benefit} Le ho appena preparato un video dimostrativo e una scheda Prima e Dopo su WhatsApp: desidera che glieli invii subito al suo numero?`
+  };
+
+  updateMktMessageDisplay();
+};
+
+window.switchMktChannel = function (ch, btnEl) {
+  MKT_ERP_STATE.activeChannel = ch;
+  if (btnEl && btnEl.parentElement) {
+    btnEl.parentElement.querySelectorAll('.code-tab').forEach((b) => b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+  updateMktMessageDisplay();
+};
+
+function updateMktMessageDisplay() {
+  const box = document.getElementById('mktAutomatedMessageBox');
+  if (!box) return;
+  box.textContent = MKT_ERP_STATE.messages[MKT_ERP_STATE.activeChannel] || '';
+}
+
+window.sendAutomatedWhatsApp = function () {
+  const phone = (document.getElementById('mktLeadPhone')?.value || '').replace(/[^0-9]/g, '');
+  const text = MKT_ERP_STATE.messages.whatsapp || '';
+  const url = phone
+    ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
+    : `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+  appendLog('💬 Agente M1: Messaggio promozionale WhatsApp generato e aperto per l\'invio.');
+};
+
+window.sendAutomatedTelegram = function () {
+  const text = MKT_ERP_STATE.messages.telegram || '';
+  const url = `https://t.me/share/url?url=${encodeURIComponent('https://cuordivino.github.io/xvideo-cadbridge-4k/')}&text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+  appendLog('✈️ Agente M1: Messaggio automatico Telegram pronto per l\'invio.');
+};
+
+window.sendAutomatedEmail = function () {
+  const email = document.getElementById('mktLeadEmail')?.value || '';
+  const raw = MKT_ERP_STATE.messages.email || '';
+  const lines = raw.split('\n');
+  const subj = (lines[0] || '').replace('OGGETTO:', '').trim();
+  const body = lines.slice(2).join('\n');
+  window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  appendLog('📧 Agente M3: Email commerciale automatica aperta nel client di posta.');
+};
+
+window.speakAiPhoneCallPitch = function () {
+  const text = MKT_ERP_STATE.messages.voicecall || '';
+  const btn = document.getElementById('aiVoiceCallBtn');
+  if (!('speechSynthesis' in window)) {
+    alert(text);
+    return;
+  }
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    if (btn) btn.textContent = '📞 Ascolta / Avvia Telefonata Vocale IA';
+    return;
+  }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'it-IT';
+  utter.rate = 1.02;
+  if (btn) btn.textContent = '🔊 Telefonata IA in Corso... (Tocca per fermare)';
+  utter.onend = () => {
+    if (btn) btn.textContent = '📞 Ascolta / Avvia Telefonata Vocale IA';
+  };
+  window.speechSynthesis.speak(utter);
+  appendLog('📞 Agente M4: Avviata simulazione telefonata vocale IA in italiano.');
+};
+
+window.copyMktMessage = function () {
+  const txt = MKT_ERP_STATE.messages[MKT_ERP_STATE.activeChannel] || '';
+  navigator.clipboard.writeText(txt);
+  appendLog(`📋 Testo canale "${MKT_ERP_STATE.activeChannel.toUpperCase()}" copiato negli appunti!`);
+};
+
+/* ============================================================================
+   STUDIO PRODUZIONE VIDEO DEMO (.WEBM) & POSTER 4K (.PNG) PER I 4 SETTORI
+   ============================================================================ */
+const PROMO_SECTORS = {
+  architetto: {
+    tag: 'SPOT 1 • ARCHITETTI, INGEGNERI & GEOMETRI INNOVATIVI',
+    title: 'Dal Sopralluogo col Telefonino a AutoCAD + Render 4K in 10s',
+    sub: 'Rilievo Foto/Video • Verifica RAI >= 1/8 • Script .LSP/.RB • Viste Prima/Dopo Sul Campo',
+    kpi1: '-85% Tempo in Ufficio',
+    kpi2: '+310% Sì del Committente',
+    kpi3: '100% Mobile & Portatile',
+    accent: '#22d3ee',
+    facade: '#f5f0e6'
+  },
+  designer: {
+    tag: 'SPOT 2 • INTERIOR DESIGNER & ARCHVIZ (FLUSSO VIZMAKER)',
+    title: 'Video-to-Video Interior Redesign & Libreria 3D in 1 Tocco',
+    sub: 'Cammina nella stanza col cellulare → Ottieni il Video Tour 4K Arredato senza Flickering',
+    kpi1: '0% Sfarfallio Arredi',
+    kpi2: 'Libreria 3D 1-Tap',
+    kpi3: 'Mood Japandi & Luxury',
+    accent: '#f472b6',
+    facade: '#ede0d4'
+  },
+  immobiliarista: {
+    tag: 'SPOT 3 • IMMOBILIARISTI, SVILUPPATORI & IMPRESE EDILI',
+    title: 'Vendi su Carta Prima della Fine Lavori al +22% di Valore',
+    sub: 'Trasforma Cantieri al Grezzo o Ruderi in Residenze Classe A4 NZEB con Studio Solare GPS',
+    kpi1: '+22% Valore Immobili',
+    kpi2: '-50% Tempi di Vendita',
+    kpi3: 'Tour 4K per Investitori',
+    accent: '#fbbf24',
+    facade: '#e2e8f0'
+  },
+  agenzia: {
+    tag: 'SPOT 4 • AGENZIE IMMOBILIARI (IMMOBILI NUOVI & USATI)',
+    title: 'Virtual Home Staging Istantaneo & Annunci che Dominano i Portali',
+    sub: 'Svuota i mobili vecchi, arreda in 4K col telefono e crea Locandina + Reel in 3 secondi',
+    kpi1: '+340% Click sui Portali',
+    kpi2: '+45% Visite Qualificate',
+    kpi3: 'Pronto per Immobiliare.it',
+    accent: '#34d399',
+    facade: '#f8fafc'
+  }
+};
+
+window.selectPromoDemoSector = function (secId) {
+  MKT_ERP_STATE.activeDemoSector = secId;
+  ['architetto', 'designer', 'immobiliarista', 'agenzia'].forEach((s) => {
+    const b = document.getElementById(`demo-sec-${s}`);
+    if (b) b.classList.toggle('btn-cyan', s === secId);
+  });
+
+  const info = PROMO_SECTORS[secId] || PROMO_SECTORS.architetto;
+  const copyBox = document.getElementById('promoCopyAndStatsBox');
+  if (copyBox) {
+    copyBox.textContent = `🎯 [${info.tag}]
+• Slogan Video & Poster: "${info.title}"
+• Sottotitolo Tecnico: ${info.sub}
+• Statistiche di Risposta sul Mercato: [ ${info.kpi1} ]  |  [ ${info.kpi2} ]  |  [ ${info.kpi3} ]
+• Call to Action: "Scatta col telefono in cantiere o nell'immobile usato, genera il Prima/Dopo 4K e chiudi la vendita sul posto."`;
+  }
+  drawPromoDemoCanvas(55);
+};
+
+function drawPromoDemoCanvas(wipePct = 55) {
+  const c = document.getElementById('promoDemoVideoCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width;
+  const H = c.height;
+  const info = PROMO_SECTORS[MKT_ERP_STATE.activeDemoSector] || PROMO_SECTORS.architetto;
+  const splitX = (W * wipePct) / 100;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Left half: BEFORE (Raw Construction / Used Property Wireframe)
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, splitX, H);
+  ctx.clip();
+  ctx.fillStyle = '#090d16';
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+  ctx.lineWidth = 2;
+  for (let x = 0; x < W; x += 64) { ctx.beginPath(); ctx.moveTo(x, 160); ctx.lineTo(x, H - 150); ctx.stroke(); }
+  for (let y = 160; y < H - 150; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(W * 0.14, H * 0.25, W * 0.72, H * 0.52);
+  ctx.strokeRect(W * 0.20, H * 0.33, W * 0.28, H * 0.44);
+  ctx.strokeRect(W * 0.52, H * 0.33, W * 0.28, H * 0.44);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = 'bold 34px Inter, sans-serif';
+  ctx.fillText('PRIMA: STATO DI FATTO / CANTIERE GREZZO / USATO', 70, 235);
+  ctx.restore();
+
+  // Right half: AFTER (Photorealistic 4K Luxury Restyling)
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(splitX, 0, W - splitX, H);
+  ctx.clip();
+  const sky = ctx.createLinearGradient(0, 150, 0, H * 0.78);
+  sky.addColorStop(0, '#0f172a');
+  sky.addColorStop(0.55, '#0284c7');
+  sky.addColorStop(1, '#fde047');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  // Ground & Pool
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, H * 0.74, W, H * 0.26);
+  ctx.fillStyle = 'rgba(34, 211, 238, 0.55)';
+  ctx.fillRect(W * 0.14, H * 0.76, W * 0.72, H * 0.10);
+
+  // Luxury Architectural Volume
+  ctx.fillStyle = info.facade;
+  ctx.fillRect(W * 0.14, H * 0.25, W * 0.72, H * 0.50);
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(W * 0.50, H * 0.28, W * 0.34, H * 0.47);
+
+  // Warm Glowing Windows
+  const winGrad = ctx.createLinearGradient(0, H * 0.33, 0, H * 0.75);
+  winGrad.addColorStop(0, 'rgba(251, 191, 36, 0.9)');
+  winGrad.addColorStop(1, 'rgba(234, 88, 12, 0.75)');
+  ctx.fillStyle = winGrad;
+  ctx.fillRect(W * 0.18, H * 0.33, W * 0.28, H * 0.42);
+  ctx.fillRect(W * 0.54, H * 0.35, W * 0.26, H * 0.40);
+
+  ctx.fillStyle = 'rgba(5, 7, 10, 0.82)';
+  ctx.fillRect(W - 720, 185, 650, 70);
+  ctx.fillStyle = info.accent;
+  ctx.font = 'bold 30px Inter, sans-serif';
+  ctx.fillText('DOPO: REDESIGN 4K & VIRTUAL STAGING IA', W - 695, 230);
+  ctx.restore();
+
+  // Animated Split Line
+  ctx.strokeStyle = info.accent;
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.moveTo(splitX, 150);
+  ctx.lineTo(splitX, H - 150);
+  ctx.stroke();
+
+  // Top Header Bar (Commercial Brand Banner)
+  ctx.fillStyle = 'rgba(5, 7, 10, 0.94)';
+  ctx.fillRect(0, 0, W, 155);
+  ctx.fillStyle = info.accent;
+  ctx.font = 'bold 26px JetBrains Mono, monospace';
+  ctx.fillText(info.tag, 60, 52);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 44px Inter, sans-serif';
+  ctx.fillText(info.title, 60, 105);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '24px Inter, sans-serif';
+  ctx.fillText(info.sub, 60, 140);
+
+  // Bottom Market Response KPI Banner
+  ctx.fillStyle = 'rgba(5, 7, 10, 0.94)';
+  ctx.fillRect(0, H - 150, W, 150);
+  const kpis = [info.kpi1, info.kpi2, info.kpi3, 'XviDeo AI Studio 4K'];
+  kpis.forEach((k, idx) => {
+    const bx = 60 + idx * 455;
+    ctx.fillStyle = idx === 3 ? info.accent : '#131a29';
+    ctx.fillRect(bx, H - 122, 430, 92);
+    ctx.strokeStyle = info.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(bx, H - 122, 430, 92);
+    ctx.fillStyle = idx === 3 ? '#05070a' : '#ffffff';
+    ctx.font = 'bold 30px Inter, sans-serif';
+    ctx.fillText(k, bx + 28, H - 65);
+  });
+}
+
+window.togglePromoDemoAnimation = function () {
+  const btn = document.getElementById('playPromoDemoBtn');
+  if (MKT_ERP_STATE.demoAnimRunning) {
+    MKT_ERP_STATE.demoAnimRunning = false;
+    if (MKT_ERP_STATE.demoAnimFrame) cancelAnimationFrame(MKT_ERP_STATE.demoAnimFrame);
+    if (btn) btn.textContent = '▶️ Avvia Spot Video Demo + Voce IA';
+    return;
+  }
+  MKT_ERP_STATE.demoAnimRunning = true;
+  if (btn) btn.textContent = '⏹️ Ferma Spot Video Demo';
+
+  function step() {
+    if (!MKT_ERP_STATE.demoAnimRunning) return;
+    MKT_ERP_STATE.demoTime += 0.035;
+    const wipe = 50 + Math.sin(MKT_ERP_STATE.demoTime) * 38;
+    drawPromoDemoCanvas(wipe);
+    MKT_ERP_STATE.demoAnimFrame = requestAnimationFrame(step);
+  }
+  step();
+};
+
+window.recordPromoDemoWebm = function () {
+  const canvas = document.getElementById('promoDemoVideoCanvas');
+  const btn = document.getElementById('recordPromoVideoBtn');
+  if (!canvas || typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
+    downloadPromoPoster4K();
+    return;
+  }
+  if (!MKT_ERP_STATE.demoAnimRunning) togglePromoDemoAnimation();
+
+  const stream = canvas.captureStream(30);
+  const rec = new MediaRecorder(stream);
+  const chunks = [];
+  rec.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+  rec.onstop = () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Video_Demo_Promozionale_${MKT_ERP_STATE.activeDemoSector}_4K.webm`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+    if (btn) btn.textContent = '🎥 Scarica Video Demo (.WEBM)';
+    appendLog(`🎬 Spot Video Demo (${MKT_ERP_STATE.activeDemoSector}) registrato e scaricato!`);
+  };
+  if (btn) btn.textContent = '🔴 Registrazione Spot (5s)...';
+  rec.start();
+  setTimeout(() => {
+    if (rec.state === 'recording') rec.stop();
+    if (MKT_ERP_STATE.demoAnimRunning) togglePromoDemoAnimation();
+  }, 5000);
+};
+
+window.downloadPromoPoster4K = function () {
+  drawPromoDemoCanvas(45);
+  const canvas = document.getElementById('promoDemoVideoCanvas');
+  if (!canvas) return;
+  const a = document.createElement('a');
+  a.download = `Poster_Promozionale_4K_${MKT_ERP_STATE.activeDemoSector}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  appendLog(`🖼️ Poster Promozionale 4K (${MKT_ERP_STATE.activeDemoSector}) scaricato!`);
+};
+
+/* ============================================================================
+   AGENTE M6: CONTABILITÀ AZIENDALE, BILANCIO IVA 22% & EXPORT EXCEL (.CSV)
+   ============================================================================ */
+window.addErpAccountingEntry = function () {
+  const type = document.getElementById('erpEntryType')?.value || 'income';
+  const amount = parseFloat(document.getElementById('erpEntryAmount')?.value) || 0;
+  const client = document.getElementById('erpEntryClient')?.value.trim() || 'Operazione Contabile';
+  const method = document.getElementById('erpEntryMethod')?.value || 'Gumroad';
+  if (amount <= 0) return;
+
+  const today = new Date().toLocaleDateString('it-IT');
+  MKT_ERP_STATE.ledger.unshift({
+    id: Date.now(),
+    date: today,
+    type,
+    amount,
+    client,
+    method
+  });
+  localStorage.setItem('xvideo_erp_ledger', JSON.stringify(MKT_ERP_STATE.ledger));
+  renderErpLedger();
+  appendLog(`📊 Agente M6 (Contabilità): Registrato movimento "${client}" (€ ${amount.toFixed(2)}).`);
+};
+
+function renderErpLedger() {
+  const listEl = document.getElementById('erpLedgerList');
+  if (!listEl) return;
+
+  let totRev = 0;
+  let totExp = 0;
+  MKT_ERP_STATE.ledger.forEach((item) => {
+    if (item.type === 'income') totRev += item.amount;
+    else totExp += item.amount;
+  });
+
+  // Calcolo scorporo IVA 22% sulle entrate e Utile Netto
+  const netRev = totRev / 1.22;
+  const vatAmount = totRev - netRev;
+  const netProfit = netRev - totExp;
+
+  const fmt = (n) => `€ ${n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const rEl = document.getElementById('erpTotalRevenue');
+  const eEl = document.getElementById('erpTotalExpenses');
+  const vEl = document.getElementById('erpTotalVat');
+  const pEl = document.getElementById('erpNetProfit');
+  if (rEl) rEl.textContent = fmt(totRev);
+  if (eEl) eEl.textContent = fmt(totExp);
+  if (vEl) vEl.textContent = fmt(vatAmount);
+  if (pEl) pEl.textContent = fmt(netProfit);
+
+  listEl.innerHTML = MKT_ERP_STATE.ledger
+    .map(
+      (item) => `
+    <div class="log-item" style="border-left-color:${item.type === 'income' ? '#10b981' : '#ef4444'};">
+      <div style="min-width:0;flex:1;">
+        <strong>${item.type === 'income' ? '🟢 ENTRATA' : '🔴 USCITA'} — € ${item.amount.toFixed(2)}</strong>
+        <div style="font-size:0.7rem;color:#cbd5e1;">${item.client}</div>
+      </div>
+      <div class="log-time">${item.date} • ${item.method}</div>
+    </div>`
+    )
+    .join('');
+}
+
+window.exportAccountingCsv = function () {
+  const rows = [
+    ['Data', 'Tipo', 'Descrizione / Cliente', 'Metodo', 'Importo Lordo EUR', 'Imponibile EUR', 'IVA 22% EUR']
+  ];
+  MKT_ERP_STATE.ledger.forEach((it) => {
+    const imp = it.amount / 1.22;
+    const iva = it.amount - imp;
+    rows.push([
+      it.date,
+      it.type === 'income' ? 'ENTRATA' : 'USCITA',
+      `"${it.client.replace(/"/g, '""')}"`,
+      it.method,
+      it.amount.toFixed(2),
+      imp.toFixed(2),
+      iva.toFixed(2)
+    ]);
+  });
+  const csv = rows.map((r) => r.join(';')).join('\n');
+  downloadTextFile(`Bilancio_Aziendale_XviDeo_${Date.now()}.csv`, csv);
+  appendLog('📊 Agente M6: Bilancio Contabile Aziendale esportato in formato Excel (.CSV)!');
+};

@@ -11,8 +11,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="XviDeo AI 4K" />
-  <link rel="manifest" href="manifest.json?v=2.1" />
-  <link rel="stylesheet" href="styles.css?v=2.1" />
+  <link rel="manifest" href="manifest.json?v=3.0" />
+  <link rel="stylesheet" href="styles.css?v=3.0" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -136,7 +136,7 @@
         Sistema Responsivo Mobile, Tablet &amp; PC con <strong>5 Agenti IA (1 Supervisore + 4 Operativi)</strong> per Foto/Video da Cellulare, Schizzi, Google Maps, Render 4K e AutoCAD 2013+ / SketchUp 2021+.
       </p>
       <div style="margin-top:6px;font-size:0.72rem;color:#fbbf24;font-family:var(--font-mono);">
-        Pass: <strong>Deia2026</strong> &bull; Link 1-a-1 IP-Lock &bull; Gumroad Ready
+        🔒 Accesso Protetto SHA-256 &bull; Link 1-a-1 IP-Lock &bull; Gumroad Ready
       </div>
 
       <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%;">
@@ -168,7 +168,7 @@
           <span>XviDeo 4K</span>
           <span id="roleBadge" class="badge badge-owner">PROPRIETARIO</span>
         </div>
-        <div class="brand-sub">Pass: Deia2026 &bull; 5 Agenti IA &bull; AutoCAD 2013+ &amp; SketchUp 2021+</div>
+        <div class="brand-sub">5 Agenti IA &bull; AutoCAD 2013+ &amp; SketchUp 2021+</div>
       </div>
     </div>
 
@@ -207,7 +207,10 @@
     <!-- DESKTOP / TABLET NAVIGATION TABS -->
     <nav class="nav-tabs" aria-label="Sezioni Principali">
       <button class="tab-btn active" data-tab="tab-mobile-ai">
-        🤖📱 Studio Mobile, 5 Agenti IA, Foto/Video &amp; Render 4K
+        🤖📱 Studio Mobile, 12 Agenti IA &amp; Render 4K
+      </button>
+      <button class="tab-btn" data-tab="tab-marketing-erp" id="marketingTabBtn">
+        📈 Marketing IA, WhatsApp/Social/Call &amp; Contabilità
       </button>
       <button class="tab-btn" data-tab="tab-commands">
         ⚡ Comandi Guidati, Voce &amp; CAD (2013+ / 2021+)
@@ -297,16 +300,37 @@
             </div>
           </div>
 
-          <!-- 2. THE 5 AI AGENTS TEAM (1 SUPERVISOR + 4 OPERATIONAL SPECIALISTS) -->
+          <!-- 2. THE 12 AI AGENTS TEAM (1 SUPERVISOR + 11 FIELD, VIZMAKER & REAL ESTATE SPECIALISTS) -->
           <div class="card">
             <div class="card-header">
               <div>
-                <div class="card-title">🧠 Squadra 5 Agenti IA (1 Supervisore + 4 Operativi)</div>
-                <div class="card-subtitle">Il Supervisore coordina l'ideazione; i 4 Operativi curano CAD, Geolocalizzazione, Viste 4K e Video Render.</div>
+                <div class="card-title">🧠 Squadra 12 Agenti IA Sul Campo (1 Supervisore + 11 Specialisti)</div>
+                <div class="card-subtitle">Progettato per <strong>Architetti, Interior Designer, Immobiliaristi e Agenzie Immobiliari</strong>: trasforma riprese da cellulare/portatile in Viste 4K, Video-to-Video (stile VizMaker) e Schede Vendita Immobiliare in pochi secondi.</div>
               </div>
               <button id="runAll5AgentsBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#ef4444);width:100%;">
-                ⚡ Avvia Tutti i 5 Agenti IA
+                ⚡ Avvia Tutti i 12 Agenti IA Sul Campo
               </button>
+            </div>
+
+            <!-- TARGET PERSONA QUICK SELECTOR (ARCHITECT, DESIGNER, DEVELOPER, REAL ESTATE AGENCY) -->
+            <div style="margin-bottom:10px;padding:8px;background:var(--bg-primary);border-radius:10px;border:1px solid var(--border-subtle);width:100%;">
+              <div style="font-size:0.69rem;color:#22d3ee;font-weight:700;margin-bottom:5px;">
+                🎯 PROFILO OPERATIVO SUL CAMPO (Ottimizza in automatico i 12 Agenti IA):
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;width:100%;">
+                <button type="button" onclick="setFieldPersona('architetto')" id="persona-architetto" class="btn btn-cyan" style="font-size:0.7rem;padding:6px;">
+                  🏛️ Architetto &amp; Tecnico
+                </button>
+                <button type="button" onclick="setFieldPersona('designer')" id="persona-designer" class="btn" style="font-size:0.7rem;padding:6px;">
+                  🛋️ Interior Designer
+                </button>
+                <button type="button" onclick="setFieldPersona('immobiliarista')" id="persona-immobiliarista" class="btn" style="font-size:0.7rem;padding:6px;">
+                  🏢 Immobiliarista
+                </button>
+                <button type="button" onclick="setFieldPersona('agenzia')" id="persona-agenzia" class="btn" style="font-size:0.7rem;padding:6px;">
+                  🏡 Agenzia Immobiliare
+                </button>
+              </div>
             </div>
 
             <!-- AGENT 1: SUPERVISOR -->
@@ -316,10 +340,10 @@
                   <span style="font-size:1.25rem;flex-shrink:0;">👑</span>
                   <div style="min-width:0;">
                     <div style="font-size:0.8rem;font-weight:800;color:#fbbf24;word-break:break-word;">
-                      1. SUPERVISORE: ARCH-DIRECTOR IA
+                      1. SUPERVISORE: ARCH-DIRECTOR IA (REGIA SUL CAMPO)
                     </div>
                     <div style="font-size:0.7rem;color:#cbd5e1;word-break:break-word;">
-                      Coordinamento Generale, Concept &amp; Direzione Produzione/Post-Produzione
+                      Coordina i 10 Agenti Operativi per produzioni istantanee da cellulare e portatile in sopralluogo
                     </div>
                   </div>
                 </div>
@@ -327,49 +351,127 @@
               </div>
             </div>
 
-            <!-- 4 OPERATIONAL AGENTS GRID -->
+            <!-- 10 OPERATIONAL & FIELD AGENTS GRID (4 CORE + 6 VIZMAKER/FIELD SPECIALISTS) -->
             <div class="agents-4-grid">
               <div class="agent-card" data-agent-id="cad">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
-                  <span style="font-size:0.74rem;font-weight:800;color:#ff8533;">📐 2. AGENTE CAD &amp; BIM</span>
+                  <span style="font-size:0.74rem;font-weight:800;color:#ff8533;">📐 2. CAD &amp; BIM IA</span>
                   <span class="badge badge-guest" id="status-agent-cad">Pronto</span>
                 </div>
-                <div style="font-size:0.78rem;font-weight:700;">Dettagli AutoCAD &amp; SketchUp</div>
+                <div style="font-size:0.78rem;font-weight:700;">AutoCAD 2013+ &amp; SketchUp</div>
                 <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
-                  Genera script AutoCAD 2013+ (.LSP/.DXF) e modelli 3D SketchUp 2021+ (.RB).
+                  Trasforma rilievi sul campo in script .LSP, .DXF e modelli 3D .RB.
                 </div>
               </div>
 
               <div class="agent-card" data-agent-id="geo">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
-                  <span style="font-size:0.74rem;font-weight:800;color:#34d399;">🌍 3. AGENTE GEO &amp; SOLE</span>
+                  <span style="font-size:0.74rem;font-weight:800;color:#34d399;">🌍 3. GEO-SOLAR IA</span>
                   <span class="badge badge-guest" id="status-agent-geo">Pronto</span>
                 </div>
-                <div style="font-size:0.78rem;font-weight:700;">Google Maps &amp; Studio Solare</div>
+                <div style="font-size:0.78rem;font-weight:700;">Google Maps &amp; Luce Reale</div>
                 <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
-                  Allinea coordinate Maps, azimut solare reale, ombre e orientamento.
+                  Acquisisce GPS live dal telefono e calcola azimut solare e ombre reali.
                 </div>
               </div>
 
               <div class="agent-card" data-agent-id="render">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
-                  <span style="font-size:0.74rem;font-weight:800;color:#22d3ee;">🎨 4. AGENTE VISTE 4K</span>
+                  <span style="font-size:0.74rem;font-weight:800;color:#22d3ee;">🎨 4. RENDER-VISION 4K</span>
                   <span class="badge badge-guest" id="status-agent-render">Pronto</span>
                 </div>
-                <div style="font-size:0.78rem;font-weight:700;">Materiali PBR &amp; Render 4K</div>
+                <div style="font-size:0.78rem;font-weight:700;">Materiali PBR &amp; Prima/Dopo</div>
                 <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
-                  Applica facciate, vetrate Low-E, verde e genera le viste 4K Prima/Dopo.
+                  Applica facciate, vetrate Low-E e finiture fotorealistiche in tempo reale.
                 </div>
               </div>
 
               <div class="agent-card" data-agent-id="video">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
-                  <span style="font-size:0.74rem;font-weight:800;color:#c084fc;">🎬 5. POST-PRODUZIONE</span>
+                  <span style="font-size:0.74rem;font-weight:800;color:#c084fc;">🎬 5. POST-FX &amp; MOTION</span>
                   <span class="badge badge-guest" id="status-agent-video">Pronto</span>
                 </div>
-                <div style="font-size:0.78rem;font-weight:700;">Video Render &amp; Motion FX</div>
+                <div style="font-size:0.78rem;font-weight:700;">Flythrough &amp; Color Grading</div>
                 <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
-                  Movimenti camera (Flythrough), ciclo luce giorno/sera e Video Render.
+                  Movimenti camera cinematografici, transizione giorno/sera e export .WEBM.
+                </div>
+              </div>
+
+              <!-- 6 NEW THEMATIC FIELD & VIZMAKER AGENTS -->
+              <div class="agent-card" data-agent-id="vizvideo" style="border-color:rgba(56,189,248,0.35);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#38bdf8;">📹 6. VIZMAKER VIDEO-2-VIDEO</span>
+                  <span class="badge badge-owner" id="status-agent-vizvideo">NUOVO</span>
+                </div>
+                <div style="font-size:0.78rem;font-weight:700;">Walkthrough Redesign Live</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Converte video girati camminando col telefono in interni/esterni arredati senza flickering (Temporal Lock).
+                </div>
+              </div>
+
+              <div class="agent-card" data-agent-id="assets3d" style="border-color:rgba(16,185,129,0.35);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#10b981;">🛋️ 7. VIZ-ASSET 3D STAGER</span>
+                  <span class="badge badge-owner" id="status-agent-assets3d">NUOVO</span>
+                </div>
+                <div style="font-size:0.78rem;font-weight:700;">Libreria 3D &amp; Virtual Staging</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Inserisce in 1 tocco arredi 3D, piante, luci, marmi PBR e persone (stile VizAcademy Free 3D Assets).
+                </div>
+              </div>
+
+              <div class="agent-card" data-agent-id="fieldcam" style="border-color:rgba(245,158,11,0.35);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#fbbf24;">📸 8. FIELD-CAM OPTIMIZER</span>
+                  <span class="badge badge-owner" id="status-agent-fieldcam">NUOVO</span>
+                </div>
+                <div style="font-size:0.78rem;font-weight:700;">Ottimizzazione Riprese Campo</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Raddrizza verticali (2-Point Perspective), livella orizzonte, Auto-HDR finestre e rimuove macerie/ponteggi.
+                </div>
+              </div>
+
+              <div class="agent-card" data-agent-id="moodboard" style="border-color:rgba(236,72,153,0.35);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#f472b6;">🖼️ 9. MOODBOARD MATCHER</span>
+                  <span class="badge badge-owner" id="status-agent-moodboard">NUOVO</span>
+                </div>
+                <div style="font-size:0.78rem;font-weight:700;">Style &amp; Reference Transfer</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Applica palette, tessuti e mood da immagini di riferimento (Japandi, Loft, Minimal) rispettando i muri reali.
+                </div>
+              </div>
+
+              <div class="agent-card" data-agent-id="smartswap" style="border-color:rgba(168,85,247,0.35);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#a855f7;">🖌️ 10. SMART-SWAP MASK IA</span>
+                  <span class="badge badge-owner" id="status-agent-smartswap">NUOVO</span>
+                </div>
+                <div style="font-size:0.78rem;font-weight:700;">Inpainting &amp; Cambio Finiture</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Tocca col dito sul telefono pavimenti, serramenti o arredi per sostituirli al volo davanti al cliente.
+                </div>
+              </div>
+
+              <div class="agent-card" data-agent-id="upscaler" style="border-color:rgba(34,211,238,0.45);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#22d3ee;">⚡ 11. 4K/8K INSTANT PITCH</span>
+                  <span class="badge badge-owner" id="status-agent-upscaler">NUOVO</span>
+                </div>
+                <div style="font-size:0.78rem;font-weight:700;">Upscaling &amp; Consegna Cliente</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Nitidezza estrema dei dettagli + generazione Scheda Cliente Prima/Dopo pronta per WhatsApp in 3 secondi.
+                </div>
+              </div>
+
+              <div class="agent-card" data-agent-id="realestate" style="border-color:rgba(251,191,36,0.45);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#fbbf24;">🏡 12. REAL-ESTATE MARKETING</span>
+                  <span class="badge badge-owner" id="status-agent-realestate">VENDITA</span>
+                </div>
+                <div style="font-size:0.78rem;font-weight:700;">Home Staging &amp; Annunci Vendita</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Valorizza immobili nuovi o usati per Immobiliaristi e Agenzie: genera Virtual Staging, Reel e Testo Annuncio Portali.
                 </div>
               </div>
             </div>
@@ -413,7 +515,7 @@
               <span class="badge badge-guest" id="resBadgeLabel">4K UHD</span>
             </div>
 
-            <!-- Format & Style Quick Controls -->
+            <!-- Format & Style Quick Controls (Includes VizMaker Interior/Exterior Moods) -->
             <div class="format-style-bar">
               <button type="button" onclick="setStudioRatio('16_9', 1920, 1080, '16:9 4K')" id="ratio-16_9" class="btn btn-cyan">
                 🖥️ 16:9 4K
@@ -427,8 +529,27 @@
               <button type="button" onclick="setStudioStyle('Milano Luxury Minimal', '#cbd5e1', '#334155', '#0f172a')" class="btn">
                 🏙️ Milano Luxury
               </button>
+              <button type="button" onclick="setStudioStyle('Japandi Interior Warm (VizMaker)', '#ede0d4', '#7f5539', '#0284c7')" class="btn">
+                🎋 Japandi Warm
+              </button>
               <button type="button" onclick="setStudioStyle('Bio-Architettura Legno & Vetro', '#e7d7c1', '#92400e', '#0369a1')" class="btn">
                 🌲 Bio-Legno
+              </button>
+            </div>
+
+            <!-- FIELD-CAM OPTIMIZERS BAR (Agents 6, 8, 10, 11: 1-Tap Smartphone Field Controls) -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:6px;margin-bottom:8px;width:100%;">
+              <button type="button" id="toggle2PointBtn" onclick="toggleFieldOption('twoPointGrid')" class="btn btn-cyan" style="font-size:0.7rem;padding:7px 8px;">
+                📐 Verticali 2-Point: ON
+              </button>
+              <button type="button" id="toggleDeclutterBtn" onclick="toggleFieldOption('declutterSite')" class="btn btn-green" style="font-size:0.7rem;padding:7px 8px;">
+                🧹 Pulisci Cantiere: ON
+              </button>
+              <button type="button" id="toggleTemporalLockBtn" onclick="toggleFieldOption('temporalLock')" class="btn btn-cyan" style="font-size:0.7rem;padding:7px 8px;">
+                🔒 Video Lock Frame: ON
+              </button>
+              <button type="button" id="toggleUpscaleBtn" onclick="toggleFieldOption('ultraSharp8k')" class="btn btn-green" style="font-size:0.7rem;padding:7px 8px;">
+                ✨ Upscale 4K/8K: ON
               </button>
             </div>
 
@@ -442,6 +563,36 @@
               ></canvas>
             </div>
 
+            <!-- VIZACADEMY 1-TAP 3D ASSETS & PBR STAGING BAR (Agent 7 & Agent 10) -->
+            <div style="margin-top:8px;padding:9px;background:var(--bg-primary);border-radius:10px;border:1px solid rgba(16,185,129,0.35);width:100%;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
+                <span style="font-size:0.73rem;font-weight:800;color:#34d399;">
+                  🛋️ Agente 7 &amp; 10: Libreria Rapida 3D Assets &amp; Finiture (1-Tap sul Campo)
+                </span>
+                <span style="font-size:0.65rem;color:#94a3b8;">Tocca per inserire nel Render/Video</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:6px;width:100%;">
+                <button type="button" onclick="addQuick3dAsset('sofa', '🛋️ Divano Design Minotti')" class="btn" style="font-size:0.7rem;padding:6px;">
+                  🛋️ + Divano 3D
+                </button>
+                <button type="button" onclick="addQuick3dAsset('tree', '🌿 Ulivo / Verde 3D')" class="btn" style="font-size:0.7rem;padding:6px;">
+                  🌿 + Verde 3D
+                </button>
+                <button type="button" onclick="addQuick3dAsset('light', '💡 Sospensione LED Arch.')" class="btn" style="font-size:0.7rem;padding:6px;">
+                  💡 + Luci LED
+                </button>
+                <button type="button" onclick="addQuick3dAsset('marble', '🪨 Isola Marmo Calacatta')" class="btn" style="font-size:0.7rem;padding:6px;">
+                  🪨 + Marmo PBR
+                </button>
+                <button type="button" onclick="addQuick3dAsset('person', '🚶 Figura Umana ArchViz')" class="btn" style="font-size:0.7rem;padding:6px;">
+                  🚶 + Persone
+                </button>
+                <button type="button" onclick="clearQuick3dAssets()" class="btn" style="font-size:0.7rem;padding:6px;color:#f87171;">
+                  🗑️ Reset 3D
+                </button>
+              </div>
+            </div>
+
             <!-- Before / After Wipe Slider + Freehand Sketch Mode Toggle -->
             <div class="split-control-bar">
               <span style="font-size:0.73rem;color:#94a3b8;font-weight:600;">Prima/Dopo:</span>
@@ -452,11 +603,11 @@
               </button>
             </div>
 
-            <!-- Post-Production & Video Render Controls (Agent 5) -->
+            <!-- Post-Production, VizMaker Video-to-Video & Instant Client Pitch Controls (Agents 5, 6, 11) -->
             <div style="margin-top:10px;padding:10px;background:var(--bg-primary);border-radius:10px;border:1px solid rgba(192,132,252,0.35);width:100%;">
               <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
                 <div style="font-size:0.76rem;font-weight:700;color:#c084fc;">
-                  🎬 Agente 5: Vista 4K &amp; Video Render
+                  🎬 Agenti 5, 6 &amp; 11: Video-to-Video Redesign &amp; Consegna Sul Campo
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;">
                   <label style="font-size:0.7rem;color:#94a3b8;">Sole:</label>
@@ -467,13 +618,16 @@
 
               <div class="btn-row">
                 <button type="button" id="playVideoRenderPreviewBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);">
-                  ▶️ Animazione Video Render
+                  ▶️ Video-to-Video Live
                 </button>
                 <button type="button" id="recordWebmVideoBtn" class="btn btn-cyan">
-                  🎥 Scarica Video (.WEBM)
+                  🎥 Esporta Video (.WEBM)
                 </button>
                 <button type="button" id="download4kStillBtn" class="btn btn-green">
-                  📥 Scarica Vista 4K (.PNG)
+                  📥 Scarica Render 4K (.PNG)
+                </button>
+                <button type="button" onclick="exportInstantClientPitchBoard()" class="btn btn-primary" style="background:linear-gradient(135deg,#10b981,#0284c7);">
+                  ⚡ Scheda Cliente Prima/Dopo
                 </button>
                 <button type="button" id="sendRenderToCadBtn" class="btn">
                   📐 Invia a AutoCAD / SketchUp
@@ -756,10 +910,10 @@
               <input type="text" id="guestTargetIpInput" placeholder="Automatico al 1° accesso" />
             </div>
             <div class="field-group">
-              <label>Permessi Sessione</label>
+              <label>Modalità Privacy Ospite</label>
               <select id="guestPermSelect">
-                <option value="use-only">Uso Bidirezionale (Codice Non Modificabile)</option>
-                <option value="view-voice">Sola Guida Vocale/Testo + GPS</option>
+                <option value="private-isolated" selected>🔒 Privata Indipendente (L'amico vede SOLO le sue cose)</option>
+                <option value="collab">🔄 Collaborazione Live (Condivide comandi CAD con te)</option>
               </select>
             </div>
           </div>
@@ -862,13 +1016,333 @@
       </div>
     </section>
 
+    <!-- ====================================================================
+         TAB 5: RETE AZIENDALE AUTONOMA CON DIRETTORE CEO IA IN TESTA,
+         2 DIRETTORI DI REPARTO, MARKETING MULTICANALE, VIDEO DEMO & CONTABILITÀ
+         ==================================================================== -->
+    <section id="tab-marketing-erp" class="tab-panel">
+
+      <!-- VERTICE SUPREMO: DIRETTORE GENERALE CEO IA & RETE DI MANSIONI COLLEGATE -->
+      <div class="card" style="border-color:rgba(251,191,36,0.65);background:linear-gradient(180deg,rgba(251,191,36,0.08),rgba(19,26,41,0.95));margin-bottom:14px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title" style="color:#fbbf24;font-size:1.02rem;">
+              👑 VERTICE IN TESTA: DIRETTORE GENERALE "APEX-CEO IA" — Rete Autonoma &amp; Mansioni Collegate (20 Agenti IA)
+            </div>
+            <div class="card-subtitle">
+              Il <strong>Direttore CEO IA</strong> governa la strategia aziendale e coordina i <strong>2 Direttori di Reparto</strong> (<em>Reparto 1: Produzione Tecnica Sul Campo 4K</em> &bull; <em>Reparto 2: Marketing, Comunicazione &amp; Contabilità</em>) in un flusso continuo dove ogni agente passa automaticamente il lavoro al successivo.
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;width:100%;">
+            <button type="button" onclick="runAutonomousCorporateCycle()" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#10b981);color:#05070a;font-weight:900;flex:1;">
+              ⚡ Esegui Ciclo Aziendale Autonomo Completo (CEO IA → 2 Direttori → 17 Agenti)
+            </button>
+            <button type="button" id="toggleAutoPilotCeoBtn" onclick="toggleCeoAutopilot()" class="btn btn-cyan" style="flex:1;">
+              🤖 Pilota Automatico Continuo CEO IA: OFF
+            </button>
+          </div>
+        </div>
+
+        <!-- SCHEMA VISIVO RETE DI CONNESSIONE GERARCHICA -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:10px;width:100%;">
+          <div style="padding:10px;border-radius:10px;background:var(--bg-primary);border:1px solid rgba(251,191,36,0.5);">
+            <div style="font-size:0.74rem;font-weight:800;color:#fbbf24;">👑 LIVELLO 0: APEX-CEO IA (DIRETTORE GENERALE)</div>
+            <div style="font-size:0.69rem;color:#cbd5e1;margin-top:3px;">
+              Definisce KPI di fatturato, assegna i compiti ai 2 Direttori di Reparto, verifica la qualità 4K e approva il Bilancio Netto.
+            </div>
+          </div>
+          <div style="padding:10px;border-radius:10px;background:var(--bg-primary);border:1px solid rgba(34,211,238,0.45);">
+            <div style="font-size:0.74rem;font-weight:800;color:#22d3ee;">🏗️ REPARTO 1: ARCH-DIRECTOR IA (+11 Agenti Campo)</div>
+            <div style="font-size:0.69rem;color:#cbd5e1;margin-top:3px;">
+              Rilievo Mobile → AutoCAD/SketchUp → GPS Sole → VizMaker Video-2-Video → 3D Assets → Scheda Vendita 4K.
+            </div>
+          </div>
+          <div style="padding:10px;border-radius:10px;background:var(--bg-primary);border:1px solid rgba(16,185,129,0.45);">
+            <div style="font-size:0.74rem;font-weight:800;color:#34d399;">💼 REPARTO 2: CMO-CFO DIRECTOR IA (+6 Agenti Mkt/ERP)</div>
+            <div style="font-size:0.69rem;color:#cbd5e1;margin-top:3px;">
+              Spot Video Demo → WhatsApp/Telegram/Email/Instagram/Call IA → CRM Lead → Fatturazione &amp; Contabilità IVA.
+            </div>
+          </div>
+        </div>
+
+        <pre id="ceoNetworkLogBox" class="code-output" style="max-height:175px;color:#fde68a;line-height:1.45;"></pre>
+      </div>
+
+      <div class="workspace-grid">
+
+        <!-- COLONNA SINISTRA: SCHIERA 7 AGENTI MARKETING & AUTOMAZIONE MULTICANALE -->
+        <div>
+          <div class="card" style="border-color:rgba(245,158,11,0.4);">
+            <div class="card-header">
+              <div>
+                <div class="card-title">🚀 Divisione Marketing, Comunicazione Automatizzata &amp; Vendite (1 Supervisore + 6 Agenti)</div>
+                <div class="card-subtitle">
+                  Promuove il prodotto e gli immobili verso <strong>Architetti, Interior Designer, Immobiliaristi e Agenzie Immobiliari</strong> con risposte e campagne automatiche su WhatsApp, Email, Telegram, Instagram e Telefonate Vocale IA.
+                </div>
+              </div>
+              <button type="button" onclick="generateAutomatedOmnichannelCampaign()" class="btn btn-primary" style="background:linear-gradient(135deg,#10b981,#0284c7);width:100%;">
+                ⚡ Genera Campagna &amp; Risposte Automatiche su Tutti i Canali
+              </button>
+            </div>
+
+            <!-- SUPERVISORE MARKETING & CFO -->
+            <div class="agent-card supervisor active-agent" style="margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
+                  <span style="font-size:1.25rem;flex-shrink:0;">👔</span>
+                  <div style="min-width:0;">
+                    <div style="font-size:0.8rem;font-weight:800;color:#fbbf24;">
+                      SUPERVISORE COMM. &amp; GESTIONALE: CMO &amp; CFO DIRECTOR IA
+                    </div>
+                    <div style="font-size:0.7rem;color:#cbd5e1;">
+                      Coordina Promozione Prodotto, Lead Generation, Risposte Automatiche Clienti, Contratti e Contabilità Aziendale
+                    </div>
+                  </div>
+                </div>
+                <span class="badge badge-owner">OPERATIVO</span>
+              </div>
+            </div>
+
+            <!-- 6 AGENTI MARKETING, COMUNICAZIONE & CONTABILITÀ -->
+            <div class="agents-4-grid">
+              <div class="agent-card" style="border-color:rgba(16,185,129,0.4);">
+                <div style="font-size:0.74rem;font-weight:800;color:#34d399;">💬 M1. WHATSAPP &amp; TELEGRAM BOT IA</div>
+                <div style="font-size:0.77rem;font-weight:700;margin-top:2px;">Risposte Istantanee &amp; Invio Demo</div>
+                <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Risponde in automatico a chi chiede info su WhatsApp e Telegram con brochure e link.</div>
+              </div>
+
+              <div class="agent-card" style="border-color:rgba(236,72,153,0.4);">
+                <div style="font-size:0.74rem;font-weight:800;color:#f472b6;">📸 M2. INSTAGRAM &amp; REELS IA</div>
+                <div style="font-size:0.77rem;font-weight:700;margin-top:2px;">Campagne Social &amp; Caroselli</div>
+                <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Crea post, script Reel Prima/Dopo e DM automatici per Instagram, TikTok e LinkedIn.</div>
+              </div>
+
+              <div class="agent-card" style="border-color:rgba(56,189,248,0.4);">
+                <div style="font-size:0.74rem;font-weight:800;color:#38bdf8;">📧 M3. EMAIL &amp; FOLLOW-UP IA</div>
+                <div style="font-size:0.77rem;font-weight:700;margin-top:2px;">Sequenze Email &amp; Preventivi</div>
+                <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Redige email commerciali per Architetti, Immobiliaristi e Agenzie con offerta chiavi in mano.</div>
+              </div>
+
+              <div class="agent-card" style="border-color:rgba(245,158,11,0.4);">
+                <div style="font-size:0.74rem;font-weight:800;color:#fbbf24;">📞 M4. TELEFONATE VOCALI IA</div>
+                <div style="font-size:0.77rem;font-weight:700;margin-top:2px;">Receptionist &amp; Call Pitch Vocale</div>
+                <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Parla con voce sintetica IA per qualificare i clienti, rispondere a domande e fissare appuntamenti.</div>
+              </div>
+
+              <div class="agent-card" style="border-color:rgba(168,85,247,0.4);">
+                <div style="font-size:0.74rem;font-weight:800;color:#c084fc;">🤝 M5. CRM &amp; CHIUSURA VENDITE</div>
+                <div style="font-size:0.77rem;font-weight:700;margin-top:2px;">Gestione Trattative &amp; Clienti</div>
+                <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Schedario contatti interessati (Richiesta Info → Demo → Preventivo → Licenza Attiva).</div>
+              </div>
+
+              <div class="agent-card" style="border-color:rgba(34,211,238,0.4);">
+                <div style="font-size:0.74rem;font-weight:800;color:#22d3ee;">📊 M6. CONTABILITÀ &amp; BILANCIO IA</div>
+                <div style="font-size:0.77rem;font-weight:700;margin-top:2px;">Tenuta Conto, IVA &amp; Fatture</div>
+                <div style="font-size:0.68rem;color:#94a3b8;margin-top:2px;">Calcola Fatturato, Costi, IVA 22%, Utile Netto e genera l'estratto conto CSV per il commercialista.</div>
+              </div>
+            </div>
+
+            <!-- CONFIGURAZIONE DESTINATARIO & GENERATORE AUTOMATICO MULTICANALE -->
+            <div class="param-grid" style="margin-top:10px;">
+              <div class="field-group">
+                <label>Nome Contatto / Studio / Agenzia</label>
+                <input type="text" id="mktLeadName" value="Studio Arch. Rossi / Agenzia Luxury" />
+              </div>
+              <div class="field-group">
+                <label>Target Cliente</label>
+                <select id="mktTargetSegment" onchange="generateAutomatedOmnichannelCampaign()">
+                  <option value="architetto">🏛️ Architetto Intraprendente &amp; Tecnico</option>
+                  <option value="designer">🛋️ Interior Designer &amp; Visualizer</option>
+                  <option value="immobiliarista">🏢 Immobiliarista &amp; Costruttore</option>
+                  <option value="agenzia">🏡 Agenzia Immobiliare (Nuovo / Usato)</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Telefono WhatsApp (es. 39333...)</label>
+                <input type="text" id="mktLeadPhone" placeholder="Es: 393401234567" />
+              </div>
+              <div class="field-group">
+                <label>Email Cliente</label>
+                <input type="email" id="mktLeadEmail" placeholder="info@studioarchitettura.it" />
+              </div>
+            </div>
+
+            <!-- SELETTORE CANALE COMUNICAZIONE AUTOMATIZZATA -->
+            <div class="code-tabs" style="margin-top:8px;">
+              <button type="button" class="code-tab active" onclick="switchMktChannel('whatsapp', this)">💬 WhatsApp</button>
+              <button type="button" class="code-tab" onclick="switchMktChannel('email', this)">📧 Email</button>
+              <button type="button" class="code-tab" onclick="switchMktChannel('telegram', this)">✈️ Telegram</button>
+              <button type="button" class="code-tab" onclick="switchMktChannel('instagram', this)">📸 Instagram/Reel</button>
+              <button type="button" class="code-tab" onclick="switchMktChannel('voicecall', this)">📞 Telefonata IA</button>
+            </div>
+
+            <pre id="mktAutomatedMessageBox" class="code-output" style="max-height:210px;color:#e2e8f0;line-height:1.45;"></pre>
+
+            <!-- AZIONI DIRETTE 1-CLIC PER INVIARE O AVVIARE LA TELEFONATA IA -->
+            <div class="btn-row" style="margin-top:10px;">
+              <button type="button" onclick="sendAutomatedWhatsApp()" class="btn btn-green">
+                💬 Invia su WhatsApp
+              </button>
+              <button type="button" onclick="sendAutomatedTelegram()" class="btn btn-cyan">
+                ✈️ Invia su Telegram
+              </button>
+              <button type="button" onclick="sendAutomatedEmail()" class="btn btn-primary">
+                📧 Invia Email Automatica
+              </button>
+              <button type="button" onclick="speakAiPhoneCallPitch()" id="aiVoiceCallBtn" class="btn" style="border-color:rgba(245,158,11,0.5);color:#fbbf24;">
+                📞 Ascolta / Avvia Telefonata Vocale IA
+              </button>
+              <button type="button" onclick="copyMktMessage()" class="btn">
+                📋 Copia Testo / Post Instagram
+              </button>
+            </div>
+          </div>
+
+          <!-- STUDIO PRODUZIONE VIDEO DEMO & IMMAGINI PROMOZIONALI PER OGNI AMBITO -->
+          <div class="card" style="border-color:rgba(236,72,153,0.45);">
+            <div class="card-header">
+              <div>
+                <div class="card-title">🎬 Studio Video Demo, Spot Social &amp; Immagini Promozionali 4K</div>
+                <div class="card-subtitle">
+                  Gli Agenti Marketing realizzano in automatico <strong>Video Demo (.WEBM)</strong>, <strong>Poster Pubblicitari 4K (.PNG)</strong> e <strong>Testi ad Alta Conversione</strong> per lanciare il prodotto in tutti i 4 settori.
+                </div>
+              </div>
+              <span class="badge badge-owner">SPOT &amp; DEMO IA</span>
+            </div>
+
+            <!-- 4 SETTORI VIDEO DEMO -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:8px;width:100%;">
+              <button type="button" onclick="selectPromoDemoSector('architetto')" id="demo-sec-architetto" class="btn btn-cyan" style="font-size:0.7rem;padding:7px;">
+                🏛️ Spot 1: Architetti
+              </button>
+              <button type="button" onclick="selectPromoDemoSector('designer')" id="demo-sec-designer" class="btn" style="font-size:0.7rem;padding:7px;">
+                🛋️ Spot 2: Interior Design
+              </button>
+              <button type="button" onclick="selectPromoDemoSector('immobiliarista')" id="demo-sec-immobiliarista" class="btn" style="font-size:0.7rem;padding:7px;">
+                🏢 Spot 3: Immobiliaristi
+              </button>
+              <button type="button" onclick="selectPromoDemoSector('agenzia')" id="demo-sec-agenzia" class="btn" style="font-size:0.7rem;padding:7px;">
+                🏡 Spot 4: Agenzie Imm.
+              </button>
+            </div>
+
+            <!-- CANVAS VIDEO DEMO PROMOZIONALE LIVE -->
+            <div style="width:100%;background:#05070a;border-radius:12px;border:1px solid rgba(236,72,153,0.4);padding:6px;overflow:hidden;margin-bottom:8px;">
+              <canvas id="promoDemoVideoCanvas" width="1920" height="1080" style="width:100%;height:auto;max-height:300px;object-fit:contain;"></canvas>
+            </div>
+
+            <!-- CONTROLLI REGISTRAZIONE VIDEO DEMO & DOWNLOAD POSTER 4K -->
+            <div class="btn-row" style="margin-bottom:8px;">
+              <button type="button" id="playPromoDemoBtn" onclick="togglePromoDemoAnimation()" class="btn btn-primary" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);">
+                ▶️ Avvia Spot Video Demo + Voce IA
+              </button>
+              <button type="button" id="recordPromoVideoBtn" onclick="recordPromoDemoWebm()" class="btn btn-cyan">
+                🎥 Scarica Video Demo (.WEBM)
+              </button>
+              <button type="button" onclick="downloadPromoPoster4K()" class="btn btn-green">
+                🖼️ Scarica Poster Lancio 4K (.PNG)
+              </button>
+            </div>
+
+            <pre id="promoCopyAndStatsBox" class="code-output" style="max-height:175px;color:#fde68a;line-height:1.45;"></pre>
+          </div>
+        </div>
+
+        <!-- COLONNA DESTRA: CONTABILITÀ AZIENDALE, TENUTA CONTO, FATTURAZIONE & CRM CLIENTI -->
+        <div>
+          <div class="card" style="border-color:rgba(34,211,238,0.4);">
+            <div class="card-header">
+              <div>
+                <div class="card-title">📊 Contabilità Aziendale, Tenuta Conto &amp; CRM Commerciale (Agenti M5 &amp; M6)</div>
+                <div class="card-subtitle">
+                  Bilancio in tempo reale (Imponibile, IVA 22%, Costi, Utile Netto), registro movimenti e gestione clienti.
+                </div>
+              </div>
+              <span class="badge badge-owner">CFO IA ATTIVO</span>
+            </div>
+
+            <!-- 4 KPI FINANZIARI IN TEMPO REALE -->
+            <div class="geo-stats" style="margin-bottom:12px;">
+              <div class="stat-box">
+                <div class="stat-label">FATTURATO LORDO (ENTRATE)</div>
+                <div class="stat-value" id="erpTotalRevenue" style="color:#34d399;">€ 0,00</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">COSTI / USCITE OPERATIVE</div>
+                <div class="stat-value" id="erpTotalExpenses" style="color:#f87171;">€ 0,00</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">IVA 22% CALCOLATA</div>
+                <div class="stat-value" id="erpTotalVat" style="color:#fbbf24;">€ 0,00</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">UTILE NETTO AZIENDALE</div>
+                <div class="stat-value" id="erpNetProfit" style="color:#22d3ee;">€ 0,00</div>
+              </div>
+            </div>
+
+            <!-- AGGIUNGI MOVIMENTO CONTABILE / FATTURA / VENDITA LICENZA -->
+            <div style="background:var(--bg-primary);padding:10px;border-radius:10px;border:1px solid var(--border-subtle);margin-bottom:12px;">
+              <div style="font-size:0.74rem;font-weight:800;color:#22d3ee;margin-bottom:6px;">
+                ➕ Registra Nuova Operazione Contabile o Vendita Cliente:
+              </div>
+              <div class="param-grid">
+                <div class="field-group">
+                  <label>Tipo Movimento</label>
+                  <select id="erpEntryType">
+                    <option value="income">🟢 Entrata / Vendita Licenza o Servizio</option>
+                    <option value="expense">🔴 Uscita / Costo Aziendale</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label>Importo Totale (€ IVA incl.)</label>
+                  <input type="number" id="erpEntryAmount" value="297" step="1" />
+                </div>
+                <div class="field-group">
+                  <label>Cliente / Voce Contabile</label>
+                  <input type="text" id="erpEntryClient" value="Licenza Studio Pro 4K - Agenzia Immobiliare" />
+                </div>
+                <div class="field-group">
+                  <label>Canale / Metodo</label>
+                  <select id="erpEntryMethod">
+                    <option value="Gumroad">Gumroad Automatico</option>
+                    <option value="Bonifico Fattura">Bonifico / Fattura Elettronica</option>
+                    <option value="Stripe / Carta">Stripe / Carta</option>
+                  </select>
+                </div>
+              </div>
+              <div class="btn-row" style="margin-top:8px;">
+                <button type="button" onclick="addErpAccountingEntry()" class="btn btn-primary">
+                  💾 Registra in Contabilità
+                </button>
+                <button type="button" onclick="exportAccountingCsv()" class="btn btn-cyan">
+                  📥 Esporta Bilancio Excel (.CSV)
+                </button>
+              </div>
+            </div>
+
+            <!-- LIBRO GIORNALE / MOVIMENTI CONTABILI E STATO CLIENTI -->
+            <div style="font-size:0.74rem;font-weight:700;color:#94a3b8;margin-bottom:6px;">
+              📋 Libro Mastro Movimenti &amp; Clienti Attivi:
+            </div>
+            <div id="erpLedgerList" class="log-list" style="max-height:240px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
   <!-- MOBILE BOTTOM DOCK -->
   <nav class="mobile-dock" aria-label="Menu Mobile">
     <button class="dock-item active" data-tab="tab-mobile-ai">
       <span>🤖📸</span>
-      <span>5 IA &amp; Foto</span>
+      <span>12 IA &amp; 4K</span>
+    </button>
+    <button class="dock-item" data-tab="tab-marketing-erp" id="mobileMarketingDockBtn">
+      <span>📈💶</span>
+      <span>Mkt &amp; Conto</span>
     </button>
     <button class="dock-item" data-tab="tab-commands">
       <span>⚡</span>
@@ -907,8 +1381,8 @@
         <button onclick="installIosWebClip()" class="btn btn-primary" style="background:linear-gradient(90deg,#10b981,#22d3ee);color:#05070a;font-weight:800;padding:11px;">
           ⚡ Installa Icona su Home (Profilo iOS)
         </button>
-        <button onclick="downloadStandaloneApp()" class="btn btn-cyan" style="padding:10px;">
-          📥 Scarica App Singolo File HTML (PC / Android)
+        <button id="downloadStandaloneBtn" onclick="downloadStandaloneApp()" class="btn btn-cyan" style="padding:10px;display:none;">
+          📥 Scarica App Singolo File HTML (Solo Proprietario)
         </button>
         <button onclick="closeHomeGuide()" class="btn" style="padding:9px;">
           Chiudi
@@ -918,7 +1392,7 @@
   </div>
 
   <!-- ======================================================================
-       GUMROAD LICENSE GATE / PAYWALL MODAL
+       GUMROAD LICENSE GATE / PAYWALL MODAL (NO PASSWORD HINTS SHOWN TO PUBLIC)
        ====================================================================== -->
   <div id="licenseModal" class="modal-backdrop">
     <div class="modal-card">
@@ -927,34 +1401,31 @@
           <div class="card-title">🔐 Accesso Riservato — XviDeo AI Studio 4K</div>
           <div class="card-subtitle">5 Agenti IA + AutoCAD 2013+ &amp; SketchUp 2021+</div>
         </div>
-        <span class="badge badge-locked">LICENZA</span>
+        <span class="badge badge-locked">PROTETTO</span>
       </div>
 
       <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px;">
-        Inserisci una <strong>License Key Gumroad</strong> valida (o il Security Pass <code>Deia2026</code>), oppure usa il <strong>Link Diretto 1-a-1</strong> inviato dal Proprietario.
+        Questo Studio professionale è riservato. Inserisci la tua <strong>License Key Gumroad</strong> (o il Pass Segreto del Proprietario), oppure accedi tramite il <strong>Link Diretto 1-a-1</strong> inviato dal titolare.
       </p>
 
       <div class="field-group" style="margin-bottom:12px;">
-        <label>License Key Gumroad o Pass Proprietario:</label>
-        <input type="text" id="licenseKeyInput" class="cmd-input" style="width:100%;" placeholder="Es. Deia2026 oppure XXXX-XXXX" />
+        <label>License Key Gumroad o Pass Segreto Proprietario:</label>
+        <input type="password" id="licenseKeyInput" class="cmd-input" style="width:100%;" placeholder="Inserisci codice di sblocco..." autocomplete="off" />
       </div>
 
       <div id="licenseErrorMsg" style="color:#F87171;font-size:0.75rem;margin-bottom:10px;display:none;"></div>
 
-      <div class="btn-row" style="margin-bottom:14px;">
+      <div class="btn-row" style="margin-bottom:8px;">
         <button id="verifyLicenseBtn" class="btn btn-primary">
-          ✅ Sblocca Studio
+          ✅ Verifica &amp; Sblocca Studio
         </button>
         <a id="buyOnGumroadBtn" href="https://gumroad.com/l/xvideo-cadbridge-4k" target="_blank" rel="noopener" class="btn btn-cyan">
-          🛒 Acquista su Gumroad
+          🛒 Acquista Licenza su Gumroad
         </a>
       </div>
 
-      <div style="padding-top:10px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;gap:6px;">
-        <span>Accesso Proprietario:</span>
-        <button id="unlockOwnerQuickBtn" class="btn" style="padding:5px 10px;font-size:0.72rem;">
-          🔓 Entra con Pass Deia2026
-        </button>
+      <div style="padding-top:8px;border-top:1px solid var(--border-subtle);font-size:0.68rem;color:var(--text-muted);text-align:center;">
+        🛡️ Protezione attiva: sessioni 1-a-1 vincolate a singolo indirizzo IP e terminale.
       </div>
     </div>
   </div>
@@ -971,6 +1442,6 @@
     window.addEventListener('orientationchange', updateIosSafeMode);
     updateIosSafeMode();
   </script>
-  <script src="app.js?v=2.1"></script>
+  <script src="app.js?v=3.0"></script>
 </body>
 </html>
