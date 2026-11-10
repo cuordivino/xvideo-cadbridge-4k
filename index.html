@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it" class="dark">
+<html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
@@ -7,21 +7,23 @@
   <meta name="description" content="Studio Professionale 4K con 5 Agenti IA (1 Supervisore + 4 Operativi), Fotocamera Mobile Foto/Video/Schizzi, Google Maps, AutoCAD 2013+ e SketchUp 2021+." />
   <meta name="theme-color" content="#05070a" />
 
-  <!-- iOS / iPhone PWA Meta Tags -->
+  <!-- iOS / iPhone PWA Meta Tags (status-bar-style="black" prevents Dynamic Island overlap) -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="XviDeo AI 4K" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json?v=2.1" />
+  <link rel="stylesheet" href="styles.css?v=2.1" />
 
-  <!-- Tailwind CSS + Fonts -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- PeerJS for Real-Time 1-to-1 Bidirectional P2P Sync -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
   <style>
+    .hidden { display: none !important; }
     /* Grand Hero Splash Screen with Animated XviDeo 4K Logo (Responsive Portrait + Landscape) */
     .splash-screen {
       position: fixed;
@@ -32,10 +34,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: calc(20px + env(safe-area-inset-top, 0px)) calc(18px + env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) calc(18px + env(safe-area-inset-left, 0px));
+      padding: max(24px, env(safe-area-inset-top, 24px)) max(16px, env(safe-area-inset-right, 16px)) max(24px, env(safe-area-inset-bottom, 24px)) max(16px, env(safe-area-inset-left, 16px));
       text-align: center;
       overflow-y: auto;
-      transition: opacity 0.45s ease, visibility 0.45s ease;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
     }
     .splash-screen.hidden-splash {
       opacity: 0;
@@ -44,12 +46,12 @@
     }
     .logo-hero-box {
       position: relative;
-      width: clamp(110px, 22vmin, 165px);
-      height: clamp(110px, 22vmin, 165px);
-      border-radius: 34px;
+      width: clamp(104px, 22vmin, 156px);
+      height: clamp(104px, 22vmin, 156px);
+      border-radius: 32px;
       padding: 4px;
       background: linear-gradient(135deg, #22d3ee, #10b981, #ff6b00);
-      box-shadow: 0 0 60px rgba(34, 211, 238, 0.35), 0 0 110px rgba(16, 185, 129, 0.2);
+      box-shadow: 0 0 55px rgba(34, 211, 238, 0.35), 0 0 100px rgba(16, 185, 129, 0.2);
       animation: floatLogo 3.5s ease-in-out infinite;
       flex-shrink: 0;
     }
@@ -57,7 +59,7 @@
       width: 100%;
       height: 100%;
       background: #05070a;
-      border-radius: 30px;
+      border-radius: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -68,7 +70,7 @@
       position: absolute;
       inset: 8px;
       border: 1.5px dashed rgba(34, 211, 238, 0.35);
-      border-radius: 24px;
+      border-radius: 22px;
       animation: spinSlow 18s linear infinite;
     }
     @keyframes floatLogo {
@@ -79,59 +81,19 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
-    .agent-card {
-      background: #111726;
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 14px;
-      padding: 11px;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      min-width: 0;
-      width: 100%;
-    }
-    .agent-card:hover, .agent-card.active-agent {
-      border-color: #22d3ee;
-      background: linear-gradient(145deg, rgba(34, 211, 238, 0.14), rgba(16, 185, 129, 0.08));
-      box-shadow: 0 6px 20px rgba(34, 211, 238, 0.15);
-    }
-    .agent-card.supervisor {
-      border-color: rgba(245, 158, 11, 0.45);
-      background: linear-gradient(145deg, rgba(245, 158, 11, 0.14), rgba(17, 23, 38, 0.95));
-    }
-    .agent-card.supervisor.active-agent {
-      border-color: #fbbf24;
-      box-shadow: 0 6px 22px rgba(245, 158, 11, 0.25);
-    }
-    .cam-action-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 12px 8px;
-      border-radius: 12px;
-      background: #121826;
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      color: #f8fafc;
-      font-size: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.18s ease;
-      min-width: 0;
-      width: 100%;
-    }
-    .cam-action-btn:hover {
-      background: rgba(34, 211, 238, 0.15);
-      border-color: #22d3ee;
-    }
-    /* Landscape compact splash screen on mobile */
     @media (max-height: 540px) and (orientation: landscape) {
       .splash-screen {
         flex-direction: row;
-        gap: 22px;
+        gap: 20px;
         text-align: left;
       }
+    }
+    /* iOS WebClip FullScreen top safe zone */
+    body.ios-standalone-portrait .topbar {
+      padding-top: max(50px, env(safe-area-inset-top, 50px)) !important;
+    }
+    body.ios-standalone-portrait .splash-screen {
+      padding-top: max(54px, env(safe-area-inset-top, 54px)) !important;
     }
   </style>
 </head>
@@ -144,7 +106,7 @@
     <div class="logo-hero-box">
       <div class="logo-hero-inner">
         <div class="logo-ring"></div>
-        <svg width="88" height="88" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="82" height="82" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="xGrad" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stop-color="#22D3EE" />
@@ -163,25 +125,25 @@
       </div>
     </div>
 
-    <div style="margin-top:16px;max-width:580px;min-width:0;">
-      <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.35);color:#22d3ee;font-size:0.7rem;font-weight:700;margin-bottom:10px;max-width:100%;flex-wrap:wrap;justify-content:center;">
+    <div style="margin-top:14px;max-width:540px;width:100%;min-width:0;">
+      <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.35);color:#22d3ee;font-size:0.68rem;font-weight:700;margin-bottom:8px;max-width:100%;flex-wrap:wrap;justify-content:center;">
         ⚡ ARCHITETTURA &bull; RENDER 4K &bull; AUTOCAD 2013+ &bull; SKETCHUP 2021+
       </div>
-      <h1 style="font-size:clamp(1.45rem, 4.5vw, 2.5rem);font-weight:900;letter-spacing:-0.03em;line-height:1.15;background:linear-gradient(90deg,#ffffff,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+      <h1 style="font-size:clamp(1.35rem, 4.5vw, 2.3rem);font-weight:900;letter-spacing:-0.03em;line-height:1.15;background:linear-gradient(90deg,#ffffff,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;word-break:break-word;">
         XviDeo AI Professional Studio 4K
       </h1>
-      <p style="color:#94a3b8;font-size:0.85rem;margin-top:8px;line-height:1.45;">
+      <p style="color:#94a3b8;font-size:0.82rem;margin-top:8px;line-height:1.4;">
         Sistema Responsivo Mobile, Tablet &amp; PC con <strong>5 Agenti IA (1 Supervisore + 4 Operativi)</strong> per Foto/Video da Cellulare, Schizzi, Google Maps, Render 4K e AutoCAD 2013+ / SketchUp 2021+.
       </p>
-      <div style="margin-top:8px;font-size:0.74rem;color:#fbbf24;font-family:var(--font-mono);">
-        Security Pass: <strong>Deia2026</strong> &bull; Link 1-a-1 IP-Lock &bull; Gumroad Ready
+      <div style="margin-top:6px;font-size:0.72rem;color:#fbbf24;font-family:var(--font-mono);">
+        Pass: <strong>Deia2026</strong> &bull; Link 1-a-1 IP-Lock &bull; Gumroad Ready
       </div>
 
-      <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-        <button id="enterStudioSplashBtn" class="btn btn-primary" style="padding:12px 22px;font-size:0.9rem;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#10b981);color:#05070a;font-weight:900;box-shadow:0 8px 25px rgba(34,211,238,0.35);width:100%;max-width:340px;">
+      <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%;">
+        <button id="enterStudioSplashBtn" class="btn btn-primary" style="padding:12px 18px;font-size:0.86rem;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#10b981);color:#05070a;font-weight:900;width:100%;max-width:320px;">
           🚀 Entra nello Studio 4K + 5 Agenti IA
         </button>
-        <button onclick="openHomeGuide()" class="btn btn-cyan" style="padding:11px 18px;font-size:0.82rem;border-radius:12px;width:100%;max-width:340px;">
+        <button onclick="openHomeGuide()" class="btn btn-cyan" style="padding:10px 16px;font-size:0.8rem;border-radius:12px;width:100%;max-width:320px;">
           📲 Installa App su Home (iPhone / Android / PC)
         </button>
       </div>
@@ -189,43 +151,43 @@
   </div>
 
   <!-- ======================================================================
-       TOP BAR / HEADER
+       TOP BAR / HEADER (SINGLE COMPACT ROW ON MOBILE, NEVER TOUCHES CLOCK)
        ====================================================================== -->
   <header class="topbar">
     <div class="brand" style="cursor:pointer;" id="reopenSplashLogoBtn" title="Clicca per aprire il Logo XviDeo AI 4K a schermo intero">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-500 to-orange-500 p-[2px] shadow-lg shrink-0">
-        <div class="w-full h-full bg-[#05070a] rounded-[10px] flex items-center justify-center">
-          <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
+      <div class="brand-icon-box">
+        <div class="brand-icon-inner">
+          <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
             <path d="M12 12L36 36M36 12L12 36" stroke="#22d3ee" stroke-width="5" stroke-linecap="round"/>
             <circle cx="24" cy="24" r="4" fill="#10b981"/>
           </svg>
         </div>
       </div>
-      <div style="min-width:0;">
+      <div class="brand-text-wrap">
         <div class="brand-title">
-          <span>XviDeo AI 4K</span>
+          <span>XviDeo 4K</span>
           <span id="roleBadge" class="badge badge-owner">PROPRIETARIO</span>
         </div>
-        <div class="brand-sub">Pass: <strong style="color:#fbbf24;">Deia2026</strong> &bull; 5 Agenti IA &bull; AutoCAD 2013+ &amp; SketchUp 2021+</div>
+        <div class="brand-sub">Pass: Deia2026 &bull; 5 Agenti IA &bull; AutoCAD 2013+ &amp; SketchUp 2021+</div>
       </div>
     </div>
 
     <div class="topbar-actions">
-      <div class="status-pill" title="Stato Connessione Bidirezionale P2P / PC Bridge">
+      <div class="status-pill hide-on-mobile" title="Stato Connessione Bidirezionale P2P / PC Bridge">
         <span id="connDot" class="dot online"></span>
         <span id="connStatusText">5 IA Attivi</span>
       </div>
-      <div class="status-pill" title="IP Terminale Rilevato">
+      <div class="status-pill hide-on-mobile" title="IP Terminale Rilevato">
         <span>IP:</span>
         <strong id="clientIpDisplay">...</strong>
       </div>
-      <button onclick="openHomeGuide()" class="btn btn-green" style="padding:6px 10px;font-size:0.74rem;">
-        📲 App Home
+      <button onclick="openHomeGuide()" class="btn btn-green" style="padding:6px 9px;font-size:0.72rem;width:auto;">
+        📲 Home
       </button>
-      <button id="installPwaBtn" class="btn btn-cyan" style="display:none;padding:6px 10px;font-size:0.74rem;">
-        📥 Installa
+      <button id="installPwaBtn" class="btn btn-cyan" style="display:none;padding:6px 9px;font-size:0.72rem;width:auto;">
+        📥 App
       </button>
-      <button id="openLicenseModalBtn" class="btn" style="padding:6px 10px;font-size:0.74rem;" title="Gestione Licenza Gumroad / Modalità">
+      <button id="openLicenseModalBtn" class="btn" style="padding:6px 9px;font-size:0.72rem;width:auto;" title="Licenza Gumroad / Modalità">
         🔑
       </button>
     </div>
@@ -234,11 +196,9 @@
   <!-- GUEST SECURITY BANNER (Shown only when accessed via 1-to-1 Direct Share Link) -->
   <div id="guestBanner" class="guest-security-banner" style="display:none;">
     <div>
-      🔒 <strong>SESSIONE OSPITE BIDIREZIONALE 1-A-1 ATTIVA</strong> — Vincolato al tuo IP <code id="guestBoundIp">--</code>.
+      🔒 <strong>SESSIONE OSPITE 1-A-1 ATTIVA</strong> — IP: <code id="guestBoundIp">--</code>
     </div>
-    <div>
-      <span class="badge badge-guest">SOLO USO &bull; NON MODIFICABILE</span>
-    </div>
+    <span class="badge badge-guest">SOLO USO</span>
   </div>
 
   <!-- MAIN APPLICATION SHELL -->
@@ -276,63 +236,63 @@
           <div class="card" style="border-color:rgba(34,211,238,0.35);">
             <div class="card-header">
               <div>
-                <div class="card-title">📸🎥 Fotocamera Cellulare: Foto, Video &amp; Schizzi</div>
-                <div class="card-subtitle">Scatta una foto o gira un video col cellulare, oppure carica/incolla uno schizzo o disegno CAD come base per il progetto di viste e video render.</div>
+                <div class="card-title">📸🎥 Fotocamera: Foto, Video &amp; Schizzi</div>
+                <div class="card-subtitle">Scatta foto o video col cellulare, oppure carica uno schizzo/CAD come base per viste e video render.</div>
               </div>
               <span class="badge badge-guest" id="activeMediaBadge">Pronto</span>
             </div>
 
-            <!-- 4 Ergonomic Mobile Capture Buttons (2x2 on Portrait, 4x1 on Landscape/Desktop) -->
+            <!-- 4 Ergonomic Mobile Capture Buttons -->
             <div class="cam-capture-grid">
               <label class="cam-action-btn">
-                <span style="font-size:1.35rem;">📸</span>
+                <span style="font-size:1.3rem;">📸</span>
                 <span>Scatta Foto</span>
-                <span style="font-size:0.64rem;color:#94a3b8;font-weight:500;">Fotocamera</span>
+                <span style="font-size:0.62rem;color:#94a3b8;font-weight:500;">Fotocamera</span>
                 <input type="file" accept="image/*" capture="environment" onchange="handleDirectMediaUpload(event, 'photo')" class="hidden" />
               </label>
 
               <label class="cam-action-btn" style="border-color:rgba(16,185,129,0.4);">
-                <span style="font-size:1.35rem;">🎥</span>
+                <span style="font-size:1.3rem;">🎥</span>
                 <span>Gira Video</span>
-                <span style="font-size:0.64rem;color:#94a3b8;font-weight:500;">Video Live</span>
+                <span style="font-size:0.62rem;color:#94a3b8;font-weight:500;">Video Live</span>
                 <input type="file" accept="video/*" capture="environment" onchange="handleDirectMediaUpload(event, 'video')" class="hidden" />
               </label>
 
               <label class="cam-action-btn" style="border-color:rgba(245,158,11,0.4);">
-                <span style="font-size:1.35rem;">✏️</span>
+                <span style="font-size:1.3rem;">✏️</span>
                 <span>Carica Schizzo</span>
-                <span style="font-size:0.64rem;color:#94a3b8;font-weight:500;">Galleria / CAD</span>
+                <span style="font-size:0.62rem;color:#94a3b8;font-weight:500;">Galleria / CAD</span>
                 <input type="file" accept="image/*,video/*" onchange="handleDirectMediaUpload(event, 'sketch')" class="hidden" />
               </label>
 
               <button type="button" id="pasteOrDrawSketchBtn" class="cam-action-btn" style="border-color:rgba(255,107,0,0.4);">
-                <span style="font-size:1.35rem;">📋✍️</span>
+                <span style="font-size:1.3rem;">📋✍️</span>
                 <span>Disegna Schizzo</span>
-                <span style="font-size:0.64rem;color:#94a3b8;font-weight:500;">Mano Libera</span>
+                <span style="font-size:0.62rem;color:#94a3b8;font-weight:500;">Mano Libera</span>
               </button>
             </div>
 
             <!-- Quick Paste Coordinates from Google Maps Bar -->
-            <div style="background:var(--bg-primary);padding:11px;border-radius:12px;border:1px solid var(--border-subtle);">
-              <label style="display:block;font-size:0.73rem;color:#22d3ee;font-weight:700;margin-bottom:6px;">
-                📍 INCOLLA COORDINATE O LINK DA GOOGLE MAPS (Localizzazione &amp; Luce Solare):
+            <div style="background:var(--bg-primary);padding:10px;border-radius:10px;border:1px solid var(--border-subtle);width:100%;">
+              <label style="display:block;font-size:0.71rem;color:#22d3ee;font-weight:700;margin-bottom:5px;">
+                📍 INCOLLA COORDINATE O LINK DA GOOGLE MAPS:
               </label>
               <div class="voice-input-row">
                 <input
                   id="quickPasteMapsInput"
                   type="text"
                   class="cmd-input"
-                  placeholder="Incolla da Google Maps (es. 45.4642, 9.1900 o link Maps)..."
+                  placeholder="Es: 45.4642, 9.1900 o link Maps..."
                 />
                 <button type="button" id="pasteClipboardCoordsBtn" class="btn btn-cyan">
                   📋 Incolla
                 </button>
                 <button type="button" id="applyQuickCoordsBtn" class="btn btn-primary">
-                  Applica GPS 🌍
+                  Applica 🌍
                 </button>
               </div>
-              <div id="quickGeoConfirmText" style="font-size:0.71rem;color:#34d399;font-family:var(--font-mono);margin-top:6px;word-break:break-word;">
-                Localizzazione Attiva: Lat 45.464200° N, Lng 9.190000° E &bull; Sincronizzata con i 5 Agenti IA.
+              <div id="quickGeoConfirmText" style="font-size:0.69rem;color:#34d399;font-family:var(--font-mono);margin-top:5px;word-break:break-word;">
+                GPS Attivo: 45.4642° N, 9.1900° E &bull; Sincronizzato con i 5 Agenti IA.
               </div>
             </div>
           </div>
@@ -341,83 +301,83 @@
           <div class="card">
             <div class="card-header">
               <div>
-                <div class="card-title">🧠 Squadra di 5 Agenti IA (1 Supervisore + 4 Operativi)</div>
-                <div class="card-subtitle">Il Supervisore coordina l'ideazione; i 4 Agenti Operativi curano i dettagli di produzione (CAD, Geolocalizzazione, Viste Render 4K) e post-produzione (Video Render &amp; FX).</div>
+                <div class="card-title">🧠 Squadra 5 Agenti IA (1 Supervisore + 4 Operativi)</div>
+                <div class="card-subtitle">Il Supervisore coordina l'ideazione; i 4 Operativi curano CAD, Geolocalizzazione, Viste 4K e Video Render.</div>
               </div>
-              <button id="runAll5AgentsBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
+              <button id="runAll5AgentsBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#ef4444);width:100%;">
                 ⚡ Avvia Tutti i 5 Agenti IA
               </button>
             </div>
 
             <!-- AGENT 1: SUPERVISOR -->
             <div class="agent-card supervisor active-agent" data-agent-id="supervisor" style="margin-bottom:8px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
                 <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
-                  <span style="font-size:1.35rem;flex-shrink:0;">👑</span>
+                  <span style="font-size:1.25rem;flex-shrink:0;">👑</span>
                   <div style="min-width:0;">
-                    <div style="font-size:0.83rem;font-weight:800;color:#fbbf24;word-break:break-word;">
-                      AGENTE 1 (SUPERVISORE): ARCH-DIRECTOR IA
+                    <div style="font-size:0.8rem;font-weight:800;color:#fbbf24;word-break:break-word;">
+                      1. SUPERVISORE: ARCH-DIRECTOR IA
                     </div>
-                    <div style="font-size:0.72rem;color:#cbd5e1;word-break:break-word;">
-                      Coordinamento Generale, Ideazione Concept &amp; Direzione Produzione/Post-Produzione
+                    <div style="font-size:0.7rem;color:#cbd5e1;word-break:break-word;">
+                      Coordinamento Generale, Concept &amp; Direzione Produzione/Post-Produzione
                     </div>
                   </div>
                 </div>
-                <span class="badge badge-owner" id="status-agent-supervisor">COORDINATORE</span>
+                <span class="badge badge-owner" id="status-agent-supervisor">ATTIVO</span>
               </div>
             </div>
 
-            <!-- 4 OPERATIONAL AGENTS GRID (Responsive: 1 col on portrait phone, 2 cols on landscape/tablet/PC) -->
+            <!-- 4 OPERATIONAL AGENTS GRID -->
             <div class="agents-4-grid">
               <div class="agent-card" data-agent-id="cad">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
-                  <span style="font-size:0.76rem;font-weight:800;color:#ff8533;">📐 AGENTE 2 (CAD &amp; BIM)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#ff8533;">📐 2. AGENTE CAD &amp; BIM</span>
                   <span class="badge badge-guest" id="status-agent-cad">Pronto</span>
                 </div>
-                <div style="font-size:0.8rem;font-weight:700;">Dettagli Costruttivi &amp; CAD</div>
-                <div style="font-size:0.71rem;color:#94a3b8;margin-top:2px;">
-                  Trasforma foto/schizzi in script AutoCAD 2013+ (.LSP/.DXF) e SketchUp 2021+ (.RB).
+                <div style="font-size:0.78rem;font-weight:700;">Dettagli AutoCAD &amp; SketchUp</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Genera script AutoCAD 2013+ (.LSP/.DXF) e modelli 3D SketchUp 2021+ (.RB).
                 </div>
               </div>
 
               <div class="agent-card" data-agent-id="geo">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
-                  <span style="font-size:0.76rem;font-weight:800;color:#34d399;">🌍 AGENTE 3 (GEO &amp; SOLE)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#34d399;">🌍 3. AGENTE GEO &amp; SOLE</span>
                   <span class="badge badge-guest" id="status-agent-geo">Pronto</span>
                 </div>
-                <div style="font-size:0.8rem;font-weight:700;">Google Maps, Luce &amp; Clima</div>
-                <div style="font-size:0.71rem;color:#94a3b8;margin-top:2px;">
-                  Allinea coordinate Google Maps, azimut solare reale, ombre e orientamento.
+                <div style="font-size:0.78rem;font-weight:700;">Google Maps &amp; Studio Solare</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Allinea coordinate Maps, azimut solare reale, ombre e orientamento.
                 </div>
               </div>
 
               <div class="agent-card" data-agent-id="render">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
-                  <span style="font-size:0.76rem;font-weight:800;color:#22d3ee;">🎨 AGENTE 4 (VISTE 4K)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#22d3ee;">🎨 4. AGENTE VISTE 4K</span>
                   <span class="badge badge-guest" id="status-agent-render">Pronto</span>
                 </div>
-                <div style="font-size:0.8rem;font-weight:700;">Materiali PBR &amp; Render 4K</div>
-                <div style="font-size:0.71rem;color:#94a3b8;margin-top:2px;">
+                <div style="font-size:0.78rem;font-weight:700;">Materiali PBR &amp; Render 4K</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
                   Applica facciate, vetrate Low-E, verde e genera le viste 4K Prima/Dopo.
                 </div>
               </div>
 
               <div class="agent-card" data-agent-id="video">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
-                  <span style="font-size:0.76rem;font-weight:800;color:#c084fc;">🎬 AGENTE 5 (POST-FX VIDEO)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap;">
+                  <span style="font-size:0.74rem;font-weight:800;color:#c084fc;">🎬 5. POST-PRODUZIONE</span>
                   <span class="badge badge-guest" id="status-agent-video">Pronto</span>
                 </div>
-                <div style="font-size:0.8rem;font-weight:700;">Video Render &amp; Color Grading</div>
-                <div style="font-size:0.71rem;color:#94a3b8;margin-top:2px;">
-                  Genera movimenti camera (Flythrough), transizione giorno/sera e Video Render.
+                <div style="font-size:0.78rem;font-weight:700;">Video Render &amp; Motion FX</div>
+                <div style="font-size:0.69rem;color:#94a3b8;margin-top:2px;">
+                  Movimenti camera (Flythrough), ciclo luce giorno/sera e Video Render.
                 </div>
               </div>
             </div>
 
             <!-- Prompt / Voice Directive to the 5 AI Agents -->
-            <div style="background:var(--bg-primary);padding:11px;border-radius:12px;border:1px solid rgba(245,158,11,0.35);">
-              <label style="display:block;font-size:0.73rem;color:#fbbf24;font-weight:700;margin-bottom:6px;">
-                🎙️💬 DIRETTIVA AL SUPERVISORE E AI 4 AGENTI OPERATIVI (Voce o Testo):
+            <div style="background:var(--bg-primary);padding:10px;border-radius:10px;border:1px solid rgba(245,158,11,0.35);width:100%;">
+              <label style="display:block;font-size:0.71rem;color:#fbbf24;font-weight:700;margin-bottom:5px;">
+                🎙️💬 DIRETTIVA AI 5 AGENTI IA (Voce o Testo):
               </label>
               <div class="voice-input-row">
                 <button type="button" id="agentMicBtn" class="mic-btn" title="Parla con i 5 Agenti IA">
@@ -431,13 +391,13 @@
                   placeholder="Descrivi o detta come vuoi sviluppare la foto/schizzo..."
                 />
                 <button type="button" id="sendDirectiveToAgentsBtn" class="send-cmd-btn">
-                  Elabora con i 5 Agenti ▶
+                  Elabora ▶
                 </button>
               </div>
             </div>
 
             <!-- Live Multi-Agent Output Report -->
-            <div id="multiAgentOutputBox" class="code-output" style="margin-top:10px;max-height:200px;color:#e2e8f0;line-height:1.45;"></div>
+            <pre id="multiAgentOutputBox" class="code-output" style="margin-top:10px;max-height:185px;color:#e2e8f0;line-height:1.4;"></pre>
           </div>
 
         </div>
@@ -447,62 +407,61 @@
           <div class="card">
             <div class="card-header">
               <div>
-                <div class="card-title" id="viewport-title">🎬 Viewport Studio 4K UHD — Vista &amp; Video Render</div>
-                <div class="card-subtitle">Tocca l'immagine per inserire Pin tecnici. Usa lo slider per il confronto Prima/Dopo.</div>
+                <div class="card-title" id="viewport-title">🎬 Viewport 4K — Vista &amp; Video Render</div>
+                <div class="card-subtitle">Tocca il viewport per aggiungere Pin tecnici. Scorri lo slider per il Prima/Dopo.</div>
               </div>
-              <span class="badge badge-guest" id="resBadgeLabel">3840 × 2160 px</span>
+              <span class="badge badge-guest" id="resBadgeLabel">4K UHD</span>
             </div>
 
             <!-- Format & Style Quick Controls -->
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-              <button type="button" onclick="setStudioRatio('16_9', 1920, 1080, 'Orizzontale 16:9 (4K UHD)')" id="ratio-16_9" class="btn btn-cyan" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
-                🖥️ 16:9 Orizzontale
+            <div class="format-style-bar">
+              <button type="button" onclick="setStudioRatio('16_9', 1920, 1080, '16:9 4K')" id="ratio-16_9" class="btn btn-cyan">
+                🖥️ 16:9 4K
               </button>
-              <button type="button" onclick="setStudioRatio('9_16', 1080, 1920, 'Verticale 9:16 (Mobile Story 4K)')" id="ratio-9_16" class="btn" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
+              <button type="button" onclick="setStudioRatio('9_16', 1080, 1920, '9:16 Mobile')" id="ratio-9_16" class="btn">
                 📱 9:16 Verticale
               </button>
-              <button type="button" onclick="setStudioStyle('Contemporaneo Mediterraneo', '#f5f0e6', '#6d7f63', '#0284c7')" class="btn" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
+              <button type="button" onclick="setStudioStyle('Contemporaneo Mediterraneo', '#f5f0e6', '#6d7f63', '#0284c7')" class="btn">
                 🏛️ Mediterraneo
               </button>
-              <button type="button" onclick="setStudioStyle('Milano Luxury Minimal', '#cbd5e1', '#334155', '#0f172a')" class="btn" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
+              <button type="button" onclick="setStudioStyle('Milano Luxury Minimal', '#cbd5e1', '#334155', '#0f172a')" class="btn">
                 🏙️ Milano Luxury
               </button>
-              <button type="button" onclick="setStudioStyle('Bio-Architettura Legno & Vetro', '#e7d7c1', '#92400e', '#0369a1')" class="btn" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
-                🌲 Bio-Architettura
+              <button type="button" onclick="setStudioStyle('Bio-Architettura Legno & Vetro', '#e7d7c1', '#92400e', '#0369a1')" class="btn">
+                🌲 Bio-Legno
               </button>
             </div>
 
             <!-- Interactive 4K Studio Canvas + Hidden Source Video Element -->
-            <div class="w-full flex items-center justify-center bg-[#05070a] rounded-2xl border border-slate-800 p-2 min-h-[260px] relative overflow-hidden">
+            <div style="width:100%;background:#05070a;border-radius:12px;border:1px solid var(--border-subtle);padding:6px;overflow:hidden;">
               <video id="uploadedSiteVideo" playsinline muted loop class="hidden"></video>
               <canvas
                 id="studio-canvas"
                 width="1920"
                 height="1080"
-                class="w-full max-h-[390px] object-contain rounded-xl shadow-2xl cursor-crosshair"
               ></canvas>
             </div>
 
             <!-- Before / After Wipe Slider + Freehand Sketch Mode Toggle -->
-            <div style="display:flex;align-items:center;gap:10px;margin-top:10px;background:var(--bg-primary);padding:10px 12px;border-radius:12px;border:1px solid var(--border-subtle);flex-wrap:wrap;">
-              <span style="font-size:0.75rem;color:#94a3b8;font-weight:600;">Confronto Prima/Dopo:</span>
-              <input type="range" id="split-slider" min="0" max="100" value="50" style="flex:1;min-width:110px;accent-color:#22d3ee;cursor:pointer;" />
-              <span id="split-val" style="font-family:var(--font-mono);color:#22d3ee;font-size:0.78rem;font-weight:700;">50%</span>
-              <button type="button" id="toggleFreehandSketchBtn" class="btn" style="padding:5px 10px;font-size:0.72rem;width:100%;">
-                ✍️ Modalità Disegno Schizzo col Dito: OFF
+            <div class="split-control-bar">
+              <span style="font-size:0.73rem;color:#94a3b8;font-weight:600;">Prima/Dopo:</span>
+              <input type="range" id="split-slider" min="0" max="100" value="50" />
+              <span id="split-val" style="font-family:var(--font-mono);color:#22d3ee;font-size:0.76rem;font-weight:700;">50%</span>
+              <button type="button" id="toggleFreehandSketchBtn" class="btn" style="width:100%;margin-top:4px;">
+                ✍️ Disegno Schizzo col Dito: OFF
               </button>
             </div>
 
             <!-- Post-Production & Video Render Controls (Agent 5) -->
-            <div style="margin-top:10px;padding:11px;background:var(--bg-primary);border-radius:12px;border:1px solid rgba(192,132,252,0.35);">
-              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-                <div style="font-size:0.78rem;font-weight:700;color:#c084fc;">
-                  🎬 Agente 5: Vista 4K &amp; Video Render Animato
+            <div style="margin-top:10px;padding:10px;background:var(--bg-primary);border-radius:10px;border:1px solid rgba(192,132,252,0.35);width:100%;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                <div style="font-size:0.76rem;font-weight:700;color:#c084fc;">
+                  🎬 Agente 5: Vista 4K &amp; Video Render
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;">
-                  <label style="font-size:0.71rem;color:#94a3b8;">Sole:</label>
-                  <input type="range" id="timeOfDaySlider" min="6" max="22" step="0.5" value="16.5" style="width:85px;accent-color:#f59e0b;" />
-                  <span id="timeOfDayLabel" style="font-size:0.71rem;font-family:var(--font-mono);color:#fbbf24;">16:30</span>
+                  <label style="font-size:0.7rem;color:#94a3b8;">Sole:</label>
+                  <input type="range" id="timeOfDaySlider" min="6" max="22" step="0.5" value="16.5" style="width:80px;accent-color:#f59e0b;" />
+                  <span id="timeOfDayLabel" style="font-size:0.7rem;font-family:var(--font-mono);color:#fbbf24;">16:30</span>
                 </div>
               </div>
 
@@ -511,7 +470,7 @@
                   ▶️ Animazione Video Render
                 </button>
                 <button type="button" id="recordWebmVideoBtn" class="btn btn-cyan">
-                  🎥 Scarica Video Render (.WEBM)
+                  🎥 Scarica Video (.WEBM)
                 </button>
                 <button type="button" id="download4kStillBtn" class="btn btn-green">
                   📥 Scarica Vista 4K (.PNG)
@@ -523,11 +482,11 @@
             </div>
 
             <!-- Interactive Technical Pins List -->
-            <div style="margin-top:10px;">
-              <div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;">
-                📌 Pin Tecnici sul Render (Tocca l'immagine per aggiungerne):
+            <div style="margin-top:10px;width:100%;">
+              <div style="font-size:0.73rem;font-weight:700;color:#fbbf24;margin-bottom:6px;">
+                📌 Pin Tecnici (Tocca il Render per aggiungerne):
               </div>
-              <div id="studioPinsList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;"></div>
+              <div id="studioPinsList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;width:100%;"></div>
             </div>
           </div>
         </div>
@@ -551,25 +510,21 @@
           <div class="voice-box">
             <div class="card-header" style="margin-bottom:8px;">
               <div>
-                <div class="card-title">🎙️ Comando Vocale o Testo per AutoCAD &amp; SketchUp</div>
-                <div class="card-subtitle">Parla o scrivi la modifica: viene compilata in .LSP, .RB e .DXF.</div>
+                <div class="card-title">🎙️ Comando Vocale o Testo CAD</div>
+                <div class="card-subtitle">Compilazione istantanea in .LSP, .RB e .DXF.</div>
               </div>
               <span id="voiceLangBadge" class="badge badge-guest">IT-IT</span>
             </div>
 
             <div class="voice-input-row">
-              <button id="micBtn" class="mic-btn" title="Premi e parla (Microfono)">
-                🎙️
-              </button>
+              <button id="micBtn" class="mic-btn" title="Microfono">🎙️</button>
               <input
                 id="naturalCmdInput"
                 type="text"
                 class="cmd-input"
-                placeholder="Es: 'Stanza 5x4m h 2.70 muro 30cm', 'Scala H 3.00m'..."
+                placeholder="Es: 'Stanza 5x4m h 2.70 muro 30cm'..."
               />
-              <button id="executeNaturalBtn" class="send-cmd-btn">
-                Esegui ▶
-              </button>
+              <button id="executeNaturalBtn" class="send-cmd-btn">Esegui ▶</button>
             </div>
 
             <div class="voice-chips">
@@ -584,8 +539,8 @@
           <div class="card">
             <div class="card-header">
               <div>
-                <div class="card-title">🎛️ Comandi Precompilati &amp; Guidati (12 Strumenti)</div>
-                <div class="card-subtitle">Seleziona lo strumento per aprire i parametri guidati.</div>
+                <div class="card-title">🎛️ Comandi Precompilati &amp; Guidati (12)</div>
+                <div class="card-subtitle">Tocca uno strumento per aprire i parametri guidati.</div>
               </div>
             </div>
 
@@ -608,7 +563,7 @@
                 Imposta le misure in metri e invia il comando.
               </div>
 
-              <div id="normativeCalcBanner" style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);font-size:0.74rem;font-family:var(--font-mono);color:#34D399;word-break:break-word;">
+              <div id="normativeCalcBanner" style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);font-size:0.72rem;font-family:var(--font-mono);color:#34D399;word-break:break-word;">
                 📐 Verifica Tecnica in tempo reale pronta.
               </div>
 
@@ -636,11 +591,11 @@
                 <div class="card-title">📐 Viewport Vettoriale CAD 2D/3D</div>
                 <div class="card-subtitle">Sincronizzata tra PC, iPhone e Android.</div>
               </div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button id="zoomInCanvasBtn" class="btn" style="padding:5px 9px;font-size:0.72rem;">➕</button>
-                <button id="zoomOutCanvasBtn" class="btn" style="padding:5px 9px;font-size:0.72rem;">➖</button>
-                <button id="toggleViewModeBtn" class="btn" style="padding:5px 9px;font-size:0.72rem;">🧊 3D/2D</button>
-                <button id="clearCanvasBtn" class="btn" style="padding:5px 9px;font-size:0.72rem;">🗑️</button>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <button id="zoomInCanvasBtn" class="btn" style="padding:5px 8px;">➕</button>
+                <button id="zoomOutCanvasBtn" class="btn" style="padding:5px 8px;">➖</button>
+                <button id="toggleViewModeBtn" class="btn" style="padding:5px 8px;">🧊 3D/2D</button>
+                <button id="clearCanvasBtn" class="btn" style="padding:5px 8px;">🗑️</button>
               </div>
             </div>
 
@@ -658,7 +613,7 @@
               <button class="code-tab active" data-codetab="acad">AutoCAD (.LSP)</button>
               <button class="code-tab" data-codetab="skp">SketchUp (.RB)</button>
               <button class="code-tab" data-codetab="dxf">CAD (.DXF)</button>
-              <button class="btn" id="copyCodeBtn" style="margin-left:auto;padding:4px 9px;font-size:0.7rem;">📋 Copia</button>
+              <button class="btn" id="copyCodeBtn" style="margin-left:auto;padding:4px 8px;font-size:0.68rem;">📋 Copia</button>
             </div>
             <pre id="codeOutputBox" class="code-output"></pre>
           </div>
@@ -666,13 +621,13 @@
           <div class="card">
             <div class="card-header">
               <div>
-                <div class="card-title">🔄 Registro Bidirezionale &amp; Chat Tecnica</div>
+                <div class="card-title">🔄 Registro Bidirezionale &amp; Chat</div>
                 <div class="card-subtitle">Messaggi e comandi in tempo reale col terminale connesso.</div>
               </div>
             </div>
 
             <div class="voice-input-row" style="margin-bottom:10px;">
-              <input id="quickChatInput" type="text" class="cmd-input" placeholder="Scrivi nota rapida al terminale collegato..." />
+              <input id="quickChatInput" type="text" class="cmd-input" placeholder="Scrivi nota rapida..." />
               <button id="sendQuickChatBtn" class="btn btn-cyan">Invia 💬</button>
             </div>
 
@@ -691,17 +646,17 @@
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">🌍 Geolocalizzazione Google Maps &amp; Incolla Coordinate</div>
+              <div class="card-title">🌍 Google Maps &amp; Incolla Coordinate</div>
               <div class="card-subtitle">Incolla le coordinate da Google Maps o usa il GPS del cellulare.</div>
             </div>
-            <button id="getGpsBtn" class="btn btn-primary">
+            <button id="getGpsBtn" class="btn btn-primary" style="width:100%;">
               📍 Rileva GPS dal Telefono
             </button>
           </div>
 
           <div class="voice-input-row" style="margin-bottom:10px;">
-            <input id="mapSearchInput" type="text" class="cmd-input" placeholder="Incolla coordinate (es. 45.4642, 9.1900) o indirizzo..." />
-            <button id="mapSearchBtn" class="btn btn-cyan">🔍 Cerca su Maps</button>
+            <input id="mapSearchInput" type="text" class="cmd-input" placeholder="Coordinate (es. 45.4642, 9.1900) o indirizzo..." />
+            <button id="mapSearchBtn" class="btn btn-cyan">🔍 Cerca</button>
           </div>
 
           <div class="map-frame-wrap">
@@ -764,7 +719,7 @@
               <div class="card-title">📋 Punti Rilevati &amp; Poligonale GPS → CAD</div>
               <div class="card-subtitle">Salva più punti GPS in cantiere per generare il perimetro del lotto.</div>
             </div>
-            <button id="addGpsWaypointBtn" class="btn btn-green">+ Fissa Punto GPS</button>
+            <button id="addGpsWaypointBtn" class="btn btn-green" style="width:100%;">+ Fissa Punto GPS</button>
           </div>
           <div id="waypointList" class="log-list" style="margin-bottom:12px;"></div>
           <button id="generateLotPolygonBtn" class="btn btn-cyan" style="width:100%;">
@@ -827,17 +782,17 @@
             </div>
           </div>
 
-          <div id="qrCodeContainer" style="display:none;margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-md);border:1px solid var(--border-active);align-items:center;gap:14px;flex-wrap:wrap;">
-            <img id="qrCodeImg" alt="QR Code Invito 1-a-1" width="120" height="120" style="border-radius:8px;background:#fff;padding:6px;" />
-            <div style="flex:1;min-width:160px;">
-              <div style="font-weight:700;font-size:0.86rem;margin-bottom:4px;color:var(--accent-skp);">📲 Inquadra con iPhone o Android</div>
-              <div style="font-size:0.75rem;color:var(--text-secondary);">
+          <div id="qrCodeContainer" style="display:none;margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-md);border:1px solid var(--border-active);align-items:center;gap:12px;flex-wrap:wrap;">
+            <img id="qrCodeImg" alt="QR Code Invito 1-a-1" width="110" height="110" style="border-radius:8px;background:#fff;padding:6px;" />
+            <div style="flex:1;min-width:140px;">
+              <div style="font-weight:700;font-size:0.82rem;margin-bottom:4px;color:var(--accent-skp);">📲 Inquadra con iPhone o Android</div>
+              <div style="font-size:0.72rem;color:var(--text-secondary);">
                 Fai inquadrare questo QR Code o invia il link su WhatsApp: si bloccherà automaticamente sul primo IP che accede.
               </div>
             </div>
           </div>
 
-          <div style="margin-top:12px;padding:10px;background:var(--bg-primary);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);font-size:0.76rem;color:var(--text-secondary);word-break:break-word;">
+          <div style="margin-top:12px;padding:10px;background:var(--bg-primary);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);font-size:0.73rem;color:var(--text-secondary);word-break:break-word;">
             <div><strong>Stanza P2P:</strong> <span id="hostRoomIdDisplay" style="color:var(--accent-skp);font-family:var(--font-mono);">Attiva</span></div>
             <div style="margin-top:4px;"><strong>IP Ospite Associato:</strong> <span id="boundGuestIpStatus" style="color:#34D399;font-family:var(--font-mono);">In attesa (1 slot disponibile)</span></div>
           </div>
@@ -890,15 +845,11 @@
           <div class="geo-stats" style="margin-bottom:12px;">
             <div class="stat-box">
               <div class="stat-label">AUTOCAD (2013–2026)</div>
-              <div class="stat-value" id="acadBridgeStat" style="font-size:0.78rem;">COM + AutoLISP</div>
+              <div class="stat-value" id="acadBridgeStat" style="font-size:0.76rem;">COM + AutoLISP</div>
             </div>
             <div class="stat-box">
               <div class="stat-label">SKETCHUP (2021–2026)</div>
-              <div class="stat-value" id="skpBridgeStat" style="font-size:0.78rem;">Ruby Live Sync</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-label">COMANDI ESEGUITI</div>
-              <div class="stat-value" id="cmdCountBridgeStat">0</div>
+              <div class="stat-value" id="skpBridgeStat" style="font-size:0.76rem;">Ruby Live Sync</div>
             </div>
           </div>
 
@@ -948,9 +899,9 @@
           <div class="card-subtitle">XviDeo AI Professional Studio 4K</div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:0.8rem;color:var(--text-secondary);margin-bottom:14px;">
-        <p><strong>Metodo 1 (Da Safari su iPhone / iPad):</strong> Tocca l'icona <strong>Condividi</strong> in basso su Safari e scegli <strong>"Aggiungi alla schermata Home"</strong>.</p>
-        <p><strong>Metodo 2 (Installatore Automatico Profilo iOS):</strong> Tocca il pulsante verde qui sotto, poi apri <strong>Impostazioni ⚙️ → Profilo scaricato → Installa</strong>.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:0.78rem;color:var(--text-secondary);margin-bottom:14px;">
+        <p><strong>Consigliato su iPhone (Safari):</strong> Apri <code>https://cuordivino.github.io/xvideo-cadbridge-4k/</code> su Safari, tocca l'icona <strong>Condividi</strong> in basso e scegli <strong>"Aggiungi alla schermata Home"</strong>.</p>
+        <p><strong>Alternativa (Profilo iOS):</strong> Tocca il pulsante verde qui sotto, poi apri <strong>Impostazioni ⚙️ → Profilo scaricato → Installa</strong>.</p>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <button onclick="installIosWebClip()" class="btn btn-primary" style="background:linear-gradient(90deg,#10b981,#22d3ee);color:#05070a;font-weight:800;padding:11px;">
@@ -979,7 +930,7 @@
         <span class="badge badge-locked">LICENZA</span>
       </div>
 
-      <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px;">
+      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px;">
         Inserisci una <strong>License Key Gumroad</strong> valida (o il Security Pass <code>Deia2026</code>), oppure usa il <strong>Link Diretto 1-a-1</strong> inviato dal Proprietario.
       </p>
 
@@ -988,7 +939,7 @@
         <input type="text" id="licenseKeyInput" class="cmd-input" style="width:100%;" placeholder="Es. Deia2026 oppure XXXX-XXXX" />
       </div>
 
-      <div id="licenseErrorMsg" style="color:#F87171;font-size:0.76rem;margin-bottom:10px;display:none;"></div>
+      <div id="licenseErrorMsg" style="color:#F87171;font-size:0.75rem;margin-bottom:10px;display:none;"></div>
 
       <div class="btn-row" style="margin-bottom:14px;">
         <button id="verifyLicenseBtn" class="btn btn-primary">
@@ -999,7 +950,7 @@
         </a>
       </div>
 
-      <div style="padding-top:10px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;font-size:0.74rem;color:var(--text-muted);flex-wrap:wrap;gap:6px;">
+      <div style="padding-top:10px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;gap:6px;">
         <span>Accesso Proprietario:</span>
         <button id="unlockOwnerQuickBtn" class="btn" style="padding:5px 10px;font-size:0.72rem;">
           🔓 Entra con Pass Deia2026
@@ -1008,6 +959,18 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    // Dynamic Island / iOS WebClip Safe Area Detector (Portrait & 90° Landscape)
+    function updateIosSafeMode() {
+      const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+      const isPortrait = window.innerHeight > window.innerWidth;
+      document.body.classList.toggle('ios-standalone-portrait', (isIos || isStandalone) && isPortrait);
+    }
+    window.addEventListener('resize', updateIosSafeMode);
+    window.addEventListener('orientationchange', updateIosSafeMode);
+    updateIosSafeMode();
+  </script>
+  <script src="app.js?v=2.1"></script>
 </body>
 </html>

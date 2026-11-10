@@ -264,6 +264,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   drawCadPreview();
   redrawStudio4KCanvas();
   runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || 'Progetto Architettonico 4K', false);
+
+  let resizeTimer = null;
+  const handleViewportChange = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      drawCadPreview();
+      redrawStudio4KCanvas();
+    }, 80);
+  };
+  window.addEventListener('resize', handleViewportChange);
+  window.addEventListener('orientationchange', handleViewportChange);
 });
 
 function initSplashLogoHandlers() {
@@ -985,8 +996,8 @@ window.downloadStandaloneApp = function () {
 
 window.installIosWebClip = function () {
   const appUrl = window.location.href.startsWith('http')
-    ? window.location.href
-    : 'data:text/html;base64,' + btoa(unescape(encodeURIComponent(document.documentElement.outerHTML)));
+    ? window.location.origin + window.location.pathname
+    : 'https://cuordivino.github.io/xvideo-cadbridge-4k/';
   const mobileConfig = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -1003,13 +1014,13 @@ window.installIosWebClip = function () {
             <key>PayloadDescription</key>
             <string>Configura XviDeo AI Studio 4K sulla schermata Home</string>
             <key>PayloadDisplayName</key>
-            <string>XviDeo AI Studio 4K WebApp</string>
+            <string>XviDeo AI Studio 4K WebApp v2.1</string>
             <key>PayloadIdentifier</key>
-            <string>com.xvideo.studio4k.webclip</string>
+            <string>com.xvideo.studio4k.webclip.v21</string>
             <key>PayloadType</key>
             <string>com.apple.webClip.managed</string>
             <key>PayloadUUID</key>
-            <string>A1B2C3D4-E5F6-7890-ABCD-1234567890AB</string>
+            <string>A1B2C3D4-E5F6-7890-ABCD-202611100210</string>
             <key>PayloadVersion</key>
             <integer>1</integer>
             <key>Precomposed</key>
@@ -1019,15 +1030,15 @@ window.installIosWebClip = function () {
         </dict>
     </array>
     <key>PayloadDisplayName</key>
-    <string>XviDeo AI Professional Studio 4K</string>
+    <string>XviDeo AI Professional Studio 4K (v2.1 Responsive)</string>
     <key>PayloadIdentifier</key>
-    <string>com.xvideo.studio4k.profile</string>
+    <string>com.xvideo.studio4k.profile.v21</string>
     <key>PayloadRemovalDisallowed</key>
     <false/>
     <key>PayloadType</key>
     <string>Configuration</string>
     <key>PayloadUUID</key>
-    <string>F1E2D3C4-B5A6-7890-1234-567890ABCDEF</string>
+    <string>F1E2D3C4-B5A6-7890-1234-202611100210</string>
     <key>PayloadVersion</key>
     <integer>1</integer>
 </dict>
@@ -1046,7 +1057,12 @@ window.installIosWebClip = function () {
    ============================================================================ */
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker
+      .register('./sw.js?v=2.1')
+      .then((reg) => {
+        reg.update().catch(() => {});
+      })
+      .catch(() => {});
   }
 }
 
@@ -1176,6 +1192,11 @@ function initTabs() {
       allTabBtns.forEach((b) => {
         b.classList.toggle('active', b.getAttribute('data-tab') === target);
       });
+
+      setTimeout(() => {
+        drawCadPreview();
+        redrawStudio4KCanvas();
+      }, 30);
     });
   });
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cadbridge-pro-v1.3';
+const CACHE_NAME = 'cadbridge-pro-v2.1';
 const ASSETS = [
   './',
   './index.html',
@@ -29,7 +29,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: 'no-store' })
       .then((response) => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
