@@ -2,7 +2,7 @@
 <html lang="it" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <title>XviDeo AI Professional Studio 4K — AutoCAD 2013+, SketchUp 2021+ &amp; 5 AI Agents</title>
   <meta name="description" content="Studio Professionale 4K con 5 Agenti IA (1 Supervisore + 4 Operativi), Fotocamera Mobile Foto/Video/Schizzi, Google Maps, AutoCAD 2013+ e SketchUp 2021+." />
   <meta name="theme-color" content="#05070a" />
@@ -14,29 +14,32 @@
   <link rel="manifest" href="manifest.json" />
   <style>
 :root {
-  --bg-primary: #090C10;
-  --bg-secondary: #11161F;
-  --bg-card: #161C28;
-  --bg-elevated: #1E2636;
+  --bg-primary: #05070A;
+  --bg-secondary: #0F141F;
+  --bg-card: #131A29;
+  --bg-elevated: #1C2539;
   --border-subtle: rgba(255, 255, 255, 0.09);
-  --border-active: rgba(0, 229, 255, 0.45);
-  --text-primary: #F3F6FA;
-  --text-secondary: #9BA7B8;
-  --text-muted: #647287;
-  --accent-cad: #FF6B00;        /* AutoCAD Orange/Red */
-  --accent-skp: #00E5FF;        /* SketchUp Cyan/Blue */
-  --accent-green: #10B981;      /* Connected / Valid IP */
-  --accent-warn: #F59E0B;       /* Warning */
-  --accent-danger: #EF4444;     /* Locked / Error */
+  --border-active: rgba(34, 211, 238, 0.45);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --accent-cad: #FF6B00;
+  --accent-skp: #22D3EE;
+  --accent-green: #10B981;
+  --accent-warn: #F59E0B;
+  --accent-danger: #EF4444;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-lg: 16px;
+  --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -44,12 +47,15 @@
 }
 
 html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
   min-height: 100dvh;
-  overflow-x: hidden;
   line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Blueprint subtle background grid */
@@ -58,15 +64,15 @@ body::before {
   position: fixed;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
   background-size: 28px 28px;
   pointer-events: none;
   z-index: 0;
 }
 
 /* ==========================================================================
-   TOP BAR / HEADER
+   TOP BAR / HEADER (SAFE-AREA AWARE FOR IPHONE PORTRAIT & LANDSCAPE)
    ========================================================================== */
 .topbar {
   position: sticky;
@@ -75,55 +81,55 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 20px;
-  background: rgba(9, 12, 16, 0.88);
+  gap: 10px;
+  padding: calc(10px + var(--safe-top)) calc(14px + var(--safe-right)) 10px calc(14px + var(--safe-left));
+  background: rgba(5, 7, 10, 0.92);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-subtle);
+  width: 100%;
+  max-width: 100vw;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.brand-logo {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(255, 107, 0, 0.2), rgba(0, 229, 255, 0.2));
-  border: 1px solid rgba(255, 107, 0, 0.5);
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .brand-title {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 0.96rem;
+  font-weight: 800;
   letter-spacing: -0.02em;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
+  line-height: 1.2;
 }
 
 .brand-sub {
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
   font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 4px;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 700;
   font-family: var(--font-mono);
-  letter-spacing: 0.02em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .badge-owner {
@@ -133,9 +139,9 @@ body::before {
 }
 
 .badge-guest {
-  background: rgba(0, 229, 255, 0.14);
+  background: rgba(34, 211, 238, 0.14);
   color: var(--accent-skp);
-  border: 1px solid rgba(0, 229, 255, 0.35);
+  border: 1px solid rgba(34, 211, 238, 0.35);
 }
 
 .badge-locked {
@@ -147,20 +153,25 @@ body::before {
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .status-pill {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
+  gap: 6px;
+  padding: 5px 10px;
   border-radius: 999px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-family: var(--font-mono);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dot {
@@ -168,56 +179,53 @@ body::before {
   height: 8px;
   border-radius: 50%;
   background: var(--accent-warn);
+  flex-shrink: 0;
 }
 
 .dot.online {
   background: var(--accent-green);
-  box-shadow: 0 0 10px var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
 }
 
 /* ==========================================================================
    GUEST READ-ONLY / IP-BOUND BANNER
    ========================================================================== */
 .guest-security-banner {
-  background: linear-gradient(90deg, rgba(0, 229, 255, 0.12), rgba(255, 107, 0, 0.12));
-  border-bottom: 1px solid rgba(0, 229, 255, 0.3);
-  padding: 10px 20px;
-  font-size: 0.82rem;
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.12), rgba(255, 107, 0, 0.12));
+  border-bottom: 1px solid rgba(34, 211, 255, 0.3);
+  padding: 8px calc(14px + var(--safe-right)) 8px calc(14px + var(--safe-left));
+  font-size: 0.78rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   position: relative;
   z-index: 10;
-}
-
-.guest-security-banner code {
-  background: rgba(0, 0, 0, 0.4);
-  padding: 2px 7px;
-  border-radius: 4px;
-  color: var(--accent-skp);
-  font-family: var(--font-mono);
+  width: 100%;
 }
 
 /* ==========================================================================
-   MAIN WORKSPACE GRID (RESPONSIVE PC + MOBILE)
+   MAIN WORKSPACE SHELL & MULTI-DEVICE GRIDS
    ========================================================================== */
 .app-shell {
   position: relative;
   z-index: 1;
-  max-width: 1560px;
+  width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 18px 20px calc(90px + var(--safe-bottom));
+  padding: 14px calc(14px + var(--safe-right)) calc(88px + var(--safe-bottom)) calc(14px + var(--safe-left));
+  overflow-x: hidden;
 }
 
 .nav-tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .nav-tabs::-webkit-scrollbar {
@@ -227,46 +235,44 @@ body::before {
 .tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: 6px;
+  padding: 9px 14px;
   border-radius: var(--radius-md);
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.18s ease;
-}
-
-.tab-btn:hover {
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.22);
+  flex-shrink: 0;
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, rgba(255, 107, 0, 0.18), rgba(0, 229, 255, 0.14));
+  background: linear-gradient(135deg, rgba(255, 107, 0, 0.2), rgba(34, 211, 238, 0.16));
   color: var(--text-primary);
-  border-color: var(--accent-cad);
-  box-shadow: 0 4px 18px rgba(255, 107, 0, 0.15);
+  border-color: var(--accent-skp);
 }
 
+/* Crucial: min-width: 0 on grid children prevents any horizontal overflow on mobile */
 .workspace-grid {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: 16px;
   align-items: start;
+  width: 100%;
 }
 
-@media (max-width: 1080px) {
-  .workspace-grid {
-    grid-template-columns: 1fr;
-  }
+.workspace-grid > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .tab-panel {
   display: none;
+  width: 100%;
+  min-width: 0;
 }
 
 .tab-panel.active {
@@ -280,61 +286,92 @@ body::before {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 18px;
-  margin-bottom: 18px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  padding: 15px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .card-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
+.card-header > div {
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
 .card-title {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
+  word-break: break-word;
 }
 
 .card-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.77rem;
   color: var(--text-secondary);
-  margin-top: 2px;
+  margin-top: 3px;
+  word-break: break-word;
 }
 
-/* Target Engine Switcher (AutoCAD 2013+ / SketchUp 2021+ / Entrambi) */
+/* Camera Capture 4-Button Responsive Grid */
+.cam-capture-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+/* 4 Operational AI Agents Responsive Grid */
+.agents-4-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+/* Target Engine Switcher */
 .engine-selector {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
   background: var(--bg-primary);
-  padding: 5px;
+  padding: 4px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  width: 100%;
 }
 
 .engine-opt {
-  padding: 9px 10px;
+  padding: 8px 6px;
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
   text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .engine-opt.active[data-engine="both"] {
-  background: linear-gradient(90deg, rgba(255, 107, 0, 0.25), rgba(0, 229, 255, 0.25));
+  background: linear-gradient(90deg, rgba(255, 107, 0, 0.25), rgba(34, 211, 238, 0.25));
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -346,31 +383,35 @@ body::before {
 }
 
 .engine-opt.active[data-engine="sketchup"] {
-  background: rgba(0, 229, 255, 0.18);
+  background: rgba(34, 211, 238, 0.18);
   color: var(--accent-skp);
   border: 1px solid var(--accent-skp);
 }
 
 /* ==========================================================================
-   VOICE & NATURAL TEXT COMMAND BAR
+   VOICE & NATURAL TEXT / PASTE INPUT ROWS (NO OVERFLOW ON MOBILE)
    ========================================================================== */
 .voice-box {
-  background: linear-gradient(145deg, rgba(30, 38, 54, 0.9), rgba(17, 22, 31, 0.95));
-  border: 1px solid rgba(0, 229, 255, 0.28);
+  background: linear-gradient(145deg, rgba(28, 37, 57, 0.9), rgba(15, 20, 31, 0.95));
+  border: 1px solid rgba(34, 211, 238, 0.28);
   border-radius: var(--radius-lg);
-  padding: 16px;
-  margin-bottom: 18px;
+  padding: 14px;
+  margin-bottom: 14px;
+  width: 100%;
+  min-width: 0;
 }
 
 .voice-input-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .mic-btn {
-  width: 54px;
-  min-height: 54px;
+  width: 46px;
+  min-height: 44px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 107, 0, 0.5);
   background: rgba(255, 107, 0, 0.16);
@@ -379,12 +420,6 @@ body::before {
   place-items: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.mic-btn:hover {
-  background: rgba(255, 107, 0, 0.28);
-  transform: translateY(-1px);
 }
 
 .mic-btn.listening {
@@ -396,18 +431,20 @@ body::before {
 
 @keyframes pulseMic {
   0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-  70% { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+  70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 .cmd-input {
-  flex: 1;
+  flex: 1 1 180px;
+  min-width: 0;
+  width: 100%;
   background: var(--bg-primary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  padding: 10px 12px;
   color: var(--text-primary);
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-family: var(--font-sans);
 }
 
@@ -417,20 +454,16 @@ body::before {
 }
 
 .send-cmd-btn {
-  padding: 0 18px;
+  padding: 10px 16px;
   border-radius: var(--radius-md);
   border: none;
   background: linear-gradient(135deg, var(--accent-cad), #FF3D00);
   color: #fff;
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.15s;
-}
-
-.send-cmd-btn:hover {
-  opacity: 0.92;
+  flex-shrink: 0;
 }
 
 .voice-chips {
@@ -441,20 +474,16 @@ body::before {
 }
 
 .voice-chip {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   padding: 5px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.15s;
-}
-
-.voice-chip:hover {
-  color: var(--text-primary);
-  border-color: var(--accent-skp);
-  background: rgba(0, 229, 255, 0.1);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ==========================================================================
@@ -463,21 +492,23 @@ body::before {
 .category-pills {
   display: flex;
   gap: 6px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cat-pill {
-  padding: 6px 12px;
+  padding: 6px 11px;
   border-radius: 999px;
   background: var(--bg-primary);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .cat-pill.active {
@@ -488,8 +519,9 @@ body::before {
 
 .macro-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 8px;
+  width: 100%;
 }
 
 .macro-btn {
@@ -497,82 +529,88 @@ body::before {
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 13px;
+  padding: 11px;
   border-radius: var(--radius-md);
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
-  transition: all 0.16s ease;
-  min-height: 92px;
-}
-
-.macro-btn:hover {
-  border-color: var(--accent-cad);
-  background: var(--bg-elevated);
-  transform: translateY(-2px);
+  min-height: 86px;
+  min-width: 0;
+  width: 100%;
 }
 
 .macro-btn .macro-tag {
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-family: var(--font-mono);
   padding: 2px 6px;
   border-radius: 4px;
   background: rgba(255, 107, 0, 0.15);
   color: #FF8533;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .macro-btn[data-target="skp"] .macro-tag {
-  background: rgba(0, 229, 255, 0.15);
+  background: rgba(34, 211, 238, 0.15);
   color: var(--accent-skp);
 }
 
 .macro-btn .macro-name {
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
+  word-break: break-word;
 }
 
 .macro-btn .macro-desc {
-  font-size: 0.73rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
+  word-break: break-word;
 }
 
-/* Guided Parameter Editor Box */
 .param-drawer {
-  margin-top: 16px;
-  padding: 15px;
+  margin-top: 14px;
+  padding: 13px;
   border-radius: var(--radius-md);
   background: var(--bg-primary);
   border: 1px solid rgba(255, 107, 0, 0.4);
+  width: 100%;
+  min-width: 0;
 }
 
 .param-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-  margin: 12px 0;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.field-group {
+  min-width: 0;
+  width: 100%;
 }
 
 .field-group label {
   display: block;
-  font-size: 0.73rem;
+  font-size: 0.71rem;
   color: var(--text-secondary);
   margin-bottom: 4px;
   font-family: var(--font-mono);
+  word-break: break-word;
 }
 
 .field-group input,
 .field-group select {
   width: 100%;
-  padding: 9px 10px;
+  min-width: 0;
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   font-family: var(--font-mono);
 }
 
@@ -582,12 +620,12 @@ body::before {
 .canvas-wrap {
   position: relative;
   width: 100%;
-  height: 310px;
+  height: 280px;
   background: #06080C;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 #cadCanvas {
@@ -599,10 +637,11 @@ body::before {
 
 .canvas-overlay {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
+  right: 8px;
   display: flex;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
   pointer-events: none;
 }
@@ -610,9 +649,9 @@ body::before {
 .canvas-hud {
   background: rgba(9, 12, 16, 0.82);
   border: 1px solid var(--border-subtle);
-  padding: 4px 8px;
+  padding: 3px 7px;
   border-radius: 6px;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-family: var(--font-mono);
   color: var(--accent-skp);
 }
@@ -621,11 +660,12 @@ body::before {
   display: flex;
   gap: 6px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .code-tab {
-  padding: 6px 11px;
-  font-size: 0.75rem;
+  padding: 5px 10px;
+  font-size: 0.72rem;
   font-family: var(--font-mono);
   border-radius: 6px;
   background: var(--bg-primary);
@@ -644,14 +684,16 @@ body::before {
   background: #06080C;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 11px;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: #A5F3FC;
-  max-height: 210px;
+  max-height: 200px;
   overflow-y: auto;
+  overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
+  width: 100%;
 }
 
 /* ==========================================================================
@@ -659,11 +701,11 @@ body::before {
    ========================================================================== */
 .map-frame-wrap {
   width: 100%;
-  height: 300px;
+  height: 260px;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-subtle);
-  margin: 12px 0;
+  margin: 10px 0;
   background: #0B0F17;
 }
 
@@ -675,30 +717,33 @@ body::before {
 
 .geo-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  margin: 12px 0;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+  width: 100%;
 }
 
 .stat-box {
   background: var(--bg-primary);
   border: 1px solid var(--border-subtle);
-  padding: 10px 12px;
+  padding: 9px 10px;
   border-radius: var(--radius-sm);
+  min-width: 0;
 }
 
 .stat-label {
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   color: var(--text-secondary);
   font-family: var(--font-mono);
 }
 
 .stat-value {
-  font-size: 0.94rem;
+  font-size: 0.85rem;
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--accent-skp);
-  margin-top: 3px;
+  margin-top: 2px;
+  word-break: break-word;
 }
 
 /* ==========================================================================
@@ -708,27 +753,25 @@ body::before {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 9px 14px;
+  gap: 6px;
+  padding: 9px 12px;
   border-radius: var(--radius-sm);
-  font-size: 0.82rem;
+  font-size: 0.79rem;
   font-weight: 600;
   cursor: pointer;
   border: 1px solid var(--border-subtle);
   background: var(--bg-elevated);
   color: var(--text-primary);
-  transition: all 0.15s;
   text-decoration: none;
-}
-
-.btn:hover {
-  border-color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  max-width: 100%;
 }
 
 .btn-primary {
@@ -738,8 +781,8 @@ body::before {
 }
 
 .btn-cyan {
-  background: rgba(0, 229, 255, 0.15);
-  border-color: rgba(0, 229, 255, 0.45);
+  background: rgba(34, 211, 238, 0.15);
+  border-color: rgba(34, 211, 238, 0.45);
   color: var(--accent-skp);
 }
 
@@ -749,26 +792,26 @@ body::before {
   color: #34D399;
 }
 
-/* ==========================================================================
-   BIDIRECTIONAL LOG STREAM
-   ========================================================================== */
 .log-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 240px;
+  gap: 6px;
+  max-height: 210px;
   overflow-y: auto;
+  width: 100%;
 }
 
 .log-item {
-  padding: 9px 12px;
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
   background: var(--bg-primary);
   border-left: 3px solid var(--accent-skp);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
+  word-break: break-word;
 }
 
 .log-item.remote {
@@ -778,12 +821,11 @@ body::before {
 .log-time {
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  white-space: nowrap;
+  font-size: 0.68rem;
 }
 
 /* ==========================================================================
-   PAYWALL / GUMROAD LICENSE GATE MODAL
+   MODALS
    ========================================================================== */
 .modal-backdrop {
   position: fixed;
@@ -793,7 +835,8 @@ body::before {
   backdrop-filter: blur(16px);
   display: none;
   place-items: center;
-  padding: 20px;
+  padding: 16px;
+  overflow-y: auto;
 }
 
 .modal-backdrop.active {
@@ -802,16 +845,16 @@ body::before {
 
 .modal-card {
   width: 100%;
-  max-width: 520px;
+  max-width: 480px;
   background: var(--bg-card);
   border: 1px solid rgba(255, 107, 0, 0.4);
   border-radius: var(--radius-lg);
-  padding: 26px;
+  padding: 20px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
 }
 
 /* ==========================================================================
-   MOBILE BOTTOM DOCK (IPHONE / ANDROID ERGONOMICS)
+   MOBILE BOTTOM DOCK
    ========================================================================== */
 .mobile-dock {
   display: none;
@@ -820,10 +863,10 @@ body::before {
   left: 0;
   right: 0;
   z-index: 120;
-  background: rgba(11, 14, 20, 0.94);
+  background: rgba(5, 7, 10, 0.95);
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--border-subtle);
-  padding: 8px 12px calc(8px + var(--safe-bottom));
+  padding: 6px calc(8px + var(--safe-right)) calc(6px + var(--safe-bottom)) calc(8px + var(--safe-left));
   justify-content: space-around;
 }
 
@@ -831,19 +874,34 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background: none;
   border: none;
   color: var(--text-secondary);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 600;
   cursor: pointer;
+  padding: 4px 6px;
 }
 
 .dock-item.active {
-  color: var(--accent-cad);
+  color: var(--accent-skp);
 }
 
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS:
+   1. TABLET & SMALL LAPTOP (<= 1080px)
+   2. SMARTPHONE PORTRAIT (<= 768px)
+   3. SMARTPHONE LANDSCAPE - GIRATO DI 90 GRADI (max-height: 540px, landscape)
+   ========================================================================== */
+
+@media (max-width: 1080px) {
+  .workspace-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Smartphone Portrait & Mobile General */
 @media (max-width: 768px) {
   .nav-tabs {
     display: none;
@@ -852,13 +910,75 @@ body::before {
     display: flex;
   }
   .topbar {
-    padding: 10px 14px;
+    padding: calc(8px + var(--safe-top)) calc(10px + var(--safe-right)) 8px calc(10px + var(--safe-left));
+  }
+  .brand-sub {
+    display: none;
+  }
+  .status-pill[title="IP Terminale Rilevato"] {
+    display: none;
   }
   .app-shell {
-    padding: 12px 12px calc(95px + var(--safe-bottom));
+    padding: 10px calc(10px + var(--safe-right)) calc(82px + var(--safe-bottom)) calc(10px + var(--safe-left));
+  }
+  .card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+  .cam-capture-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .agents-4-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
   .macro-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .voice-input-row .cmd-input {
+    flex: 1 1 100%;
+  }
+  .voice-input-row .btn,
+  .voice-input-row .send-cmd-btn {
+    flex: 1 1 auto;
+  }
+  .btn-row .btn {
+    flex: 1 1 100%;
+  }
+}
+
+/* Smartphone & Tablet Landscape (Girato di 90 gradi) */
+@media (max-height: 560px) and (orientation: landscape) {
+  .topbar {
+    padding: 6px calc(16px + var(--safe-right)) 6px calc(16px + var(--safe-left));
+  }
+  .brand-sub {
+    display: none;
+  }
+  .workspace-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+  .cam-capture-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .agents-4-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .btn-row .btn {
+    flex: 1 1 calc(50% - 8px);
+  }
+  .canvas-wrap,
+  .map-frame-wrap {
+    height: 210px;
+  }
+  .mobile-dock {
+    padding-top: 4px;
+    padding-bottom: calc(4px + var(--safe-bottom));
+  }
+  .dock-item {
+    flex-direction: row;
+    gap: 5px;
+    font-size: 0.72rem;
   }
 }
 
@@ -872,7 +992,7 @@ body::before {
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
   <style>
-    /* Grand Hero Splash Screen with Animated XviDeo 4K Logo */
+    /* Grand Hero Splash Screen with Animated XviDeo 4K Logo (Responsive Portrait + Landscape) */
     .splash-screen {
       position: fixed;
       inset: 0;
@@ -882,9 +1002,10 @@ body::before {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: calc(20px + env(safe-area-inset-top, 0px)) calc(18px + env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) calc(18px + env(safe-area-inset-left, 0px));
       text-align: center;
-      transition: opacity 0.55s ease, visibility 0.55s ease;
+      overflow-y: auto;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
     }
     .splash-screen.hidden-splash {
       opacity: 0;
@@ -893,19 +1014,20 @@ body::before {
     }
     .logo-hero-box {
       position: relative;
-      width: 170px;
-      height: 170px;
-      border-radius: 38px;
+      width: clamp(110px, 22vmin, 165px);
+      height: clamp(110px, 22vmin, 165px);
+      border-radius: 34px;
       padding: 4px;
       background: linear-gradient(135deg, #22d3ee, #10b981, #ff6b00);
-      box-shadow: 0 0 70px rgba(34, 211, 238, 0.35), 0 0 120px rgba(16, 185, 129, 0.2);
+      box-shadow: 0 0 60px rgba(34, 211, 238, 0.35), 0 0 110px rgba(16, 185, 129, 0.2);
       animation: floatLogo 3.5s ease-in-out infinite;
+      flex-shrink: 0;
     }
     .logo-hero-inner {
       width: 100%;
       height: 100%;
       background: #05070a;
-      border-radius: 34px;
+      border-radius: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -914,14 +1036,14 @@ body::before {
     }
     .logo-ring {
       position: absolute;
-      inset: 10px;
+      inset: 8px;
       border: 1.5px dashed rgba(34, 211, 238, 0.35);
-      border-radius: 26px;
+      border-radius: 24px;
       animation: spinSlow 18s linear infinite;
     }
     @keyframes floatLogo {
       0%, 100% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-8px) scale(1.03); }
+      50% { transform: translateY(-6px) scale(1.02); }
     }
     @keyframes spinSlow {
       from { transform: rotate(0deg); }
@@ -931,14 +1053,16 @@ body::before {
       background: #111726;
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 14px;
-      padding: 12px;
+      padding: 11px;
       transition: all 0.2s ease;
       cursor: pointer;
+      min-width: 0;
+      width: 100%;
     }
     .agent-card:hover, .agent-card.active-agent {
       border-color: #22d3ee;
       background: linear-gradient(145deg, rgba(34, 211, 238, 0.14), rgba(16, 185, 129, 0.08));
-      box-shadow: 0 6px 22px rgba(34, 211, 238, 0.15);
+      box-shadow: 0 6px 20px rgba(34, 211, 238, 0.15);
     }
     .agent-card.supervisor {
       border-color: rgba(245, 158, 11, 0.45);
@@ -946,29 +1070,38 @@ body::before {
     }
     .agent-card.supervisor.active-agent {
       border-color: #fbbf24;
-      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.25);
+      box-shadow: 0 6px 22px rgba(245, 158, 11, 0.25);
     }
     .cam-action-btn {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 14px 10px;
-      border-radius: 14px;
+      gap: 4px;
+      padding: 12px 8px;
+      border-radius: 12px;
       background: #121826;
       border: 1px solid rgba(34, 211, 238, 0.3);
       color: #f8fafc;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
       text-align: center;
       transition: all 0.18s ease;
+      min-width: 0;
+      width: 100%;
     }
     .cam-action-btn:hover {
       background: rgba(34, 211, 238, 0.15);
       border-color: #22d3ee;
-      transform: translateY(-2px);
+    }
+    /* Landscape compact splash screen on mobile */
+    @media (max-height: 540px) and (orientation: landscape) {
+      .splash-screen {
+        flex-direction: row;
+        gap: 22px;
+        text-align: left;
+      }
     }
   </style>
 </head>
@@ -981,7 +1114,7 @@ body::before {
     <div class="logo-hero-box">
       <div class="logo-hero-inner">
         <div class="logo-ring"></div>
-        <svg width="108" height="108" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="88" height="88" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="xGrad" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stop-color="#22D3EE" />
@@ -989,9 +1122,7 @@ body::before {
               <stop offset="100%" stop-color="#FF6B00" />
             </linearGradient>
           </defs>
-          <!-- Architectural Isometric Cube Frame -->
           <polygon points="32,4 58,18 58,46 32,60 6,46 6,18" stroke="rgba(34,211,238,0.35)" stroke-width="2" fill="rgba(34,211,238,0.04)" />
-          <!-- Bold Iconic XviDeo Cross + CAD Compass -->
           <path d="M16 16L48 48M48 16L16 48" stroke="url(#xGrad)" stroke-width="6.5" stroke-linecap="round" />
           <circle cx="32" cy="32" r="6" fill="#05070a" stroke="#22D3EE" stroke-width="3" />
           <circle cx="16" cy="16" r="3.5" fill="#22D3EE" />
@@ -1002,25 +1133,25 @@ body::before {
       </div>
     </div>
 
-    <div style="margin-top:26px;max-width:620px;">
-      <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.35);color:#22d3ee;font-size:0.75rem;font-weight:700;letter-spacing:0.06em;margin-bottom:12px;">
+    <div style="margin-top:16px;max-width:580px;min-width:0;">
+      <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.35);color:#22d3ee;font-size:0.7rem;font-weight:700;margin-bottom:10px;max-width:100%;flex-wrap:wrap;justify-content:center;">
         ⚡ ARCHITETTURA &bull; RENDER 4K &bull; AUTOCAD 2013+ &bull; SKETCHUP 2021+
       </div>
-      <h1 style="font-size:clamp(1.7rem, 4.5vw, 2.75rem);font-weight:900;letter-spacing:-0.03em;line-height:1.1;background:linear-gradient(90deg,#ffffff,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+      <h1 style="font-size:clamp(1.45rem, 4.5vw, 2.5rem);font-weight:900;letter-spacing:-0.03em;line-height:1.15;background:linear-gradient(90deg,#ffffff,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
         XviDeo AI Professional Studio 4K
       </h1>
-      <p style="color:#94a3b8;font-size:0.92rem;margin-top:10px;line-height:1.5;">
-        Sistema Integrato Mobile &amp; Desktop con <strong>5 Agenti IA (1 Supervisore + 4 Operativi)</strong> per Foto/Video da Cellulare, Schizzi, Geolocalizzazione Google Maps, Render Vista/Video 4K e Controllo Diretto AutoCAD 2013+ &amp; SketchUp 2021+.
+      <p style="color:#94a3b8;font-size:0.85rem;margin-top:8px;line-height:1.45;">
+        Sistema Responsivo Mobile, Tablet &amp; PC con <strong>5 Agenti IA (1 Supervisore + 4 Operativi)</strong> per Foto/Video da Cellulare, Schizzi, Google Maps, Render 4K e AutoCAD 2013+ / SketchUp 2021+.
       </p>
-      <div style="margin-top:12px;font-size:0.78rem;color:#fbbf24;font-family:var(--font-mono);">
-        Security Pass Attivo: <strong>Deia2026</strong> &bull; Condivisione 1-a-1 IP-Lock &bull; Gumroad Ready
+      <div style="margin-top:8px;font-size:0.74rem;color:#fbbf24;font-family:var(--font-mono);">
+        Security Pass: <strong>Deia2026</strong> &bull; Link 1-a-1 IP-Lock &bull; Gumroad Ready
       </div>
 
-      <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <button id="enterStudioSplashBtn" class="btn btn-primary" style="padding:13px 28px;font-size:0.95rem;border-radius:14px;background:linear-gradient(135deg,#22d3ee,#10b981);color:#05070a;font-weight:900;box-shadow:0 10px 30px rgba(34,211,238,0.35);">
+      <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button id="enterStudioSplashBtn" class="btn btn-primary" style="padding:12px 22px;font-size:0.9rem;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#10b981);color:#05070a;font-weight:900;box-shadow:0 8px 25px rgba(34,211,238,0.35);width:100%;max-width:340px;">
           🚀 Entra nello Studio 4K + 5 Agenti IA
         </button>
-        <button onclick="openHomeGuide()" class="btn btn-cyan" style="padding:13px 20px;font-size:0.86rem;border-radius:14px;">
+        <button onclick="openHomeGuide()" class="btn btn-cyan" style="padding:11px 18px;font-size:0.82rem;border-radius:12px;width:100%;max-width:340px;">
           📲 Installa App su Home (iPhone / Android / PC)
         </button>
       </div>
@@ -1028,21 +1159,21 @@ body::before {
   </div>
 
   <!-- ======================================================================
-       TOP BAR / HEADER (With Brand Logo clickable to re-open Grand Logo)
+       TOP BAR / HEADER
        ====================================================================== -->
   <header class="topbar">
     <div class="brand" style="cursor:pointer;" id="reopenSplashLogoBtn" title="Clicca per aprire il Logo XviDeo AI 4K a schermo intero">
-      <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-500 to-orange-500 p-[2px] shadow-lg shrink-0">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-500 to-orange-500 p-[2px] shadow-lg shrink-0">
         <div class="w-full h-full bg-[#05070a] rounded-[10px] flex items-center justify-center">
-          <svg width="26" height="26" viewBox="0 0 48 48" fill="none">
+          <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
             <path d="M12 12L36 36M36 12L12 36" stroke="#22d3ee" stroke-width="5" stroke-linecap="round"/>
             <circle cx="24" cy="24" r="4" fill="#10b981"/>
           </svg>
         </div>
       </div>
-      <div>
+      <div style="min-width:0;">
         <div class="brand-title">
-          XviDeo AI Studio 4K
+          <span>XviDeo AI 4K</span>
           <span id="roleBadge" class="badge badge-owner">PROPRIETARIO</span>
         </div>
         <div class="brand-sub">Pass: <strong style="color:#fbbf24;">Deia2026</strong> &bull; 5 Agenti IA &bull; AutoCAD 2013+ &amp; SketchUp 2021+</div>
@@ -1052,20 +1183,20 @@ body::before {
     <div class="topbar-actions">
       <div class="status-pill" title="Stato Connessione Bidirezionale P2P / PC Bridge">
         <span id="connDot" class="dot online"></span>
-        <span id="connStatusText">5 Agenti IA Attivi</span>
+        <span id="connStatusText">5 IA Attivi</span>
       </div>
       <div class="status-pill" title="IP Terminale Rilevato">
         <span>IP:</span>
-        <strong id="clientIpDisplay">Rilevamento...</strong>
+        <strong id="clientIpDisplay">...</strong>
       </div>
-      <button onclick="openHomeGuide()" class="btn btn-green" style="padding:6px 11px;font-size:0.76rem;">
-        📲 App su Home
+      <button onclick="openHomeGuide()" class="btn btn-green" style="padding:6px 10px;font-size:0.74rem;">
+        📲 App Home
       </button>
-      <button id="installPwaBtn" class="btn btn-cyan" style="display:none;padding:6px 11px;font-size:0.76rem;">
-        📥 Installa PWA
+      <button id="installPwaBtn" class="btn btn-cyan" style="display:none;padding:6px 10px;font-size:0.74rem;">
+        📥 Installa
       </button>
-      <button id="openLicenseModalBtn" class="btn" style="padding:6px 11px;font-size:0.76rem;" title="Gestione Licenza Gumroad / Modalità">
-        🔑 Licenza
+      <button id="openLicenseModalBtn" class="btn" style="padding:6px 10px;font-size:0.74rem;" title="Gestione Licenza Gumroad / Modalità">
+        🔑
       </button>
     </div>
   </header>
@@ -1073,11 +1204,10 @@ body::before {
   <!-- GUEST SECURITY BANNER (Shown only when accessed via 1-to-1 Direct Share Link) -->
   <div id="guestBanner" class="guest-security-banner" style="display:none;">
     <div>
-      🔒 <strong>SESSIONE OSPITE BIDIREZIONALE 1-A-1 ATTIVA</strong> — Accesso gratuito autorizzato dal Proprietario.
-      Vincolato esclusivamente al tuo terminale IP <code id="guestBoundIp">--</code>.
+      🔒 <strong>SESSIONE OSPITE BIDIREZIONALE 1-A-1 ATTIVA</strong> — Vincolato al tuo IP <code id="guestBoundIp">--</code>.
     </div>
     <div>
-      <span class="badge badge-guest">USO CONSENTITO &bull; CODICE E IMPOSTAZIONI NON MODIFICABILI</span>
+      <span class="badge badge-guest">SOLO USO &bull; NON MODIFICABILE</span>
     </div>
   </div>
 
@@ -1116,68 +1246,63 @@ body::before {
           <div class="card" style="border-color:rgba(34,211,238,0.35);">
             <div class="card-header">
               <div>
-                <div class="card-title">📸🎥 Acquisizione Diretta da Cellulare: Foto, Video &amp; Schizzi</div>
-                <div class="card-subtitle">Scatta una foto o gira un video in cantiere col cellulare, oppure carica/incolla uno schizzo o disegno CAD come base per il progetto di viste e video render.</div>
+                <div class="card-title">📸🎥 Fotocamera Cellulare: Foto, Video &amp; Schizzi</div>
+                <div class="card-subtitle">Scatta una foto o gira un video col cellulare, oppure carica/incolla uno schizzo o disegno CAD come base per il progetto di viste e video render.</div>
               </div>
-              <span class="badge badge-guest" id="activeMediaBadge">Pronto all'Acquisizione</span>
+              <span class="badge badge-guest" id="activeMediaBadge">Pronto</span>
             </div>
 
-            <!-- 4 Ergonomic Mobile Capture Buttons -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px;">
-              <!-- Direct Smartphone Camera Photo -->
+            <!-- 4 Ergonomic Mobile Capture Buttons (2x2 on Portrait, 4x1 on Landscape/Desktop) -->
+            <div class="cam-capture-grid">
               <label class="cam-action-btn">
-                <span style="font-size:1.45rem;">📸</span>
-                <span>Scatta Foto Cantiere</span>
-                <span style="font-size:0.66rem;color:#94a3b8;font-weight:500;">Fotocamera Diretta</span>
+                <span style="font-size:1.35rem;">📸</span>
+                <span>Scatta Foto</span>
+                <span style="font-size:0.64rem;color:#94a3b8;font-weight:500;">Fotocamera</span>
                 <input type="file" accept="image/*" capture="environment" onchange="handleDirectMediaUpload(event, 'photo')" class="hidden" />
               </label>
 
-              <!-- Direct Smartphone Camera Video -->
               <label class="cam-action-btn" style="border-color:rgba(16,185,129,0.4);">
-                <span style="font-size:1.45rem;">🎥</span>
-                <span>Gira Video Cantiere</span>
-                <span style="font-size:0.66rem;color:#94a3b8;font-weight:500;">Video Diretto in App</span>
+                <span style="font-size:1.35rem;">🎥</span>
+                <span>Gira Video</span>
+                <span style="font-size:0.64rem;color:#94a3b8;font-weight:500;">Video Live</span>
                 <input type="file" accept="video/*" capture="environment" onchange="handleDirectMediaUpload(event, 'video')" class="hidden" />
               </label>
 
-              <!-- Upload Gallery / Sketch / CAD Drawing -->
               <label class="cam-action-btn" style="border-color:rgba(245,158,11,0.4);">
-                <span style="font-size:1.45rem;">✏️</span>
-                <span>Carica Schizzo / Foto</span>
-                <span style="font-size:0.66rem;color:#94a3b8;font-weight:500;">Da Galleria / File CAD</span>
+                <span style="font-size:1.35rem;">✏️</span>
+                <span>Carica Schizzo</span>
+                <span style="font-size:0.64rem;color:#94a3b8;font-weight:500;">Galleria / CAD</span>
                 <input type="file" accept="image/*,video/*" onchange="handleDirectMediaUpload(event, 'sketch')" class="hidden" />
               </label>
 
-              <!-- Paste from Clipboard or Draw Freehand Sketch -->
               <button type="button" id="pasteOrDrawSketchBtn" class="cam-action-btn" style="border-color:rgba(255,107,0,0.4);">
-                <span style="font-size:1.45rem;">📋✍️</span>
-                <span>Incolla / Disegna Schizzo</span>
-                <span style="font-size:0.66rem;color:#94a3b8;font-weight:500;">Appunti o Mano Libera</span>
+                <span style="font-size:1.35rem;">📋✍️</span>
+                <span>Disegna Schizzo</span>
+                <span style="font-size:0.64rem;color:#94a3b8;font-weight:500;">Mano Libera</span>
               </button>
             </div>
 
             <!-- Quick Paste Coordinates from Google Maps Bar -->
-            <div style="background:var(--bg-primary);padding:12px;border-radius:12px;border:1px solid var(--border-subtle);">
-              <label style="display:block;font-size:0.75rem;color:#22d3ee;font-weight:700;margin-bottom:6px;">
-                📍 INCOLLA COORDINATE O LINK COPIATO DA GOOGLE MAPS (Localizzazione Progetto &amp; Luce Solare):
+            <div style="background:var(--bg-primary);padding:11px;border-radius:12px;border:1px solid var(--border-subtle);">
+              <label style="display:block;font-size:0.73rem;color:#22d3ee;font-weight:700;margin-bottom:6px;">
+                📍 INCOLLA COORDINATE O LINK DA GOOGLE MAPS (Localizzazione &amp; Luce Solare):
               </label>
               <div class="voice-input-row">
                 <input
                   id="quickPasteMapsInput"
                   type="text"
                   class="cmd-input"
-                  style="font-size:0.82rem;padding:9px 12px;"
-                  placeholder="Incolla da Google Maps es: 45.46421, 9.18998 oppure link https://maps.app.goo.gl/..."
+                  placeholder="Incolla da Google Maps (es. 45.4642, 9.1900 o link Maps)..."
                 />
-                <button type="button" id="pasteClipboardCoordsBtn" class="btn btn-cyan" title="Incolla dagli appunti del telefono">
+                <button type="button" id="pasteClipboardCoordsBtn" class="btn btn-cyan">
                   📋 Incolla
                 </button>
                 <button type="button" id="applyQuickCoordsBtn" class="btn btn-primary">
                   Applica GPS 🌍
                 </button>
               </div>
-              <div id="quickGeoConfirmText" style="font-size:0.73rem;color:#34d399;font-family:var(--font-mono);margin-top:6px;">
-                Localizzazione Attiva: Lat 45.464200° N, Lng 9.190000° E &bull; Esposizione Sud-Ovest sincronizzata con i 5 Agenti IA.
+              <div id="quickGeoConfirmText" style="font-size:0.71rem;color:#34d399;font-family:var(--font-mono);margin-top:6px;word-break:break-word;">
+                Localizzazione Attiva: Lat 45.464200° N, Lng 9.190000° E &bull; Sincronizzata con i 5 Agenti IA.
               </div>
             </div>
           </div>
@@ -1187,98 +1312,93 @@ body::before {
             <div class="card-header">
               <div>
                 <div class="card-title">🧠 Squadra di 5 Agenti IA (1 Supervisore + 4 Operativi)</div>
-                <div class="card-subtitle">Il Supervisore coordina l'ideazione; i 4 Agenti Operativi curano i dettagli di ogni ramo di produzione (CAD, Geolocalizzazione, Viste Render 4K) e post-produzione (Video Render &amp; FX).</div>
+                <div class="card-subtitle">Il Supervisore coordina l'ideazione; i 4 Agenti Operativi curano i dettagli di produzione (CAD, Geolocalizzazione, Viste Render 4K) e post-produzione (Video Render &amp; FX).</div>
               </div>
               <button id="runAll5AgentsBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
                 ⚡ Avvia Tutti i 5 Agenti IA
               </button>
             </div>
 
-            <!-- AGENT 1: SUPERVISOR (Full Width Top Card) -->
-            <div class="agent-card supervisor active-agent" data-agent-id="supervisor" style="margin-bottom:10px;">
+            <!-- AGENT 1: SUPERVISOR -->
+            <div class="agent-card supervisor active-agent" data-agent-id="supervisor" style="margin-bottom:8px;">
               <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <span style="font-size:1.5rem;">👑</span>
-                  <div>
-                    <div style="font-size:0.88rem;font-weight:800;color:#fbbf24;">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
+                  <span style="font-size:1.35rem;flex-shrink:0;">👑</span>
+                  <div style="min-width:0;">
+                    <div style="font-size:0.83rem;font-weight:800;color:#fbbf24;word-break:break-word;">
                       AGENTE 1 (SUPERVISORE): ARCH-DIRECTOR IA
                     </div>
-                    <div style="font-size:0.74rem;color:#cbd5e1;">
-                      Coordinamento Generale, Ideazione Concept Architettonico &amp; Direzione Produzione/Post-Produzione
+                    <div style="font-size:0.72rem;color:#cbd5e1;word-break:break-word;">
+                      Coordinamento Generale, Ideazione Concept &amp; Direzione Produzione/Post-Produzione
                     </div>
                   </div>
                 </div>
-                <span class="badge badge-owner" id="status-agent-supervisor">COORDINATORE ATTIVO</span>
+                <span class="badge badge-owner" id="status-agent-supervisor">COORDINATORE</span>
               </div>
             </div>
 
-            <!-- 4 OPERATIONAL AGENTS GRID -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:14px;">
-              <!-- Agent 2: CAD & Technical Production -->
+            <!-- 4 OPERATIONAL AGENTS GRID (Responsive: 1 col on portrait phone, 2 cols on landscape/tablet/PC) -->
+            <div class="agents-4-grid">
               <div class="agent-card" data-agent-id="cad">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                  <span style="font-size:0.78rem;font-weight:800;color:#ff8533;">📐 AGENTE 2 (OPERATIVO CAD)</span>
-                  <span class="badge badge-guest" id="status-agent-cad" style="font-size:0.65rem;">Pronto</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
+                  <span style="font-size:0.76rem;font-weight:800;color:#ff8533;">📐 AGENTE 2 (CAD &amp; BIM)</span>
+                  <span class="badge badge-guest" id="status-agent-cad">Pronto</span>
                 </div>
-                <div style="font-size:0.82rem;font-weight:700;">Dettagli Costruttivi &amp; BIM</div>
-                <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">
-                  Trasforma foto/schizzi in script AutoCAD 2013+ (.LSP/.DXF) e modelli 3D SketchUp 2021+ (.RB).
+                <div style="font-size:0.8rem;font-weight:700;">Dettagli Costruttivi &amp; CAD</div>
+                <div style="font-size:0.71rem;color:#94a3b8;margin-top:2px;">
+                  Trasforma foto/schizzi in script AutoCAD 2013+ (.LSP/.DXF) e SketchUp 2021+ (.RB).
                 </div>
               </div>
 
-              <!-- Agent 3: Geolocation, Sun & Context -->
               <div class="agent-card" data-agent-id="geo">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                  <span style="font-size:0.78rem;font-weight:800;color:#34d399;">🌍 AGENTE 3 (OPERATIVO GEO)</span>
-                  <span class="badge badge-guest" id="status-agent-geo" style="font-size:0.65rem;">Pronto</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
+                  <span style="font-size:0.76rem;font-weight:800;color:#34d399;">🌍 AGENTE 3 (GEO &amp; SOLE)</span>
+                  <span class="badge badge-guest" id="status-agent-geo">Pronto</span>
                 </div>
-                <div style="font-size:0.82rem;font-weight:700;">Google Maps, Luce &amp; Clima</div>
-                <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">
-                  Allinea coordinate Google Maps, azimut solare reale, ombre, vincoli paesaggistici e orientamento.
+                <div style="font-size:0.8rem;font-weight:700;">Google Maps, Luce &amp; Clima</div>
+                <div style="font-size:0.71rem;color:#94a3b8;margin-top:2px;">
+                  Allinea coordinate Google Maps, azimut solare reale, ombre e orientamento.
                 </div>
               </div>
 
-              <!-- Agent 4: Materials, Lighting & 4K Still Render -->
               <div class="agent-card" data-agent-id="render">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                  <span style="font-size:0.78rem;font-weight:800;color:#22d3ee;">🎨 AGENTE 4 (PRODUZIONE VISTE)</span>
-                  <span class="badge badge-guest" id="status-agent-render" style="font-size:0.65rem;">Pronto</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
+                  <span style="font-size:0.76rem;font-weight:800;color:#22d3ee;">🎨 AGENTE 4 (VISTE 4K)</span>
+                  <span class="badge badge-guest" id="status-agent-render">Pronto</span>
                 </div>
-                <div style="font-size:0.82rem;font-weight:700;">Materiali PBR &amp; Render 4K</div>
-                <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">
-                  Applica facciate, vetrate Low-E, verde, illuminazione globale e genera le viste 4K Prima/Dopo.
+                <div style="font-size:0.8rem;font-weight:700;">Materiali PBR &amp; Render 4K</div>
+                <div style="font-size:0.71rem;color:#94a3b8;margin-top:2px;">
+                  Applica facciate, vetrate Low-E, verde e genera le viste 4K Prima/Dopo.
                 </div>
               </div>
 
-              <!-- Agent 5: Post-Production & Video Render Motion -->
               <div class="agent-card" data-agent-id="video">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                  <span style="font-size:0.78rem;font-weight:800;color:#c084fc;">🎬 AGENTE 5 (POST-PRODUZIONE)</span>
-                  <span class="badge badge-guest" id="status-agent-video" style="font-size:0.65rem;">Pronto</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;">
+                  <span style="font-size:0.76rem;font-weight:800;color:#c084fc;">🎬 AGENTE 5 (POST-FX VIDEO)</span>
+                  <span class="badge badge-guest" id="status-agent-video">Pronto</span>
                 </div>
-                <div style="font-size:0.82rem;font-weight:700;">Video Render &amp; Color Grading</div>
-                <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">
-                  Genera movimenti di camera (Flythrough), transizione giorno/sera, post-produzione e Video Render.
+                <div style="font-size:0.8rem;font-weight:700;">Video Render &amp; Color Grading</div>
+                <div style="font-size:0.71rem;color:#94a3b8;margin-top:2px;">
+                  Genera movimenti camera (Flythrough), transizione giorno/sera e Video Render.
                 </div>
               </div>
             </div>
 
             <!-- Prompt / Voice Directive to the 5 AI Agents -->
-            <div style="background:var(--bg-primary);padding:12px;border-radius:12px;border:1px solid rgba(245,158,11,0.35);">
-              <label style="display:block;font-size:0.75rem;color:#fbbf24;font-weight:700;margin-bottom:6px;">
-                🎙️💬 DIRETTIVA AL SUPERVISORE E AI 4 AGENTI OPERATIVI (Voce o Testo dal Cellulare):
+            <div style="background:var(--bg-primary);padding:11px;border-radius:12px;border:1px solid rgba(245,158,11,0.35);">
+              <label style="display:block;font-size:0.73rem;color:#fbbf24;font-weight:700;margin-bottom:6px;">
+                🎙️💬 DIRETTIVA AL SUPERVISORE E AI 4 AGENTI OPERATIVI (Voce o Testo):
               </label>
               <div class="voice-input-row">
-                <button type="button" id="agentMicBtn" class="mic-btn" style="width:46px;min-height:44px;" title="Parla con i 5 Agenti IA">
+                <button type="button" id="agentMicBtn" class="mic-btn" title="Parla con i 5 Agenti IA">
                   🎙️
                 </button>
                 <input
                   id="agentDirectiveInput"
                   type="text"
                   class="cmd-input"
-                  style="font-size:0.84rem;"
                   value="Villa contemporanea mediterranea con grandi vetrate Low-E, pietra locale, pergola bioclimatica e luce calda al tramonto"
-                  placeholder="Descrivi o detta come vuoi sviluppare la foto/schizzo in Vista 4K, Video Render e CAD..."
+                  placeholder="Descrivi o detta come vuoi sviluppare la foto/schizzo..."
                 />
                 <button type="button" id="sendDirectiveToAgentsBtn" class="send-cmd-btn">
                   Elabora con i 5 Agenti ▶
@@ -1287,7 +1407,7 @@ body::before {
             </div>
 
             <!-- Live Multi-Agent Output Report -->
-            <div id="multiAgentOutputBox" class="code-output" style="margin-top:12px;max-height:220px;color:#e2e8f0;line-height:1.5;"></div>
+            <div id="multiAgentOutputBox" class="code-output" style="margin-top:10px;max-height:200px;color:#e2e8f0;line-height:1.45;"></div>
           </div>
 
         </div>
@@ -1298,86 +1418,86 @@ body::before {
             <div class="card-header">
               <div>
                 <div class="card-title" id="viewport-title">🎬 Viewport Studio 4K UHD — Vista &amp; Video Render</div>
-                <div class="card-subtitle">Tocca l'immagine per inserire Pin tecnici. Usa lo slider per il confronto Prima (Foto/Schizzo) / Dopo (Render IA 4K).</div>
+                <div class="card-subtitle">Tocca l'immagine per inserire Pin tecnici. Usa lo slider per il confronto Prima/Dopo.</div>
               </div>
-              <span class="badge badge-guest" id="resBadgeLabel">3840 × 2160 px (4K)</span>
+              <span class="badge badge-guest" id="resBadgeLabel">3840 × 2160 px</span>
             </div>
 
-            <!-- Format & Style Quick Controls (From XviDeo Studio) -->
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-              <button type="button" onclick="setStudioRatio('16_9', 1920, 1080, 'Orizzontale 16:9 (4K UHD)')" id="ratio-16_9" class="btn btn-cyan" style="padding:6px 11px;font-size:0.74rem;">
-                🖥️ 16:9 Orizzontale 4K
+            <!-- Format & Style Quick Controls -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+              <button type="button" onclick="setStudioRatio('16_9', 1920, 1080, 'Orizzontale 16:9 (4K UHD)')" id="ratio-16_9" class="btn btn-cyan" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
+                🖥️ 16:9 Orizzontale
               </button>
-              <button type="button" onclick="setStudioRatio('9_16', 1080, 1920, 'Verticale 9:16 (Mobile Story/Reel 4K)')" id="ratio-9_16" class="btn" style="padding:6px 11px;font-size:0.74rem;">
-                📱 9:16 Verticale Mobile
+              <button type="button" onclick="setStudioRatio('9_16', 1080, 1920, 'Verticale 9:16 (Mobile Story 4K)')" id="ratio-9_16" class="btn" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
+                📱 9:16 Verticale
               </button>
-              <button type="button" onclick="setStudioStyle('Contemporaneo Mediterraneo', '#f5f0e6', '#6d7f63', '#0284c7')" class="btn" style="padding:6px 11px;font-size:0.74rem;">
-                🏛️ Stile Mediterraneo
+              <button type="button" onclick="setStudioStyle('Contemporaneo Mediterraneo', '#f5f0e6', '#6d7f63', '#0284c7')" class="btn" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
+                🏛️ Mediterraneo
               </button>
-              <button type="button" onclick="setStudioStyle('Milano Luxury Minimal', '#cbd5e1', '#334155', '#0f172a')" class="btn" style="padding:6px 11px;font-size:0.74rem;">
+              <button type="button" onclick="setStudioStyle('Milano Luxury Minimal', '#cbd5e1', '#334155', '#0f172a')" class="btn" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
                 🏙️ Milano Luxury
               </button>
-              <button type="button" onclick="setStudioStyle('Bio-Architettura Legno & Vetro', '#e7d7c1', '#92400e', '#0369a1')" class="btn" style="padding:6px 11px;font-size:0.74rem;">
+              <button type="button" onclick="setStudioStyle('Bio-Architettura Legno & Vetro', '#e7d7c1', '#92400e', '#0369a1')" class="btn" style="padding:6px 10px;font-size:0.72rem;flex:1 1 auto;">
                 🌲 Bio-Architettura
               </button>
             </div>
 
             <!-- Interactive 4K Studio Canvas + Hidden Source Video Element -->
-            <div class="w-full flex items-center justify-center bg-[#05070a] rounded-2xl border border-slate-800 p-2 min-h-[360px] relative overflow-hidden">
+            <div class="w-full flex items-center justify-center bg-[#05070a] rounded-2xl border border-slate-800 p-2 min-h-[260px] relative overflow-hidden">
               <video id="uploadedSiteVideo" playsinline muted loop class="hidden"></video>
               <canvas
                 id="studio-canvas"
                 width="1920"
                 height="1080"
-                class="w-full max-h-[420px] object-contain rounded-xl shadow-2xl cursor-crosshair"
+                class="w-full max-h-[390px] object-contain rounded-xl shadow-2xl cursor-crosshair"
               ></canvas>
             </div>
 
             <!-- Before / After Wipe Slider + Freehand Sketch Mode Toggle -->
-            <div style="display:flex;align-items:center;gap:12px;margin-top:12px;background:var(--bg-primary);padding:10px 14px;border-radius:12px;border:1px solid var(--border-subtle);flex-wrap:wrap;">
-              <span style="font-size:0.78rem;color:#94a3b8;font-weight:600;">Confronto Prima (Foto/Schizzo) / Dopo (Render IA):</span>
-              <input type="range" id="split-slider" min="0" max="100" value="50" style="flex:1;min-width:120px;accent-color:#22d3ee;cursor:pointer;" />
-              <span id="split-val" style="font-family:var(--font-mono);color:#22d3ee;font-size:0.82rem;font-weight:700;">50%</span>
-              <button type="button" id="toggleFreehandSketchBtn" class="btn" style="padding:5px 10px;font-size:0.73rem;">
-                ✍️ Modalità Disegno Schizzo: OFF
+            <div style="display:flex;align-items:center;gap:10px;margin-top:10px;background:var(--bg-primary);padding:10px 12px;border-radius:12px;border:1px solid var(--border-subtle);flex-wrap:wrap;">
+              <span style="font-size:0.75rem;color:#94a3b8;font-weight:600;">Confronto Prima/Dopo:</span>
+              <input type="range" id="split-slider" min="0" max="100" value="50" style="flex:1;min-width:110px;accent-color:#22d3ee;cursor:pointer;" />
+              <span id="split-val" style="font-family:var(--font-mono);color:#22d3ee;font-size:0.78rem;font-weight:700;">50%</span>
+              <button type="button" id="toggleFreehandSketchBtn" class="btn" style="padding:5px 10px;font-size:0.72rem;width:100%;">
+                ✍️ Modalità Disegno Schizzo col Dito: OFF
               </button>
             </div>
 
             <!-- Post-Production & Video Render Controls (Agent 5) -->
-            <div style="margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:12px;border:1px solid rgba(192,132,252,0.35);">
+            <div style="margin-top:10px;padding:11px;background:var(--bg-primary);border-radius:12px;border:1px solid rgba(192,132,252,0.35);">
               <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-                <div style="font-size:0.82rem;font-weight:700;color:#c084fc;">
-                  🎬 Agente 5 (Post-Produzione): Generatore Vista 4K &amp; Video Render Animato
+                <div style="font-size:0.78rem;font-weight:700;color:#c084fc;">
+                  🎬 Agente 5: Vista 4K &amp; Video Render Animato
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;">
-                  <label style="font-size:0.72rem;color:#94a3b8;">Luce Oraria:</label>
-                  <input type="range" id="timeOfDaySlider" min="6" max="22" step="0.5" value="16.5" style="width:90px;accent-color:#f59e0b;" />
-                  <span id="timeOfDayLabel" style="font-size:0.72rem;font-family:var(--font-mono);color:#fbbf24;">16:30</span>
+                  <label style="font-size:0.71rem;color:#94a3b8;">Sole:</label>
+                  <input type="range" id="timeOfDaySlider" min="6" max="22" step="0.5" value="16.5" style="width:85px;accent-color:#f59e0b;" />
+                  <span id="timeOfDayLabel" style="font-size:0.71rem;font-family:var(--font-mono);color:#fbbf24;">16:30</span>
                 </div>
               </div>
 
               <div class="btn-row">
                 <button type="button" id="playVideoRenderPreviewBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);">
-                  ▶️ Avvia Animazione Video Render (Flythrough + Sole)
+                  ▶️ Animazione Video Render
                 </button>
                 <button type="button" id="recordWebmVideoBtn" class="btn btn-cyan">
-                  🎥 Registra &amp; Scarica Video Render (.WEBM / MP4)
+                  🎥 Scarica Video Render (.WEBM)
                 </button>
                 <button type="button" id="download4kStillBtn" class="btn btn-green">
-                  📥 Scarica Vista 4K UHD (.PNG)
+                  📥 Scarica Vista 4K (.PNG)
                 </button>
                 <button type="button" id="sendRenderToCadBtn" class="btn">
-                  📐 Invia Misure a AutoCAD / SketchUp
+                  📐 Invia a AutoCAD / SketchUp
                 </button>
               </div>
             </div>
 
             <!-- Interactive Technical Pins List -->
-            <div style="margin-top:12px;">
-              <div style="font-size:0.78rem;font-weight:700;color:#fbbf24;margin-bottom:6px;">
-                📌 Pin Tecnici di Produzione &amp; Post-Produzione (Tocca il Viewport per aggiungerne altri):
+            <div style="margin-top:10px;">
+              <div style="font-size:0.75rem;font-weight:700;color:#fbbf24;margin-bottom:6px;">
+                📌 Pin Tecnici sul Render (Tocca l'immagine per aggiungerne):
               </div>
-              <div id="studioPinsList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;"></div>
+              <div id="studioPinsList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;"></div>
             </div>
           </div>
         </div>
@@ -1391,39 +1511,31 @@ body::before {
     <section id="tab-commands" class="tab-panel">
       <div class="workspace-grid">
 
-        <!-- LEFT COLUMN: VOICE/TEXT + PRE-COMPILED COMMAND PADS -->
         <div>
-          <!-- Target Software Selector -->
           <div class="engine-selector" role="radiogroup" aria-label="Software Destinazione">
-            <button class="engine-opt active" data-engine="both">⚡ AutoCAD 2013+ &amp; SketchUp 2021+</button>
-            <button class="engine-opt" data-engine="autocad">📐 Solo AutoCAD (2013+)</button>
-            <button class="engine-opt" data-engine="sketchup">🧊 Solo SketchUp (2021+)</button>
+            <button class="engine-opt active" data-engine="both">⚡ AutoCAD + SketchUp</button>
+            <button class="engine-opt" data-engine="autocad">📐 AutoCAD 2013+</button>
+            <button class="engine-opt" data-engine="sketchup">🧊 SketchUp 2021+</button>
           </div>
 
-          <!-- Voice & Natural Language Command Console -->
           <div class="voice-box">
-            <div class="card-header" style="margin-bottom:10px;">
+            <div class="card-header" style="margin-bottom:8px;">
               <div>
-                <div class="card-title">🎙️ Assistente Vocale &amp; Testo Libero Intelligente</div>
-                <div class="card-subtitle">Parla al microfono o scrivi la modifica: viene compilata per AutoCAD 2013+ (.LSP), SketchUp 2021+ (.RB) e .DXF e inviata in tempo reale.</div>
+                <div class="card-title">🎙️ Comando Vocale o Testo per AutoCAD &amp; SketchUp</div>
+                <div class="card-subtitle">Parla o scrivi la modifica: viene compilata in .LSP, .RB e .DXF.</div>
               </div>
-              <span id="voiceLangBadge" class="badge badge-guest">IT-IT Attivo</span>
+              <span id="voiceLangBadge" class="badge badge-guest">IT-IT</span>
             </div>
 
             <div class="voice-input-row">
               <button id="micBtn" class="mic-btn" title="Premi e parla (Microfono)">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                  <line x1="12" y1="19" x2="12" y2="23"></line>
-                  <line x1="8" y1="23" x2="16" y2="23"></line>
-                </svg>
+                🎙️
               </button>
               <input
                 id="naturalCmdInput"
                 type="text"
                 class="cmd-input"
-                placeholder="Es: 'Stanza 5x4m h 2.70 muro 30cm', 'Scala dislivello 3.00m larghezza 1.20', 'Tetto 6x8m'..."
+                placeholder="Es: 'Stanza 5x4m h 2.70 muro 30cm', 'Scala H 3.00m'..."
               />
               <button id="executeNaturalBtn" class="send-cmd-btn">
                 Esegui ▶
@@ -1431,44 +1543,42 @@ body::before {
             </div>
 
             <div class="voice-chips">
-              <span class="voice-chip" data-sample="Disegna stanza 4.5 x 3.8 metri altezza 2.70 spessore muro 0.30">🏠 "Stanza 4.5x3.8m h 2.70 muro 30cm"</span>
-              <span class="voice-chip" data-sample="Crea scala dislivello 3.00 metri larghezza 1.20 pedata 0.30">🪜 "Scala H=3.00m L=1.20m Blondel"</span>
-              <span class="voice-chip" data-sample="Demolizione muro giallo lunghezza 3.40 spessore 0.15 e ricostruzione rosso">🟨🟥 "Comparativa Gialli e Rossi 3.40m"</span>
-              <span class="voice-chip" data-sample="Tetto a falde 8.0 x 6.0 metri pendenza 30 percento quota gronda 3.0">🏡 "Tetto a Falde 8x6m pendenza 30%"</span>
-              <span class="voice-chip" data-sample="Inserisci cartiglio A3 progetto architettonico scala 1 a 100">📋 "Cartiglio UNI A3 Scala 1:100"</span>
+              <span class="voice-chip" data-sample="Disegna stanza 4.5 x 3.8 metri altezza 2.70 spessore muro 0.30">🏠 Stanza 4.5x3.8m</span>
+              <span class="voice-chip" data-sample="Crea scala dislivello 3.00 metri larghezza 1.20 pedata 0.30">🪜 Scala H=3.00m</span>
+              <span class="voice-chip" data-sample="Demolizione muro giallo lunghezza 3.40 spessore 0.15 e ricostruzione rosso">🟨🟥 Gialli e Rossi</span>
+              <span class="voice-chip" data-sample="Tetto a falde 8.0 x 6.0 metri pendenza 30 percento quota gronda 3.0">🏡 Tetto 8x6m 30%</span>
+              <span class="voice-chip" data-sample="Inserisci cartiglio A3 progetto architettonico scala 1 a 100">📋 Cartiglio A3</span>
             </div>
           </div>
 
-          <!-- Pre-compiled & Guided Professional Macros -->
           <div class="card">
             <div class="card-header">
               <div>
-                <div class="card-title">🎛️ Libreria Comandi Precompilati &amp; Guidati (12 Strumenti Pro)</div>
-                <div class="card-subtitle">Seleziona lo strumento dal telefono o PC per aprire i parametri guidati con verifiche normative automatiche.</div>
+                <div class="card-title">🎛️ Comandi Precompilati &amp; Guidati (12 Strumenti)</div>
+                <div class="card-subtitle">Seleziona lo strumento per aprire i parametri guidati.</div>
               </div>
             </div>
 
             <div class="category-pills">
               <button class="cat-pill active" data-cat="all">Tutti (12)</button>
-              <button class="cat-pill" data-cat="rilievo">📏 Rilievo, Scale &amp; Tetti</button>
-              <button class="cat-pill" data-cat="pratiche">🟨🟥 Pratiche &amp; Normativa</button>
-              <button class="cat-pill" data-cat="autocad">📐 AutoCAD 2013+ Pro</button>
-              <button class="cat-pill" data-cat="sketchup">🧊 SketchUp 2021+ 3D</button>
+              <button class="cat-pill" data-cat="rilievo">📏 Rilievo &amp; Scale</button>
+              <button class="cat-pill" data-cat="pratiche">🟨🟥 Pratiche</button>
+              <button class="cat-pill" data-cat="autocad">📐 AutoCAD 2013+</button>
+              <button class="cat-pill" data-cat="sketchup">🧊 SketchUp 2021+</button>
             </div>
 
             <div id="macroGrid" class="macro-grid"></div>
 
-            <!-- Interactive Guided Parameter Drawer -->
             <div id="paramDrawer" class="param-drawer">
               <div class="card-header" style="margin-bottom:6px;">
-                <div class="card-title" id="activeMacroTitle">🏠 Stanza / Vano Parametrico 2D + 3D</div>
-                <span class="badge badge-owner" id="activeMacroEngineBadge">AutoCAD 2013+ &amp; SketchUp 2021+</span>
+                <div class="card-title" id="activeMacroTitle">🏠 Stanza / Vano Parametrico</div>
+                <span class="badge badge-owner" id="activeMacroEngineBadge">2D + 3D</span>
               </div>
               <div class="card-subtitle" id="activeMacroDesc">
-                Imposta le misure in metri (o dettale col microfono) e invia il comando compilato al terminale collegato.
+                Imposta le misure in metri e invia il comando.
               </div>
 
-              <div id="normativeCalcBanner" style="margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);font-size:0.78rem;font-family:var(--font-mono);color:#34D399;">
+              <div id="normativeCalcBanner" style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);font-size:0.74rem;font-family:var(--font-mono);color:#34D399;word-break:break-word;">
                 📐 Verifica Tecnica in tempo reale pronta.
               </div>
 
@@ -1476,54 +1586,49 @@ body::before {
 
               <div class="btn-row" style="margin-top:10px;">
                 <button id="runGuidedMacroBtn" class="btn btn-primary">
-                  ⚡ Esegui su Terminale / AutoCAD &amp; SketchUp
+                  ⚡ Esegui su AutoCAD &amp; SketchUp
                 </button>
                 <button id="downloadCadScriptBtn" class="btn btn-cyan">
-                  💾 Scarica Script (.LSP / .RB)
+                  💾 Scarica (.LSP / .RB)
                 </button>
                 <button id="downloadDxfDirectBtn" class="btn btn-green">
-                  📐 Scarica .DXF (2013+)
+                  📐 Scarica .DXF
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: LIVE VECTOR PREVIEW + GENERATED CODE + BIDIRECTIONAL FEED -->
         <div>
           <div class="card">
             <div class="card-header">
               <div>
-                <div class="card-title">📐 Viewport Vettoriale CAD 2D/3D &amp; Verifica Bidirezionale</div>
-                <div class="card-subtitle">Sincronizzata in tempo reale tra PC, iPhone e Android.</div>
+                <div class="card-title">📐 Viewport Vettoriale CAD 2D/3D</div>
+                <div class="card-subtitle">Sincronizzata tra PC, iPhone e Android.</div>
               </div>
-              <div class="btn-row">
-                <button id="zoomInCanvasBtn" class="btn" style="padding:5px 9px;font-size:0.74rem;" title="Zoom +">➕</button>
-                <button id="zoomOutCanvasBtn" class="btn" style="padding:5px 9px;font-size:0.74rem;" title="Zoom -">➖</button>
-                <button id="toggleViewModeBtn" class="btn" style="padding:5px 10px;font-size:0.74rem;">
-                  🧊 3D / 2D
-                </button>
-                <button id="clearCanvasBtn" class="btn" style="padding:5px 10px;font-size:0.74rem;">
-                  🗑️ Reset
-                </button>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button id="zoomInCanvasBtn" class="btn" style="padding:5px 9px;font-size:0.72rem;">➕</button>
+                <button id="zoomOutCanvasBtn" class="btn" style="padding:5px 9px;font-size:0.72rem;">➖</button>
+                <button id="toggleViewModeBtn" class="btn" style="padding:5px 9px;font-size:0.72rem;">🧊 3D/2D</button>
+                <button id="clearCanvasBtn" class="btn" style="padding:5px 9px;font-size:0.72rem;">🗑️</button>
               </div>
             </div>
 
             <div class="canvas-wrap">
               <canvas id="cadCanvas" width="680" height="310"></canvas>
               <div class="canvas-overlay">
-                <span class="canvas-hud" id="canvasScaleHud">SCALA: METRI (1u = 1m)</span>
+                <span class="canvas-hud" id="canvasScaleHud">METRI</span>
                 <span class="canvas-hud" id="canvasEntitiesHud">ENTITÀ: 1</span>
-                <span class="canvas-hud" id="canvasAreaHud">SUP. TOTALE: 18.72 mq</span>
-                <span class="canvas-hud" id="canvasNorthHud">NORD: 0.0°</span>
+                <span class="canvas-hud" id="canvasAreaHud">SUP: 18.72 mq</span>
+                <span class="canvas-hud" id="canvasNorthHud">NORD: 0°</span>
               </div>
             </div>
 
             <div class="code-tabs">
-              <button class="code-tab active" data-codetab="acad">AutoCAD 2013+ (.LSP)</button>
-              <button class="code-tab" data-codetab="skp">SketchUp 2021+ (.RB)</button>
-              <button class="code-tab" data-codetab="dxf">File CAD (.DXF)</button>
-              <button class="btn" id="copyCodeBtn" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;">📋 Copia Codice</button>
+              <button class="code-tab active" data-codetab="acad">AutoCAD (.LSP)</button>
+              <button class="code-tab" data-codetab="skp">SketchUp (.RB)</button>
+              <button class="code-tab" data-codetab="dxf">CAD (.DXF)</button>
+              <button class="btn" id="copyCodeBtn" style="margin-left:auto;padding:4px 9px;font-size:0.7rem;">📋 Copia</button>
             </div>
             <pre id="codeOutputBox" class="code-output"></pre>
           </div>
@@ -1531,15 +1636,14 @@ body::before {
           <div class="card">
             <div class="card-header">
               <div>
-                <div class="card-title">🔄 Registro Connessione Bidirezionale &amp; Chat Tecnica</div>
-                <div class="card-subtitle">Invia anche messaggi rapidi o note operative al terminale connesso in 1-a-1.</div>
+                <div class="card-title">🔄 Registro Bidirezionale &amp; Chat Tecnica</div>
+                <div class="card-subtitle">Messaggi e comandi in tempo reale col terminale connesso.</div>
               </div>
-              <span id="peerCountBadge" class="badge badge-guest">Canale Pronto</span>
             </div>
 
             <div class="voice-input-row" style="margin-bottom:10px;">
-              <input id="quickChatInput" type="text" class="cmd-input" style="padding:8px 12px;font-size:0.82rem;" placeholder="Scrivi messaggio o nota rapida al terminale collegato..." />
-              <button id="sendQuickChatBtn" class="btn btn-cyan">Invia Nota 💬</button>
+              <input id="quickChatInput" type="text" class="cmd-input" placeholder="Scrivi nota rapida al terminale collegato..." />
+              <button id="sendQuickChatBtn" class="btn btn-cyan">Invia 💬</button>
             </div>
 
             <div id="bidirectionalLog" class="log-list"></div>
@@ -1558,16 +1662,16 @@ body::before {
           <div class="card-header">
             <div>
               <div class="card-title">🌍 Geolocalizzazione Google Maps &amp; Incolla Coordinate</div>
-              <div class="card-subtitle">Incolla direttamente le coordinate o il link copiato da Google Maps sul cellulare, oppure usa il GPS integrato per localizzare il progetto in AutoCAD 2013+, SketchUp 2021+ e nei Render 4K.</div>
+              <div class="card-subtitle">Incolla le coordinate da Google Maps o usa il GPS del cellulare.</div>
             </div>
             <button id="getGpsBtn" class="btn btn-primary">
-              📍 Rileva GPS dal Telefono / Terminale
+              📍 Rileva GPS dal Telefono
             </button>
           </div>
 
-          <div class="voice-input-row" style="margin-bottom:12px;">
-            <input id="mapSearchInput" type="text" class="cmd-input" placeholder="Incolla coordinate da Google Maps (es. 45.4642, 9.1900), link Maps o indirizzo..." />
-            <button id="mapSearchBtn" class="btn btn-cyan">🔍 Localizza su Google Maps</button>
+          <div class="voice-input-row" style="margin-bottom:10px;">
+            <input id="mapSearchInput" type="text" class="cmd-input" placeholder="Incolla coordinate (es. 45.4642, 9.1900) o indirizzo..." />
+            <button id="mapSearchBtn" class="btn btn-cyan">🔍 Cerca su Maps</button>
           </div>
 
           <div class="map-frame-wrap">
@@ -1582,44 +1686,44 @@ body::before {
 
           <div class="geo-stats">
             <div class="stat-box">
-              <div class="stat-label">LATITUDINE (WGS84)</div>
+              <div class="stat-label">LATITUDINE</div>
               <div class="stat-value" id="geoLatVal">45.464200° N</div>
             </div>
             <div class="stat-box">
-              <div class="stat-label">LONGITUDINE (WGS84)</div>
+              <div class="stat-label">LONGITUDINE</div>
               <div class="stat-value" id="geoLngVal">9.190000° E</div>
             </div>
             <div class="stat-box">
-              <div class="stat-label">COORD. METRICHE CAD (X, Y)</div>
-              <div class="stat-value" id="geoUtmVal">X: 514842m Y: 5034510m</div>
+              <div class="stat-label">METRICHE CAD</div>
+              <div class="stat-value" id="geoUtmVal">X:514842 Y:5034510</div>
             </div>
             <div class="stat-box">
-              <div class="stat-label">ANGOLO NORD / AZIMUT SOLE</div>
-              <div class="stat-value" id="geoNorthVal">Nord: 0° | Azimut: 168°</div>
+              <div class="stat-label">NORD / SOLE</div>
+              <div class="stat-value" id="geoNorthVal">Nord: 0° | Az: 168°</div>
             </div>
           </div>
 
           <div class="param-grid">
             <div class="field-group">
-              <label>Rotazione Nord di Progetto (°)</label>
+              <label>Rotazione Nord (°)</label>
               <input type="number" id="geoNorthInput" value="0" step="1" />
             </div>
             <div class="field-group">
-              <label>Quota Altitudine S.L.M. (m)</label>
+              <label>Quota S.L.M. (m)</label>
               <input type="number" id="geoElevInput" value="122" step="0.5" />
             </div>
             <div class="field-group">
-              <label>Nota Vocale / Testo Sopralluogo</label>
-              <input type="text" id="geoSiteNote" value="Punto Fiduciale Lotto A - Accesso Cantiere" />
+              <label>Nota Sopralluogo</label>
+              <input type="text" id="geoSiteNote" value="Punto Fiduciale Lotto A" />
             </div>
           </div>
 
-          <div class="btn-row" style="margin-top:12px;">
+          <div class="btn-row" style="margin-top:10px;">
             <button id="sendGeoToCadBtn" class="btn btn-primary">
-              🚀 Invia Coordinate, Nord e Ombre a AutoCAD 2013+ &amp; SketchUp 2021+
+              🚀 Invia Coordinate a AutoCAD &amp; SketchUp
             </button>
             <button id="openNativeGoogleMapsBtn" class="btn">
-              🗺️ Apri App Google Maps per Copiare Coordinate
+              🗺️ Apri App Google Maps
             </button>
           </div>
         </div>
@@ -1628,13 +1732,13 @@ body::before {
           <div class="card-header">
             <div>
               <div class="card-title">📋 Punti Rilevati &amp; Poligonale GPS → CAD</div>
-              <div class="card-subtitle">Salva più punti GPS camminando in cantiere col telefono per generare automaticamente il perimetro e l'area del lotto in AutoCAD e SketchUp.</div>
+              <div class="card-subtitle">Salva più punti GPS in cantiere per generare il perimetro del lotto.</div>
             </div>
             <button id="addGpsWaypointBtn" class="btn btn-green">+ Fissa Punto GPS</button>
           </div>
-          <div id="waypointList" class="log-list" style="margin-bottom:14px;"></div>
+          <div id="waypointList" class="log-list" style="margin-bottom:12px;"></div>
           <button id="generateLotPolygonBtn" class="btn btn-cyan" style="width:100%;">
-            📐 Disegna Poligonale Lotto da Punti GPS su AutoCAD &amp; SketchUp
+            📐 Disegna Poligonale Lotto su AutoCAD &amp; SketchUp
           </button>
         </div>
       </div>
@@ -1646,107 +1750,93 @@ body::before {
     <section id="tab-share" class="tab-panel">
       <div class="workspace-grid">
 
-        <!-- 1-to-1 Direct Share Generator (Owner Only) -->
         <div class="card" id="ownerShareCard">
           <div class="card-header">
             <div>
-              <div class="card-title">🔗 Genera Link Diretto 1-a-1 (Senza Pagamento per il Tuo Ospite)</div>
+              <div class="card-title">🔗 Genera Link Diretto 1-a-1 (Gratis per il Tuo Ospite)</div>
               <div class="card-subtitle">
-                Chi riceve questo link da te può usare l'app in modo <strong>bidirezionale insieme a te</strong> senza pagare, vincolato a <strong>un solo terminale/IP</strong> e <strong>senza mai poter modificare l'app</strong> o generare altri link.
+                Chi riceve questo link può usare l'app in modo <strong>bidirezionale insieme a te</strong> senza pagare, vincolato a <strong>un solo IP/cellulare</strong> e <strong>senza poter modificare nulla</strong>.
               </div>
             </div>
-            <span class="badge badge-owner">SOLO PROPRIETARIO</span>
+            <span class="badge badge-owner">PROPRIETARIO</span>
           </div>
 
           <div class="param-grid">
             <div class="field-group">
-              <label>Nome Cliente / Collaboratore / Cantiere</label>
-              <input type="text" id="guestLabelInput" value="Collaboratore Cantiere" />
+              <label>Nome Amico / Collaboratore</label>
+              <input type="text" id="guestLabelInput" value="Amico / Collaboratore" />
             </div>
             <div class="field-group">
-              <label>IP Terminale Ospite (Vuoto = blocca in automatico il 1° IP che apre)</label>
-              <input type="text" id="guestTargetIpInput" placeholder="Es. 93.44.120.15 oppure automatico al 1° accesso" />
+              <label>IP Ospite (Vuoto = blocca in automatico il 1° IP che apre)</label>
+              <input type="text" id="guestTargetIpInput" placeholder="Automatico al 1° accesso" />
             </div>
             <div class="field-group">
-              <label>Permessi Sessione Ospite</label>
+              <label>Permessi Sessione</label>
               <select id="guestPermSelect">
-                <option value="use-only">Uso Bidirezionale Comandi + Foto/Video + GPS (Codice Non Modificabile)</option>
-                <option value="view-voice">Solo Guida Vocale/Testo + GPS (Sola Esecuzione Assistita)</option>
+                <option value="use-only">Uso Bidirezionale (Codice Non Modificabile)</option>
+                <option value="view-voice">Sola Guida Vocale/Testo + GPS</option>
               </select>
             </div>
           </div>
 
-          <div class="btn-row" style="margin-bottom:14px;">
+          <div class="btn-row" style="margin-bottom:12px;">
             <button id="generateInviteLinkBtn" class="btn btn-primary">
-              🔐 Genera Link Unico Bidirezionale 1-a-1 + QR Code
+              🔐 Genera Link Unico 1-a-1 + QR Code
             </button>
             <button id="revokeInviteBtn" class="btn" style="color:#F87171;">
-              ⛔ Disconnetti / Revoca Ospite Attivo
+              ⛔ Revoca Ospite
             </button>
           </div>
 
           <div class="field-group">
-            <label>Link Diretto Pronto da Inviare (WhatsApp, Email, Telegram, QR):</label>
+            <label>Link Diretto da Inviare su WhatsApp / Telegram:</label>
             <div class="voice-input-row">
-              <input type="text" id="generatedInviteUrl" class="cmd-input" readonly placeholder="Premi 'Genera Link Unico' qui sopra..." />
-              <button id="copyInviteUrlBtn" class="btn btn-cyan">📋 Copia Link</button>
+              <input type="text" id="generatedInviteUrl" class="cmd-input" readonly placeholder="Premi 'Genera Link Unico'..." />
+              <button id="copyInviteUrlBtn" class="btn btn-cyan">📋 Copia</button>
               <button id="shareNativeBtn" class="btn btn-green">📤 Condividi</button>
             </div>
           </div>
 
-          <!-- QR Code Display Box for Instant Mobile Scanning -->
-          <div id="qrCodeContainer" style="display:none;margin-top:14px;padding:14px;background:var(--bg-primary);border-radius:var(--radius-md);border:1px solid var(--border-active);align-items:center;gap:16px;flex-wrap:wrap;">
-            <img id="qrCodeImg" alt="QR Code Invito 1-a-1" width="130" height="130" style="border-radius:8px;background:#fff;padding:6px;" />
-            <div style="flex:1;min-width:200px;">
-              <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;color:var(--accent-skp);">📲 Inquadra con iPhone o Android</div>
-              <div style="font-size:0.78rem;color:var(--text-secondary);">
-                Scansiona questo QR Code per aprire subito la sessione 1-a-1 bidirezionale sul telefono o passalo al tuo interlocutore. Il link si bloccherà automaticamente sul primo IP che accede.
+          <div id="qrCodeContainer" style="display:none;margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-md);border:1px solid var(--border-active);align-items:center;gap:14px;flex-wrap:wrap;">
+            <img id="qrCodeImg" alt="QR Code Invito 1-a-1" width="120" height="120" style="border-radius:8px;background:#fff;padding:6px;" />
+            <div style="flex:1;min-width:160px;">
+              <div style="font-weight:700;font-size:0.86rem;margin-bottom:4px;color:var(--accent-skp);">📲 Inquadra con iPhone o Android</div>
+              <div style="font-size:0.75rem;color:var(--text-secondary);">
+                Fai inquadrare questo QR Code o invia il link su WhatsApp: si bloccherà automaticamente sul primo IP che accede.
               </div>
             </div>
           </div>
 
-          <div style="margin-top:14px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);font-size:0.8rem;color:var(--text-secondary);">
-            <div><strong>Stato Stanza P2P Bidirezionale:</strong> <span id="hostRoomIdDisplay" style="color:var(--accent-skp);font-family:var(--font-mono);">Inizializzazione...</span></div>
-            <div style="margin-top:4px;"><strong>IP Terminale Ospite Associato:</strong> <span id="boundGuestIpStatus" style="color:#34D399;font-family:var(--font-mono);">Nessun ospite ancora connesso (1 slot disponibile)</span></div>
+          <div style="margin-top:12px;padding:10px;background:var(--bg-primary);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);font-size:0.76rem;color:var(--text-secondary);word-break:break-word;">
+            <div><strong>Stanza P2P:</strong> <span id="hostRoomIdDisplay" style="color:var(--accent-skp);font-family:var(--font-mono);">Attiva</span></div>
+            <div style="margin-top:4px;"><strong>IP Ospite Associato:</strong> <span id="boundGuestIpStatus" style="color:#34D399;font-family:var(--font-mono);">In attesa (1 slot disponibile)</span></div>
           </div>
         </div>
 
-        <!-- Gumroad Commercial Configuration -->
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">🛒 Vendita Automatica su Gumroad &amp; Sito GitHub Pages</div>
+              <div class="card-title">🛒 Vendita su Gumroad &amp; GitHub Pages</div>
               <div class="card-subtitle">
-                Chiunque apra il sito GitHub <strong>senza il tuo link di invito diretto</strong> vede la schermata di acquisto Gumroad e deve inserire una License Key valida (o il pass proprietario <code>Deia2026</code>).
+                Chi apre il sito senza il tuo link di invito vede il Paywall Gumroad.
               </div>
             </div>
-            <span class="badge badge-guest">MONETIZZAZIONE</span>
           </div>
 
           <div class="param-grid">
             <div class="field-group">
-              <label>URL Prodotto Gumroad (Link di Acquisto)</label>
+              <label>URL Prodotto Gumroad</label>
               <input type="text" id="gumroadUrlInput" value="https://gumroad.com/l/xvideo-cadbridge-4k" />
             </div>
             <div class="field-group">
-              <label>Gumroad Product ID / Permalink (per verifica API License Key)</label>
+              <label>Gumroad Permalink</label>
               <input type="text" id="gumroadPermalinkInput" value="xvideo-cadbridge-4k" />
             </div>
           </div>
 
           <div class="btn-row" style="margin-top:10px;">
-            <button id="saveGumroadConfigBtn" class="btn btn-primary">💾 Salva Configurazione Gumroad</button>
-            <button id="previewPaywallBtn" class="btn btn-cyan">👁️ Simula Vista Utente Non Invitato (Paywall Gumroad)</button>
-          </div>
-
-          <hr style="border:0;border-top:1px solid var(--border-subtle);margin:16px 0;" />
-
-          <div class="card-title" style="font-size:0.9rem;margin-bottom:8px;">📱 Link Rete Locale (Wi-Fi) per il Tuo iPhone / Android</div>
-          <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:8px;">
-            Quando sei in studio o a casa sulla stessa rete Wi-Fi del PC, puoi aprire l'app direttamente sul tuo cellulare a questo indirizzo:
-          </p>
-          <div class="status-pill" style="display:inline-flex;font-size:0.85rem;color:var(--accent-skp);">
-            🌐 <strong id="lanUrlDisplay">http://192.168.2.151:8088</strong>
+            <button id="saveGumroadConfigBtn" class="btn btn-primary">💾 Salva Gumroad</button>
+            <button id="previewPaywallBtn" class="btn btn-cyan">👁️ Simula Vista Paywall</button>
           </div>
         </div>
 
@@ -1761,43 +1851,31 @@ body::before {
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">💻 Connessione Diretta a AutoCAD (dal 2013+) e SketchUp (dal 2021+)</div>
-              <div class="card-subtitle">Il Bridge Terminale PC invia in automatico ogni comando ricevuto dal cellulare o dall'ospite 1-a-1 direttamente a AutoCAD e SketchUp.</div>
+              <div class="card-title">💻 Connessione a AutoCAD (2013+) e SketchUp (2021+)</div>
+              <div class="card-subtitle">Scarica i plugin o avvia il Bridge Terminale PC.</div>
             </div>
-            <span id="bridgeLiveBadge" class="badge badge-owner">BRIDGE PC ATTIVO</span>
+            <span id="bridgeLiveBadge" class="badge badge-owner">PRONTO</span>
           </div>
 
-          <div class="geo-stats" style="margin-bottom:14px;">
+          <div class="geo-stats" style="margin-bottom:12px;">
             <div class="stat-box">
-              <div class="stat-label">STATO AUTOCAD (2013–2026)</div>
-              <div class="stat-value" id="acadBridgeStat" style="font-size:0.82rem;">COM + AutoLISP Pronto</div>
+              <div class="stat-label">AUTOCAD (2013–2026)</div>
+              <div class="stat-value" id="acadBridgeStat" style="font-size:0.78rem;">COM + AutoLISP</div>
             </div>
             <div class="stat-box">
-              <div class="stat-label">STATO SKETCHUP (2021–2026)</div>
-              <div class="stat-value" id="skpBridgeStat" style="font-size:0.82rem;">Ruby Live Listener Pronto</div>
+              <div class="stat-label">SKETCHUP (2021–2026)</div>
+              <div class="stat-value" id="skpBridgeStat" style="font-size:0.78rem;">Ruby Live Sync</div>
             </div>
             <div class="stat-box">
-              <div class="stat-label">COMANDI ESEGUITI SUL PC</div>
+              <div class="stat-label">COMANDI ESEGUITI</div>
               <div class="stat-value" id="cmdCountBridgeStat">0</div>
             </div>
           </div>
 
-          <div class="btn-row" style="margin-bottom:16px;">
-            <button id="connectLocalBridgeBtn" class="btn btn-primary">🔄 Verifica Connessione Terminale PC</button>
-            <button id="downloadAutocadLspBtn" class="btn btn-cyan">📐 Scarica Plugin AutoCAD 2013+ (.LSP)</button>
-            <button id="downloadSketchupRbBtn" class="btn btn-green">🧊 Scarica Plugin SketchUp 2021+ (.RB)</button>
-          </div>
-
-          <div class="code-output" style="max-height:none;">
-<strong>GUIDA RAPIDA DI COLLEGAMENTO A AUTOCAD (2013+) E SKETCHUP (2021+):</strong>
-
-1. <strong>AutoCAD (qualsiasi versione dal 2013 al 2026):</strong>
-   - Con <code>AVVIA_TERMINALE_PC.bat</code> aperto sul PC, ogni volta che premi <em>"Esegui"</em> dall'app (o dal cellulare), il Bridge invia il comando direttamente alla finestra attiva di AutoCAD tramite <strong>Windows COM</strong> e aggiorna <code>C:/Users/Public/cadbridge_live_cmd.lsp</code>.
-   - Se vuoi anche il pulsante rapido dentro AutoCAD, digita <code>APPLOAD</code> in AutoCAD e carica <code>plugins/autocad_2013_plus_plugin.lsp</code> (comando rapido: <code>CADBRIDGE_SYNC</code>).
-
-2. <strong>SketchUp (qualsiasi versione dal 2021 al 2026):</strong>
-   - Copia il file <code>plugins/sketchup_2021_plus_plugin.rb</code> nella cartella Plugins di SketchUp.
-   - Dal menu <em>Estensioni / Plugins</em> di SketchUp clicca <strong>"⚡ Attiva CADBridge Pro Live Sync (2021+)"</strong>: SketchUp eseguirà in automatico in 3D ogni modifica inviata dal cellulare o dal PC!
+          <div class="btn-row" style="margin-bottom:12px;">
+            <button id="connectLocalBridgeBtn" class="btn btn-primary">🔄 Verifica Bridge PC</button>
+            <button id="downloadAutocadLspBtn" class="btn btn-cyan">📐 Plugin AutoCAD (.LSP)</button>
+            <button id="downloadSketchupRbBtn" class="btn btn-green">🧊 Plugin SketchUp (.RB)</button>
           </div>
         </div>
       </div>
@@ -1805,7 +1883,7 @@ body::before {
 
   </main>
 
-  <!-- MOBILE BOTTOM DOCK (Visible on Smartphones) -->
+  <!-- MOBILE BOTTOM DOCK -->
   <nav class="mobile-dock" aria-label="Menu Mobile">
     <button class="dock-item active" data-tab="tab-mobile-ai">
       <span>🤖📸</span>
@@ -1836,24 +1914,22 @@ body::before {
     <div class="modal-card">
       <div class="card-header">
         <div>
-          <div class="card-title">📲 Installatore Diretto App su iPhone, Android &amp; PC</div>
-          <div class="card-subtitle">XviDeo AI Professional Studio 4K + CADBridge Pro</div>
+          <div class="card-title">📲 Installa App su iPhone, Android &amp; PC</div>
+          <div class="card-subtitle">XviDeo AI Professional Studio 4K</div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px;font-size:0.82rem;color:var(--text-secondary);margin-bottom:16px;">
-        <p><strong>Su iPhone / iPad (Installatore Automatico Profilo iOS):</strong></p>
-        <p>1. Tocca il pulsante verde <strong>"⚡ Installa Icona su Home (Profilo iOS)"</strong> qui sotto e consenti il download.</p>
-        <p>2. Apri le <strong>Impostazioni ⚙️</strong> dell'iPhone &rarr; tocca <strong>"Profilo scaricato"</strong> &rarr; <strong>Installa</strong>: l'icona <strong>XviDeo 4K</strong> comparirà subito sulla tua schermata Home a schermo intero!</p>
-        <p><em>In alternativa da Safari su GitHub Pages:</em> tocca <strong>Condividi</strong> &rarr; <strong>Aggiungi alla schermata Home</strong>.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:0.8rem;color:var(--text-secondary);margin-bottom:14px;">
+        <p><strong>Metodo 1 (Da Safari su iPhone / iPad):</strong> Tocca l'icona <strong>Condividi</strong> in basso su Safari e scegli <strong>"Aggiungi alla schermata Home"</strong>.</p>
+        <p><strong>Metodo 2 (Installatore Automatico Profilo iOS):</strong> Tocca il pulsante verde qui sotto, poi apri <strong>Impostazioni ⚙️ → Profilo scaricato → Installa</strong>.</p>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <button onclick="installIosWebClip()" class="btn btn-primary" style="background:linear-gradient(90deg,#10b981,#22d3ee);color:#05070a;font-weight:800;padding:12px;">
-          ⚡ Installa Icona su Home (Profilo iOS .mobileconfig)
+        <button onclick="installIosWebClip()" class="btn btn-primary" style="background:linear-gradient(90deg,#10b981,#22d3ee);color:#05070a;font-weight:800;padding:11px;">
+          ⚡ Installa Icona su Home (Profilo iOS)
         </button>
-        <button onclick="downloadStandaloneApp()" class="btn btn-cyan" style="padding:11px;">
-          📥 Scarica App Singolo File HTML (PC / Android / Offline)
+        <button onclick="downloadStandaloneApp()" class="btn btn-cyan" style="padding:10px;">
+          📥 Scarica App Singolo File HTML (PC / Android)
         </button>
-        <button onclick="closeHomeGuide()" class="btn" style="padding:10px;">
+        <button onclick="closeHomeGuide()" class="btn" style="padding:9px;">
           Chiudi
         </button>
       </div>
@@ -1861,41 +1937,41 @@ body::before {
   </div>
 
   <!-- ======================================================================
-       GUMROAD LICENSE GATE / PAYWALL MODAL (For Visitors Without Invite Link)
+       GUMROAD LICENSE GATE / PAYWALL MODAL
        ====================================================================== -->
   <div id="licenseModal" class="modal-backdrop">
     <div class="modal-card">
       <div class="card-header">
         <div>
           <div class="card-title">🔐 Accesso Riservato — XviDeo AI Studio 4K</div>
-          <div class="card-subtitle">5 Agenti IA + AutoCAD 2013+ &amp; SketchUp 2021+ Controller</div>
+          <div class="card-subtitle">5 Agenti IA + AutoCAD 2013+ &amp; SketchUp 2021+</div>
         </div>
-        <span class="badge badge-locked">LICENZA RICHIESTA</span>
+        <span class="badge badge-locked">LICENZA</span>
       </div>
 
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;">
-        Per utilizzare <strong>XviDeo AI Professional Studio 4K</strong> in autonomia su PC, iPhone e Android occorre una <strong>License Key Gumroad</strong> valida (o il Security Pass <code>Deia2026</code>), oppure un <strong>Link di Condivisione Diretta 1-a-1</strong> inviato dal Proprietario.
+      <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px;">
+        Inserisci una <strong>License Key Gumroad</strong> valida (o il Security Pass <code>Deia2026</code>), oppure usa il <strong>Link Diretto 1-a-1</strong> inviato dal Proprietario.
       </p>
 
       <div class="field-group" style="margin-bottom:12px;">
-        <label>Inserisci License Key Gumroad o Security Pass Proprietario:</label>
-        <input type="text" id="licenseKeyInput" class="cmd-input" style="width:100%;" placeholder="Es. XXXX-XXXX-XXXX-XXXX oppure Deia2026" />
+        <label>License Key Gumroad o Pass Proprietario:</label>
+        <input type="text" id="licenseKeyInput" class="cmd-input" style="width:100%;" placeholder="Es. Deia2026 oppure XXXX-XXXX" />
       </div>
 
-      <div id="licenseErrorMsg" style="color:#F87171;font-size:0.78rem;margin-bottom:10px;display:none;"></div>
+      <div id="licenseErrorMsg" style="color:#F87171;font-size:0.76rem;margin-bottom:10px;display:none;"></div>
 
-      <div class="btn-row" style="margin-bottom:16px;">
-        <button id="verifyLicenseBtn" class="btn btn-primary" style="flex:1;">
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button id="verifyLicenseBtn" class="btn btn-primary">
           ✅ Sblocca Studio
         </button>
-        <a id="buyOnGumroadBtn" href="https://gumroad.com/l/xvideo-cadbridge-4k" target="_blank" rel="noopener" class="btn btn-cyan" style="flex:1;">
+        <a id="buyOnGumroadBtn" href="https://gumroad.com/l/xvideo-cadbridge-4k" target="_blank" rel="noopener" class="btn btn-cyan">
           🛒 Acquista su Gumroad
         </a>
       </div>
 
-      <div style="padding-top:12px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;font-size:0.76rem;color:var(--text-muted);">
-        <span>Accesso Rapido Proprietario (Deia2026):</span>
-        <button id="unlockOwnerQuickBtn" class="btn" style="padding:4px 10px;font-size:0.74rem;">
+      <div style="padding-top:10px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;font-size:0.74rem;color:var(--text-muted);flex-wrap:wrap;gap:6px;">
+        <span>Accesso Proprietario:</span>
+        <button id="unlockOwnerQuickBtn" class="btn" style="padding:5px 10px;font-size:0.72rem;">
           🔓 Entra con Pass Deia2026
         </button>
       </div>
