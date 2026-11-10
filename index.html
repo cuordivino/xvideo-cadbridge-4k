@@ -910,9 +910,10 @@
               <input type="text" id="guestTargetIpInput" placeholder="Automatico al 1° accesso" />
             </div>
             <div class="field-group">
-              <label>Modalità Privacy Ospite</label>
+              <label>Permessi Sessione</label>
               <select id="guestPermSelect">
-                <option value="private-isolated" selected>🔒 Privata Indipendente (L'amico vede SOLO le sue cose)</option>
+                <option value="spectator-armored" selected>🔒 Spettatore Blindato (Solo Visione • No Operazioni • No Modifiche • Anti-Copia)</option>
+                <option value="private-isolated">🛡️ Sessione Privata Indipendente (Vede e usa solo le sue cose)</option>
                 <option value="collab">🔄 Collaborazione Live (Condivide comandi CAD con te)</option>
               </select>
             </div>
@@ -1424,11 +1425,18 @@
         </a>
       </div>
 
-      <div style="padding-top:8px;border-top:1px solid var(--border-subtle);font-size:0.68rem;color:var(--text-muted);text-align:center;">
-        🛡️ Protezione attiva: sessioni 1-a-1 vincolate a singolo indirizzo IP e terminale.
+      <div style="padding-top:8px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;color:var(--text-muted);flex-wrap:wrap;gap:6px;">
+        <span>🛡️ Sessioni 1-a-1 vincolate a singolo IP.</span>
+        <button type="button" id="unlockOwnerQuickBtn" class="btn allow-spectator-view" style="padding:5px 10px;font-size:0.7rem;">
+          🔓 Accesso Proprietario (Home iPhone / PC)
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- FILIGRANA DIAGONALE ANTI-FURTO & TOAST DI BLOCCO (MODALITÀ SPETTATORE BLINDATO) -->
+  <div id="spectatorWatermarkOverlay" class="spectator-watermark-overlay" aria-hidden="true"></div>
+  <div id="antiTheftToast" class="anti-theft-toast" role="alert"></div>
 
   <script>
     // Dynamic Island / iOS WebClip Safe Area Detector (Portrait & 90° Landscape)

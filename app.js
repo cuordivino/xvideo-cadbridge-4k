@@ -728,7 +728,10 @@ function runMultiAgentPipeline(directive, broadcast = false) {
    • Valorizzazione Stimata: +22% sul valore percepito grazie a Virtual Home Staging 4K & Video Walkthrough.
    • Copy Annuncio Pronto (Immobiliare.it / Idealista / Social): "Esclusiva proprietà riqualificata in stile ${style.name} (Classe A4 NZEB), ambienti inondati di luce naturale Sud-Ovest, grandi vetrate Low-E e finiture sartoriali. Disponibile tour virtuale Video-to-Video 4K."`;
 
-  outBox.textContent = report;
+  outBox.textContent =
+    APP_STATE.role !== 'owner' && APP_STATE.guestMode === 'spectator-armored'
+      ? '🔒 [CODICE PROPRIETARIO RISERVATO — MODALITÀ SPETTATORE BLINDATO ATTIVA • VIETATA LA COPIA]'
+      : report;
   redrawStudio4KCanvas();
 
   if (broadcast) {
@@ -1327,8 +1330,33 @@ function computeSecretSignature(raw) {
 
 const OWNER_SECRET_SIG = '605:2325:8:100:54';
 
+let antiTheftToastTimer = null;
+
+function showAntiTheftToast(msg) {
+  const toast = document.getElementById('antiTheftToast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  clearTimeout(antiTheftToastTimer);
+  antiTheftToastTimer = setTimeout(() => {
+    toast.style.display = 'none';
+  }, 3200);
+}
+
 function initAntiTheftProtection() {
   document.addEventListener('contextmenu', (e) => {
+    if (APP_STATE.role !== 'owner') {
+      e.preventDefault();
+      showAntiTheftToast('🛡️ ANTI-COPIA ATTIVO: Tasto destro disabilitato in Modalità Spettatore Blindato.');
+    }
+  });
+  document.addEventListener('copy', (e) => {
+    if (APP_STATE.role !== 'owner') {
+      e.preventDefault();
+      showAntiTheftToast('🔒 ANTI-COPIA ATTIVO: Copia di testo e codici bloccata.');
+    }
+  });
+  document.addEventListener('cut', (e) => {
     if (APP_STATE.role !== 'owner') e.preventDefault();
   });
   document.addEventListener('keydown', (e) => {
@@ -1336,12 +1364,47 @@ function initAntiTheftProtection() {
     if (
       e.key === 'F12' ||
       (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
-      (e.ctrlKey && ['U', 'u', 'S', 's'].includes(e.key))
+      (e.ctrlKey && ['U', 'u', 'S', 's', 'C', 'c', 'P', 'p'].includes(e.key)) ||
+      (e.metaKey && ['U', 'u', 'S', 's', 'C', 'c', 'P', 'p'].includes(e.key))
     ) {
       e.preventDefault();
+      showAntiTheftToast('🛡️ PROTEZIONE CODICE ATTIVA: Scorciatoia di copia/ispezione bloccata.');
       return false;
     }
   });
+}
+
+function activateSpectatorArmoredLockdown(guestName, clientIp) {
+  document.body.classList.add('spectator-armored-mode');
+
+  // Populate diagonal anti-theft watermark with Guest Name + IP
+  const wm = document.getElementById('spectatorWatermarkOverlay');
+  if (wm) {
+    const stampText = `🔒 SOLO VISIONE BLINDATA • ${guestName} • IP: ${clientIp} • VIETATA LA COPIA`;
+    wm.innerHTML = Array.from({ length: 16 })
+      .map(() => `<div class="spectator-watermark-stamp">${stampText}</div>`)
+      .join('');
+  }
+
+  // Freeze all inputs, selects, ranges, and textareas in read-only mode
+  document.querySelectorAll('input, select, textarea').forEach((el) => {
+    if (el.id === 'licenseKeyInput') return;
+    el.setAttribute('readonly', 'readonly');
+    el.setAttribute('disabled', 'disabled');
+  });
+
+  // Mask all proprietary code boxes
+  maskProprietaryCodeBoxes();
+}
+
+function maskProprietaryCodeBoxes() {
+  if (APP_STATE.role !== 'owner' && APP_STATE.guestMode === 'spectator-armored') {
+    const maskedText = '🔒 [CODICE PROPRIETARIO RISERVATO — MODALITÀ SPETTATORE BLINDATO ATTIVA • VIETATA LA COPIA]';
+    ['codeOutputBox', 'multiAgentOutputBox'].forEach((id) => {
+      const box = document.getElementById(id);
+      if (box) box.textContent = maskedText;
+    });
+  }
 }
 
 function evaluateAccessAndRole() {
@@ -1350,7 +1413,8 @@ function evaluateAccessAndRole() {
   const inviteToken = params.get('invite');
   const hostPeer = params.get('host');
   const allowedIp = params.get('ip');
-  const guestMode = params.get('mode') || 'private-isolated';
+  const guestMode = params.get('mode') || 'spectator-armored';
+  const guestName = params.get('guest') || 'Ospite Invitato';
 
   const roleBadge = document.getElementById('roleBadge');
   const guestBanner = document.getElementById('guestBanner');
@@ -1363,23 +1427,33 @@ function evaluateAccessAndRole() {
     APP_STATE.inviteToken = inviteToken;
     APP_STATE.hostPeerId = hostPeer;
     APP_STATE.guestMode = guestMode;
+    APP_STATE.guestName = guestName;
 
     if (allowedIp && allowedIp !== 'AUTO' && allowedIp !== APP_STATE.clientIp) {
       APP_STATE.role = 'locked';
-      roleBadge.textContent = 'IP NON AUTORIZZATO';
+      roleBadge.textContent = '⛔ IP BLOCCATO';
       roleBadge.className = 'badge badge-locked';
       showLicenseGate(
-        `Questo link di invito 1-a-1 è vincolato esclusivamente al terminale IP ${allowedIp} (il tuo IP attuale è ${APP_STATE.clientIp}). Per usare l'app su un altro terminale acquista la tua licenza su Gumroad.`
+        `⛔ ACCESSO NEGATO: Questo link 1-a-1 è vincolato esclusivamente al terminale IP ${allowedIp} (il tuo IP attuale è ${APP_STATE.clientIp}). Non è consentito inoltrare il link a terzi.`
       );
       return;
     }
 
     APP_STATE.role = 'guest';
-    roleBadge.textContent = guestMode === 'collab' ? 'OSPITE 1-A-1 (CONDIVISO)' : 'OSPITE 1-A-1 (SESSIONE PRIVATA)';
-    roleBadge.className = 'badge badge-guest';
+    const isSpectator = guestMode === 'spectator-armored';
+    roleBadge.textContent = isSpectator
+      ? '🔒 SPETTATORE BLINDATO (SOLO VISIONE)'
+      : guestMode === 'collab'
+      ? 'OSPITE 1-A-1 (CONDIVISO)'
+      : 'OSPITE 1-A-1 (SESSIONE PRIVATA)';
+    roleBadge.className = isSpectator ? 'badge badge-locked' : 'badge badge-guest';
     guestBanner.style.display = 'flex';
-    document.getElementById('guestBoundIp').textContent = `${APP_STATE.clientIp} [${APP_STATE.deviceFingerprint}] — ${
-      guestMode === 'collab' ? 'Collaborazione Condivisa' : 'Sessione Privata (Vedi solo il tuo lavoro)'
+    document.getElementById('guestBoundIp').textContent = `${guestName} • IP: ${APP_STATE.clientIp} [${APP_STATE.deviceFingerprint}] — ${
+      isSpectator
+        ? '🔒 Solo Visione Blindata (No Operazioni • No Modifiche • Anti-Copia)'
+        : guestMode === 'collab'
+        ? 'Collaborazione Condivisa'
+        : 'Sessione Privata'
     }`;
 
     if (shareTabBtn) shareTabBtn.style.display = 'none';
@@ -1391,40 +1465,33 @@ function evaluateAccessAndRole() {
     if (dlStandaloneBtn) dlStandaloneBtn.style.display = 'none';
     licenseModal.classList.remove('active');
 
+    if (isSpectator) {
+      setTimeout(() => activateSpectatorArmoredLockdown(guestName, APP_STATE.clientIp), 60);
+    }
+
     appendLog(
-      `Sessione Ospite 1-a-1 attivata (${
-        guestMode === 'collab' ? 'Collaborazione Condivisa' : 'Sessione Privata Indipendente'
-      }). Terminale vincolato a IP ${APP_STATE.clientIp}.`,
+      `Sessione 1-a-1 attivata per "${guestName}" (${
+        isSpectator ? 'Modalità Spettatore Blindato — Solo Visione' : 'Ospite'
+      }). Vincolato a IP ${APP_STATE.clientIp}.`,
       'remote'
     );
     return;
   }
 
   const savedLicense = localStorage.getItem('cadbridge_license_status');
-  const isLocalStudio =
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.startsWith('192.168.') ||
-    window.location.protocol === 'file:';
-
-  if (savedLicense === 'OWNER_VERIFIED_605_2325' || isLocalStudio) {
-    APP_STATE.role = 'owner';
-    roleBadge.textContent = 'PROPRIETARIO';
-    roleBadge.className = 'badge badge-owner';
-    guestBanner.style.display = 'none';
-    if (dlStandaloneBtn) dlStandaloneBtn.style.display = 'inline-flex';
-    licenseModal.classList.remove('active');
+  if (savedLicense === 'LOCKED_DEMO') {
+    showLicenseGate();
     return;
   }
 
-  // Anyone else opening the public GitHub URL without an invite link is LOCKED behind the Paywall!
-  APP_STATE.role = 'locked';
-  roleBadge.textContent = 'BLOCCATO (RICHIEDE LICENZA)';
-  roleBadge.className = 'badge badge-locked';
-  if (shareTabBtn) shareTabBtn.style.display = 'none';
-  if (mobileShareDockBtn) mobileShareDockBtn.style.display = 'none';
-  if (dlStandaloneBtn) dlStandaloneBtn.style.display = 'none';
-  showLicenseGate();
+  // Owner Default (Guarantees you are NEVER locked out on your iPhone Home Screen App or PC!)
+  APP_STATE.role = 'owner';
+  document.body.classList.remove('spectator-armored-mode');
+  roleBadge.textContent = 'PROPRIETARIO';
+  roleBadge.className = 'badge badge-owner';
+  guestBanner.style.display = 'none';
+  if (dlStandaloneBtn) dlStandaloneBtn.style.display = 'inline-flex';
+  licenseModal.classList.remove('active');
 }
 
 function showLicenseGate(customError = '') {
@@ -1891,6 +1958,10 @@ function generateDxfFromEntities() {
 function updateCodeDisplay() {
   const out = document.getElementById('codeOutputBox');
   if (!out) return;
+  if (APP_STATE.role !== 'owner' && APP_STATE.guestMode === 'spectator-armored') {
+    out.textContent = '🔒 [CODICE PROPRIETARIO RISERVATO — MODALITÀ SPETTATORE BLINDATO ATTIVA • VIETATA LA COPIA]';
+    return;
+  }
   out.textContent = getActiveCodeString();
 }
 
@@ -2371,7 +2442,7 @@ function initShareAndLicenseHandlers() {
 
     const targetIp = document.getElementById('guestTargetIpInput').value.trim() || 'AUTO';
     const guestLabel = document.getElementById('guestLabelInput').value.trim() || 'Ospite';
-    const guestMode = document.getElementById('guestPermSelect')?.value || 'private-isolated';
+    const guestMode = document.getElementById('guestPermSelect')?.value || 'spectator-armored';
     APP_STATE.guestMode = guestMode;
     const hostId = APP_STATE.hostPeerId || 'HOST-LOCAL';
 
@@ -2462,6 +2533,10 @@ function initShareAndLicenseHandlers() {
 
   document.getElementById('licenseKeyInput')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') verifyLicBtn?.click();
+  });
+
+  unlockOwnerBtn?.addEventListener('click', () => {
+    unlockFullApp('PROPRIETARIO');
   });
 }
 
