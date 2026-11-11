@@ -273,6 +273,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   drawCadPreview();
   redrawStudio4KCanvas();
   runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || 'Progetto Architettonico 4K', false);
+  initVault6hDepartment();
   initMarketingAndErpDivision();
 
   let resizeTimer = null;
@@ -1534,6 +1535,9 @@ function initTabs() {
       setTimeout(() => {
         drawCadPreview();
         redrawStudio4KCanvas();
+        if (typeof drawVaultActiveCanvas === 'function') {
+          drawVaultActiveCanvas(VAULT_6H_STATE?.wipePct || 50);
+        }
       }, 30);
     });
   });
@@ -2833,16 +2837,23 @@ window.runAutonomousCorporateCycle = function (logToFeed = true) {
   });
   const netProfit = totRev / 1.22 - totExp;
 
+  const vaultCount = typeof VAULT_6H_STATE !== 'undefined' ? VAULT_6H_STATE.items.length : 8;
+
   if (box) {
     box.textContent = `👑 [VERTICE IN TESTA — DIRETTORE GENERALE "APEX-CEO IA"]:
    • MANTRA AZIENDALE: «Ogni tipologia di prodotto può assimilare innovazione da tipologie di prodotti diversi: basta sempre saper cogliere le sfumature che altre ricerche in campi diversi hanno portato come vantaggio.»
    • Contaminazione Attiva: Sicurezza FinTech (Spettatore Blindato + Face ID) + Cinema VFX (Temporal Lock Video-2-Video) + LiDAR Automotive (Ottica 2-Point Campo).
-   • Ordine Esecutivo diramato ai 2 Direttori di Reparto per il segmento: [${info.tag}]
+   • Ordine Esecutivo diramato ai 3 Direttori di Reparto (26 Agenti IA) per il segmento: [${info.tag}]
 
 🏗️ [DIRETTORE REPARTO 1 — ARCH-DIRECTOR IA (Coordina gli 11 Agenti Operativi Sul Campo)]:
    ├─ Agenti 2 & 3 (CAD + Geo-Solar): Rilievo smartphone convertito in .LSP/.RB con coordinate Google Maps e RAI >= 1/8.
    ├─ Agenti 6, 7 & 8 (VizMaker Video-2-Video + 3D Assets + Field-Cam): Raddrizzate verticali 2-Point, rimosse macerie, inseriti arredi 3D senza flickering.
-   └─ Agenti 9, 10, 11 & 12 (Moodboard + Smart-Swap + 4K Pitch + Real Estate): Generata Scheda Prima/Dopo 4K (+22% valore immobile) e trasmessa al Reparto 2.
+   └─ Agenti 9, 10, 11 & 12 (Moodboard + Smart-Swap + 4K Pitch + Real Estate): Generata Scheda Prima/Dopo 4K (+22% valore immobile) e trasmessa ai Reparti 2 e 3.
+
+🗄️ [DIRETTORE REPARTO 3 — MEDIA-VAULT DIRECTOR IA (Coordina i 5 Agenti Banca Dati & Archivio Continuo 6h)]:
+   ├─ Agenti V1 & V2 (Fabbricati Esterni + Interni Staging): ${vaultCount} pubblicazioni 4K Prima/Dopo attive in Banca Dati (aggiornamento ciclico ogni 6 ore).
+   ├─ Agenti V3 & V4 (Minivideo Prima/Dopo + Scheduler 6h): Minivideo .WEBM e simulazioni Prima/Dopo indicizzate in lavorazione continua.
+   └─ Agente V5 (Spot Clienti Finali): Confezionati nuovi Spot Comunicativi pronti per l'invio immediato ai clienti finali.
 
 💼 [DIRETTORE REPARTO 2 — CMO & CFO DIRECTOR IA (Coordina i 6 Agenti Marketing, Vendite & Contabilità)]:
    ├─ Spot Video Demo & Poster 4K: Compilato spot "${info.title}" (${info.kpi1} | ${info.kpi2}) con Voce Clonata su testo coerente Render 4K.
@@ -2852,7 +2863,7 @@ window.runAutonomousCorporateCycle = function (logToFeed = true) {
   }
 
   if (logToFeed) {
-    appendLog(`👑 APEX-CEO IA: Completato ciclo autonomo inter-reparto (20 Agenti sincronizzati per segmento ${seg.toUpperCase()}).`);
+    appendLog(`👑 APEX-CEO IA: Completato ciclo autonomo inter-reparto (26 Agenti e 3 Direttori sincronizzati per segmento ${seg.toUpperCase()}).`);
   }
 };
 
@@ -3574,4 +3585,753 @@ window.downloadInviteQrPng = async function () {
     window.open(qrImg.src, '_blank');
   }
 };
+
+/* ============================================================================
+   REPARTO 3: BANCA DATI & ARCHIVIO CONTINUO 6 ORE —
+   MINIVIDEO, RENDER FABBRICATI ED INTERNI PRIMA & DOPO + SPOT CLIENTI FINALI
+   (Coordinato da MEDIA-VAULT DIRECTOR IA + 5 Agenti V1..V5 sotto APEX-CEO IA)
+   ============================================================================ */
+const DEFAULT_VAULT_6H_ITEMS = [
+  {
+    id: 'V6H-108',
+    cycleSlot: 'Ciclo 6h • Slot 18:00',
+    kind: 'fabbricato',
+    isTopSpot: true,
+    title: 'Villa Unifamiliare Contemporanea — Dal Grezzo Cantiere a Classe A4 NZEB',
+    subtitle: 'Riqualificazione Facciata Ventilata in Travertino, Vetrate Low-E & Piscina a Sfioro',
+    beforeLabel: 'PRIMA: Cantiere al Grezzo in C.A. e Forati',
+    afterLabel: 'DOPO: Villa Contemporanea 4K con Piscina & Luce Golden Hour',
+    valueBoost: '+28% Valore Immobile',
+    styleName: 'Contemporaneo Mediterraneo',
+    palette: { skyTop: '#0f172a', skyMid: '#0284c7', skyBot: '#fde047', facade: '#f5f0e6', accent: '#22d3ee', pool: true },
+    spotCopy: `✨ [SPOT COMUNICATIVO CLIENTE — VILLA CONTEMPORANEA 4K]
+Prima: struttura al grezzo di cantiere priva di finiture.
+Dopo (in 10 secondi dal telefono sul campo): Villa Classe A4 NZEB con facciata in travertino chiaro, grandi vetrate scorrevoli Low-E e piscina a sfioro illuminata al tramonto.
+📈 Incremento valore percepito: +28% | Vendita su carta accelerata del 55%.
+📲 Richiedi subito la simulazione Prima/Dopo sul tuo immobile con XviDeo AI Studio 4K!`
+  },
+  {
+    id: 'V6H-107',
+    cycleSlot: 'Ciclo 6h • Slot 18:00',
+    kind: 'interno',
+    isTopSpot: true,
+    title: 'Penthouse Open-Space Milano — Da Salone Vuoto Datato a Living Japandi Luxury',
+    subtitle: 'VizMaker Video-to-Video Redesign • Parquet Rovere, Divano Minotti 3D & Gole LED 3000K',
+    beforeLabel: 'PRIMA: Stanza Vuota Anni ’80 da Ristrutturare',
+    afterLabel: 'DOPO: Living Japandi Luxury 4K con Isola Marmo & LED',
+    valueBoost: '+24% Valore Vendita',
+    styleName: 'Nordic Japandi Wood',
+    palette: { wall: '#e7dec8', floor: '#7c5836', sofa: '#f8fafc', accent: '#fbbf24', marble: '#1e293b' },
+    spotCopy: `🛋️ [SPOT COMUNICATIVO CLIENTE — INTERIOR VIRTUAL STAGING 4K]
+Prima: ambiente interno datato, buio e privo di arredi.
+Dopo (flusso VizMaker Video-to-Video): Open-Space Japandi Luxury con parquet rovere naturale, divano modulare 3D, parete attrezzata in marmo scuro e tagli di luce LED caldi.
+📈 Risultato sui portali immobiliari: +340% click e chiusura vendita alla prima visita!`
+  },
+  {
+    id: 'V6H-106',
+    cycleSlot: 'Ciclo 6h • Slot 12:00',
+    kind: 'fabbricato',
+    isTopSpot: false,
+    title: 'Condominio Urbano Anni ’70 — Riqualificazione Cappotto Termico & Frangisole',
+    subtitle: 'Trasformazione Prospetto Stradale con Terrazze Verdi Bioclimatiche e Fotovoltaico',
+    beforeLabel: 'PRIMA: Facciata Degradata Anni ’70 con Ponteggi',
+    afterLabel: 'DOPO: Edificio Smart Green NZEB con Terrazze Piantumate',
+    valueBoost: '+22% Rivalutazione Unità',
+    styleName: 'Minimalista Vetro & Acciaio',
+    palette: { skyTop: '#082f49', skyMid: '#0369a1', skyBot: '#bae6fd', facade: '#e2e8f0', accent: '#34d399', pool: false },
+    spotCopy: `🏢 [SPOT COMUNICATIVO CLIENTE — RIQUALIFICAZIONE CONDOMINIO & IMPRESE]
+Mostra ai condomini e agli acquirenti il risultato finale prima ancora di montare il ponteggio: facciata ventilata ad alta efficienza, parapetti in cristallo e verde verticale.
+📈 Approvazione delibere e vendite in cantiere +310% più rapide.`
+  },
+  {
+    id: 'V6H-105',
+    cycleSlot: 'Ciclo 6h • Slot 12:00',
+    kind: 'interno',
+    isTopSpot: true,
+    title: 'Cucina & Dining Room — Da Cucina Usata a Isola Monolitica in Calacatta Oro',
+    subtitle: 'AI Declutter Rimozione Vecchi Mobili + Inserimento Isola 3D & Lampade Sospese',
+    beforeLabel: 'PRIMA: Cucina Usata Disordinata con Piastrelle Datate',
+    afterLabel: 'DOPO: Cucina Isola Calacatta Oro 4K & Vetrate Giardino',
+    valueBoost: '+26% Attrattiva Annuncio',
+    styleName: 'Luxury Marble & Gold',
+    palette: { wall: '#f1f5f9', floor: '#334155', sofa: '#e2e8f0', accent: '#38bdf8', marble: '#f8fafc' },
+    spotCopy: `✨ [SPOT COMUNICATIVO CLIENTE — CUCINA & ZONA GIORNO 4K]
+Con un solo tocco dal telefono in sopralluogo svuotiamo i vecchi arredi (AI Declutter) e installiamo una cucina ad isola in marmo Calacatta Oro con illuminazione architettonica.`
+  },
+  {
+    id: 'V6H-104',
+    cycleSlot: 'Ciclo 6h • Slot 06:00',
+    kind: 'fabbricato',
+    isTopSpot: true,
+    title: 'Casale Storico in Pietra — Recupero Conservativo & Ampliamento Bioclimatico',
+    subtitle: 'Fusione Pietra Originale, Serra Solare in Acciaio Corten e Giardino Mediterraneo',
+    beforeLabel: 'PRIMA: Rudere / Casale Agricolo da Recuperare',
+    afterLabel: 'DOPO: Country Resort di Lusso 4K con Serra Bioclimatica',
+    valueBoost: '+34% Valore Investimento',
+    styleName: 'Casale Toscano Pietra',
+    palette: { skyTop: '#1e1b4b', skyMid: '#7c2d12', skyBot: '#f59e0b', facade: '#d6c7b2', accent: '#f59e0b', pool: true },
+    spotCopy: `🏡 [SPOT COMUNICATIVO CLIENTE — RECUPERO CASALI & IMMOBILI STORICI]
+Ideale per investitori esteri e sviluppatori immobiliari: trasforma sul campo un rustico da ristrutturare in una residenza di charme con piscina e serra solare in Corten.`
+  },
+  {
+    id: 'V6H-103',
+    cycleSlot: 'Ciclo 6h • Slot 06:00',
+    kind: 'interno',
+    isTopSpot: false,
+    title: 'Master Suite & Bagno Spa — Da Camera Grezza a Suite Hotel 5 Stelle',
+    subtitle: 'Boiserie Cannettata in Noce Canaletto, Vasca Freestanding 3D e Luce Diffusa',
+    beforeLabel: 'PRIMA: Vano al Grezzo con Tracce Impianti a Parete',
+    afterLabel: 'DOPO: Master Suite 4K con Bagno Spa in Pietra Lavica',
+    valueBoost: '+21% Valore Percepito',
+    styleName: 'Boutique Hotel Suite',
+    palette: { wall: '#d6d3d1', floor: '#44403c', sofa: '#fafaf9', accent: '#c084fc', marble: '#292524' },
+    spotCopy: `🛏️ [SPOT COMUNICATIVO CLIENTE — MASTER SUITE & HOSPITALITY 4K]
+Dal cantiere con tracce aperte nei muri alla vista emozionale 4K di una Suite 5 stelle: il cliente approva finiture e capitolato direttamente in sopralluogo.`
+  },
+  {
+    id: 'V6H-102',
+    cycleSlot: 'Ciclo 6h • Slot 00:00',
+    kind: 'fabbricato',
+    isTopSpot: false,
+    title: 'Showroom & Palazzina Direzionale — Restyling Curtain Wall & Piazza Verde',
+    subtitle: 'Doppia Pelle Vetrata Fotovoltaica, Hall Doppia Altezza e Illuminazione Notturna LED',
+    beforeLabel: 'PRIMA: Capannone / Edificio Commerciale Obsoleto',
+    afterLabel: 'DOPO: Headquarters Direzionale 4K in Cristallo & Acciaio',
+    valueBoost: '+30% Canone Locazione',
+    styleName: 'High-Tech Corporate',
+    palette: { skyTop: '#020617', skyMid: '#1d4ed8', skyBot: '#38bdf8', facade: '#cbd5e1', accent: '#22d3ee', pool: false },
+    spotCopy: `🏙️ [SPOT COMUNICATIVO CLIENTE — IMMOBILI COMMERCIALI & DIREZIONALI]
+Riqualifica capannoni e palazzine uffici mostrando subito agli investitori il nuovo prospetto vetrato 4K e il ritorno sull'investimento.`
+  },
+  {
+    id: 'V6H-101',
+    cycleSlot: 'Ciclo 6h • Slot 00:00',
+    kind: 'interno',
+    isTopSpot: false,
+    title: 'Loft Industriale Doppia Altezza — Da Ex Laboratorio a Residenza di Design',
+    subtitle: 'Soppalco in Ferro e Cristallo, Mattoni a Vista Sabbiati e Arredo Iconico 3D',
+    beforeLabel: 'PRIMA: Ex Laboratorio Artigianale Disadorno',
+    afterLabel: 'DOPO: Loft Newyorkese 4K con Soppalco e Vetrate Industriali',
+    valueBoost: '+29% Plusvalenza',
+    styleName: 'Industrial Chic Loft',
+    palette: { wall: '#9a3412', floor: '#1e293b', sofa: '#fbbf24', accent: '#f97316', marble: '#0f172a' },
+    spotCopy: `🧱 [SPOT COMUNICATIVO CLIENTE — CAMBIO DESTINAZIONE D’USO & LOFT]
+Perfetto per cambi di destinazione d'uso da laboratorio ad abitazione: il cliente vede all'istante il soppalco, le vetrate industriali e l'arredo 3D.`
+  }
+];
+
+const VAULT_6H_TEMPLATES_EXTERIOR = [
+  {
+    title: 'Residenza Bifamiliare Panoramica — Da Struttura in C.A. a Villa Bio-Architettura',
+    subtitle: 'Frangisole Motorizzati in Legno Termotrattato, Tetto Verde e Piscina Naturale',
+    beforeLabel: 'PRIMA: Scheletro Strutturale in Cemento Armato',
+    afterLabel: 'DOPO: Bio-Villa 4K con Frangisole & Giardino Zen',
+    valueBoost: '+27% Valore Mercato',
+    styleName: 'Bio-Architettura Contemporanea',
+    palette: { skyTop: '#0f172a', skyMid: '#0284c7', skyBot: '#fde047', facade: '#ede0d4', accent: '#34d399', pool: true }
+  },
+  {
+    title: 'Palazzina Residenziale 12 Unità — Da Prospetto Datato a Complesso Luxury Terrazzato',
+    subtitle: 'Logge Profonde Abitabili, Parapetti Tutto-Vetro Extrachiaro e Illuminazione Lineare',
+    beforeLabel: 'PRIMA: Edificio Multipiano da Ristrutturare',
+    afterLabel: 'DOPO: Complesso Residenziale Luxury 4K Classe A4',
+    valueBoost: '+25% Prezzo al mq',
+    styleName: ' Urbano Luxury',
+    palette: { skyTop: '#090d16', skyMid: '#1e40af', skyBot: '#60a5fa', facade: '#f8fafc', accent: '#22d3ee', pool: false }
+  }
+];
+
+const VAULT_6H_TEMPLATES_INTERIOR = [
+  {
+    title: 'Salone Panoramico Vista Mare — Da Stanza da Sgomberare a Living Mediterranean Chic',
+    subtitle: 'Pavimento in Microcemento Chiaro, Divani Lino Bianco 3D e Luce Naturale 4K',
+    beforeLabel: 'PRIMA: Soggiorno Usato con Infissi e Pavimenti Anni ’70',
+    afterLabel: 'DOPO: Living Vista Mare 4K con Arredo 3D Sartoriale',
+    valueBoost: '+26% Valore Immobiliare',
+    styleName: 'Mediterranean Luxury',
+    palette: { wall: '#f8fafc', floor: '#cbd5e1', sofa: '#e0f2fe', accent: '#22d3ee', marble: '#0284c7' }
+  },
+  {
+    title: 'Attico Duplex con Camino — Da Sottotetto Grezzo a Lounge Emozionale 4K',
+    subtitle: 'Travi Sbiancate, Camino Bifacciale 3D, Libreria Retroilluminata e Vetrata Terrazzo',
+    beforeLabel: 'PRIMA: Sottotetto Non Rifinito al Grezzo',
+    afterLabel: 'DOPO: Attico Lounge 4K con Camino & Gole Luminose',
+    valueBoost: '+31% Valore Vendita',
+    styleName: 'Penthouse Warm Minimal',
+    palette: { wall: '#e7e5e4', floor: '#57534e', sofa: '#fde68a', accent: '#f59e0b', marble: '#1c1917' }
+  }
+];
+
+const VAULT_6H_STATE = {
+  items: JSON.parse(localStorage.getItem('xvideo_vault_6h_db') || 'null') || DEFAULT_VAULT_6H_ITEMS,
+  selectedId: 'V6H-108',
+  activeFilter: 'all',
+  wipePct: 50,
+  isPlayingMinivideo: false,
+  animFrame: null,
+  animTime: 0,
+  continuousWorkerActive: true,
+  countdownSeconds: 6 * 3600 - 18, // 6 hours cycle
+  countdownInterval: null,
+  genCounter: 109
+};
+
+function initVault6hDepartment() {
+  renderVault6hArchiveGrid();
+  selectVault6hItem(VAULT_6H_STATE.items[0]?.id || 'V6H-108', false);
+  startVault6hSchedulerTimer();
+}
+
+function startVault6hSchedulerTimer() {
+  if (VAULT_6H_STATE.countdownInterval) clearInterval(VAULT_6H_STATE.countdownInterval);
+  VAULT_6H_STATE.countdownInterval = setInterval(() => {
+    if (!VAULT_6H_STATE.continuousWorkerActive) return;
+    VAULT_6H_STATE.countdownSeconds--;
+    if (VAULT_6H_STATE.countdownSeconds <= 0) {
+      VAULT_6H_STATE.countdownSeconds = 6 * 3600;
+      triggerImmediate6hVaultBatch(true);
+    }
+    const hrs = Math.floor(VAULT_6H_STATE.countdownSeconds / 3600);
+    const mins = Math.floor((VAULT_6H_STATE.countdownSeconds % 3600) / 60);
+    const secs = VAULT_6H_STATE.countdownSeconds % 60;
+    const el = document.getElementById('vaultCountdownTimer');
+    if (el) {
+      el.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+  }, 1000);
+}
+
+window.toggleContinuousVaultWorker = function () {
+  VAULT_6H_STATE.continuousWorkerActive = !VAULT_6H_STATE.continuousWorkerActive;
+  const btn = document.getElementById('toggleVaultWorkerBtn');
+  const badge = document.getElementById('vaultCycleBadge');
+  if (btn) {
+    btn.textContent = VAULT_6H_STATE.continuousWorkerActive
+      ? '🔄 Lavorazione Continua Live: ATTIVA'
+      : '⏸️ Lavorazione Continua Live: IN PAUSA';
+  }
+  if (badge) {
+    badge.textContent = VAULT_6H_STATE.continuousWorkerActive
+      ? 'CICLO 6H ATTIVO • LAVORAZIONE CONTINUA'
+      : 'CICLO 6H IN PAUSA';
+  }
+  appendLog(
+    `🗄️ Direttore Reparto 3 (MEDIA-VAULT IA): Lavorazione continua 6h ${
+      VAULT_6H_STATE.continuousWorkerActive ? 'ATTIVATA' : 'messa in pausa'
+    }.`
+  );
+};
+
+window.triggerImmediate6hVaultBatch = function (autoScheduled = false) {
+  const nowStr = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+  const extTpl = VAULT_6H_TEMPLATES_EXTERIOR[VAULT_6H_STATE.genCounter % VAULT_6H_TEMPLATES_EXTERIOR.length];
+  const intTpl = VAULT_6H_TEMPLATES_INTERIOR[VAULT_6H_STATE.genCounter % VAULT_6H_TEMPLATES_INTERIOR.length];
+
+  const idExt = `V6H-${VAULT_6H_STATE.genCounter++}`;
+  const idInt = `V6H-${VAULT_6H_STATE.genCounter++}`;
+
+  const newExtItem = {
+    id: idExt,
+    cycleSlot: `Nuova Pubblicazione 6h • Ore ${nowStr}`,
+    kind: 'fabbricato',
+    isTopSpot: true,
+    title: extTpl.title,
+    subtitle: extTpl.subtitle,
+    beforeLabel: extTpl.beforeLabel,
+    afterLabel: extTpl.afterLabel,
+    valueBoost: extTpl.valueBoost,
+    styleName: extTpl.styleName,
+    palette: extTpl.palette,
+    spotCopy: `✨ [NUOVO SPOT 6H CLIENTE FINALE — ${idExt} • FABBRICATO ESTERNO 4K]
+Progetto: ${extTpl.title}
+• ${extTpl.beforeLabel} ➔ ${extTpl.afterLabel}
+• Finiture & Architettura: ${extTpl.subtitle}
+• Impatto Commerciale: ${extTpl.valueBoost} | Simulazione Prima/Dopo e Minivideo 4K realizzati dal Reparto 3 (MEDIA-VAULT DIRECTOR IA).`
+  };
+
+  const newIntItem = {
+    id: idInt,
+    cycleSlot: `Nuova Pubblicazione 6h • Ore ${nowStr}`,
+    kind: 'interno',
+    isTopSpot: true,
+    title: intTpl.title,
+    subtitle: intTpl.subtitle,
+    beforeLabel: intTpl.beforeLabel,
+    afterLabel: intTpl.afterLabel,
+    valueBoost: intTpl.valueBoost,
+    styleName: intTpl.styleName,
+    palette: intTpl.palette,
+    spotCopy: `🛋️ [NUOVO SPOT 6H CLIENTE FINALE — ${idInt} • INTERNO & HOME STAGING 4K]
+Progetto: ${intTpl.title}
+• ${intTpl.beforeLabel} ➔ ${intTpl.afterLabel}
+• Interior Design 3D: ${intTpl.subtitle}
+• Impatto Commerciale: ${intTpl.valueBoost} | Pronto per invio su WhatsApp, Telegram e Portali Immobiliari.`
+  };
+
+  VAULT_6H_STATE.items.unshift(newIntItem);
+  VAULT_6H_STATE.items.unshift(newExtItem);
+  localStorage.setItem('xvideo_vault_6h_db', JSON.stringify(VAULT_6H_STATE.items.slice(0, 24)));
+
+  VAULT_6H_STATE.countdownSeconds = 6 * 3600;
+  const syncEl = document.getElementById('vaultLastSyncStat');
+  if (syncEl) syncEl.textContent = `Aggiornato ore ${nowStr}`;
+
+  renderVault6hArchiveGrid();
+  selectVault6hItem(newExtItem.id, false);
+  if (typeof window.runAutonomousCorporateCycle === 'function') {
+    window.runAutonomousCorporateCycle(false);
+  }
+
+  appendLog(
+    `🗄️🎬 Reparto 3 (MEDIA-VAULT DIRECTOR IA + 5 Agenti): Pubblicato nuovo lotto ${
+      autoScheduled ? 'automatico 6h' : 'istantaneo'
+    } (${idExt} Fabbricato + ${idInt} Interno + Minivideo Prima/Dopo + Spot Clienti)!`
+  );
+};
+
+window.filterVault6hArchive = function (flt) {
+  VAULT_6H_STATE.activeFilter = flt;
+  ['all', 'fabbricato', 'interno', 'spot'].forEach((k) => {
+    const b = document.getElementById(`vault-flt-${k}`);
+    if (b) b.classList.toggle('btn-cyan', k === flt);
+  });
+  renderVault6hArchiveGrid();
+};
+
+function renderVault6hArchiveGrid() {
+  const grid = document.getElementById('vault6hArchiveGrid');
+  if (!grid) return;
+
+  const totalCountEl = document.getElementById('vaultTotalCountStat');
+  const splitCountEl = document.getElementById('vaultSplitCountStat');
+  const badgeEl = document.getElementById('vaultFilterCountBadge');
+
+  const allItems = VAULT_6H_STATE.items;
+  const extCount = allItems.filter((i) => i.kind === 'fabbricato').length;
+  const intCount = allItems.filter((i) => i.kind === 'interno').length;
+  if (totalCountEl) totalCountEl.textContent = `${allItems.length} Pubblicazioni 4K`;
+  if (splitCountEl) splitCountEl.textContent = `${extCount} Fabbricati • ${intCount} Interni`;
+
+  const filtered = allItems.filter((item) => {
+    if (VAULT_6H_STATE.activeFilter === 'fabbricato') return item.kind === 'fabbricato';
+    if (VAULT_6H_STATE.activeFilter === 'interno') return item.kind === 'interno';
+    if (VAULT_6H_STATE.activeFilter === 'spot') return item.isTopSpot;
+    return true;
+  });
+
+  if (badgeEl) badgeEl.textContent = `${filtered.length} Schede`;
+
+  grid.innerHTML = filtered
+    .map((item) => {
+      const isSelected = item.id === VAULT_6H_STATE.selectedId;
+      const isExt = item.kind === 'fabbricato';
+      return `
+      <div
+        onclick="selectVault6hItem('${item.id}', true)"
+        style="padding:11px;border-radius:12px;background:${
+          isSelected ? 'rgba(34,211,238,0.10)' : 'var(--bg-primary)'
+        };border:1px solid ${
+        isSelected ? '#22d3ee' : isExt ? 'rgba(34,211,238,0.32)' : 'rgba(244,114,182,0.32)'
+      };cursor:pointer;transition:all 0.15s ease;"
+      >
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
+          <span style="font-size:0.68rem;font-weight:800;color:${isExt ? '#22d3ee' : '#f472b6'};">
+            ${isExt ? '🏢 FABBRICATO ESTERNO' : '🛋️ INTERNO & STAGING'} • ${item.id}
+          </span>
+          <div style="display:flex;gap:5px;align-items:center;">
+            <span class="badge badge-owner" style="font-size:0.62rem;">${item.valueBoost}</span>
+            <span class="badge badge-guest" style="font-size:0.62rem;">${item.cycleSlot}</span>
+          </div>
+        </div>
+        <div style="font-size:0.82rem;font-weight:800;color:#f8fafc;margin-bottom:3px;">
+          ${item.title}
+        </div>
+        <div style="font-size:0.71rem;color:#94a3b8;margin-bottom:6px;">
+          ${item.subtitle}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.67rem;margin-bottom:8px;">
+          <div style="padding:5px 7px;border-radius:6px;background:rgba(15,23,42,0.9);border-left:3px solid #64748b;color:#cbd5e1;">
+            ${item.beforeLabel}
+          </div>
+          <div style="padding:5px 7px;border-radius:6px;background:rgba(16,185,129,0.10);border-left:3px solid #10b981;color:#ecfdf5;">
+            ${item.afterLabel}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" onclick="event.stopPropagation();selectVault6hItem('${item.id}', true);toggleVaultMinivideoPlay();" class="btn btn-cyan" style="padding:5px 9px;font-size:0.68rem;width:auto;">
+            ▶️ Minivideo Prima/Dopo
+          </button>
+          <button type="button" onclick="event.stopPropagation();selectVault6hItem('${item.id}', false);broadcastSelectedVaultSpot('whatsapp');" class="btn btn-green" style="padding:5px 9px;font-size:0.68rem;width:auto;">
+            📲 Invia Spot Cliente
+          </button>
+        </div>
+      </div>`;
+    })
+    .join('');
+}
+
+window.selectVault6hItem = function (itemId, scrollOrLog = false) {
+  const found = VAULT_6H_STATE.items.find((i) => i.id === itemId) || VAULT_6H_STATE.items[0];
+  if (!found) return;
+  VAULT_6H_STATE.selectedId = found.id;
+
+  const titleEl = document.getElementById('vaultSelectedTitle');
+  const subEl = document.getElementById('vaultSelectedSub');
+  const catBadge = document.getElementById('vaultSelectedCategoryBadge');
+  const copyBox = document.getElementById('vaultSpotClientCopyBox');
+
+  if (titleEl) titleEl.textContent = `🎬 ${found.title}`;
+  if (subEl) subEl.textContent = `${found.subtitle} • [${found.cycleSlot}]`;
+  if (catBadge) {
+    catBadge.textContent = found.kind === 'fabbricato' ? `🏢 FABBRICATO • ${found.valueBoost}` : `🛋️ INTERNO 4K • ${found.valueBoost}`;
+  }
+  if (copyBox) copyBox.textContent = found.spotCopy;
+
+  renderVault6hArchiveGrid();
+  drawVaultActiveCanvas(VAULT_6H_STATE.wipePct);
+
+  if (scrollOrLog) {
+    appendLog(`🗄️ Banca Dati 6h: aperta scheda "${found.title}" (${found.id}) nel Simulatore Prima/Dopo.`);
+  }
+};
+
+window.updateVaultActiveWipe = function (val) {
+  VAULT_6H_STATE.wipePct = parseFloat(val) || 50;
+  const lbl = document.getElementById('vaultWipePctLabel');
+  if (lbl) lbl.textContent = `${Math.round(VAULT_6H_STATE.wipePct)}%`;
+  drawVaultActiveCanvas(VAULT_6H_STATE.wipePct);
+};
+
+function drawVaultActiveCanvas(wipePct = 50) {
+  const canvas = document.getElementById('vaultActiveCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  const item = VAULT_6H_STATE.items.find((i) => i.id === VAULT_6H_STATE.selectedId) || VAULT_6H_STATE.items[0];
+  if (!item) return;
+
+  const splitX = (W * wipePct) / 100;
+  ctx.clearRect(0, 0, W, H);
+
+  if (item.kind === 'fabbricato') {
+    // =====================================================================
+    // EXTERIOR BUILDING BEFORE / AFTER 4K SIMULATION (AGENT V1)
+    // =====================================================================
+    // 1. LEFT: BEFORE (Raw Construction / Unfinished Concrete & Scaffolding)
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, splitX, H);
+    ctx.clip();
+    ctx.fillStyle = '#0b1120';
+    ctx.fillRect(0, 0, W, H);
+
+    // CAD / Site Grid
+    ctx.strokeStyle = 'rgba(148,163,184,0.18)';
+    ctx.lineWidth = 2;
+    for (let x = 0; x < W; x += 64) { ctx.beginPath(); ctx.moveTo(x, 140); ctx.lineTo(x, H - 130); ctx.stroke(); }
+    for (let y = 140; y < H - 130; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+    // Raw concrete shell & scaffolding lines
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(W * 0.15, H * 0.26, W * 0.70, H * 0.48);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(W * 0.15, H * 0.26, W * 0.70, H * 0.48);
+    ctx.strokeRect(W * 0.20, H * 0.34, W * 0.26, H * 0.38);
+    ctx.strokeRect(W * 0.52, H * 0.34, W * 0.26, H * 0.38);
+
+    // Construction scaffolding diagonals
+    ctx.strokeStyle = 'rgba(245,158,11,0.45)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(W * 0.15, H * 0.26);
+    ctx.lineTo(W * 0.85, H * 0.74);
+    ctx.moveTo(W * 0.85, H * 0.26);
+    ctx.lineTo(W * 0.15, H * 0.74);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(5,7,10,0.85)';
+    ctx.fillRect(50, 165, 780, 62);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = 'bold 28px Inter, sans-serif';
+    ctx.fillText(item.beforeLabel, 70, 205);
+    ctx.restore();
+
+    // 2. RIGHT: AFTER (4K Photorealistic Architectural Building)
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(splitX, 0, W - splitX, H);
+    ctx.clip();
+
+    const pal = item.palette || { skyTop: '#0f172a', skyMid: '#0284c7', skyBot: '#fde047', facade: '#f5f0e6', accent: '#22d3ee', pool: true };
+    const sky = ctx.createLinearGradient(0, 130, 0, H * 0.76);
+    sky.addColorStop(0, pal.skyTop);
+    sky.addColorStop(0.55, pal.skyMid);
+    sky.addColorStop(1, pal.skyBot);
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
+
+    // Ground & Pool
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, H * 0.73, W, H * 0.27);
+    if (pal.pool) {
+      const poolGrad = ctx.createLinearGradient(0, H * 0.75, 0, H * 0.88);
+      poolGrad.addColorStop(0, 'rgba(34,211,238,0.75)');
+      poolGrad.addColorStop(1, 'rgba(2,132,199,0.45)');
+      ctx.fillStyle = poolGrad;
+      ctx.fillRect(W * 0.15, H * 0.75, W * 0.70, H * 0.11);
+    }
+
+    // Main Finished Architectural Volume
+    ctx.fillStyle = pal.facade;
+    ctx.fillRect(W * 0.15, H * 0.25, W * 0.70, H * 0.49);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(W * 0.50, H * 0.28, W * 0.33, H * 0.46);
+
+    // Warm Low-E Illuminated Windows
+    const winGrad = ctx.createLinearGradient(0, H * 0.33, 0, H * 0.72);
+    winGrad.addColorStop(0, 'rgba(251,191,36,0.92)');
+    winGrad.addColorStop(1, 'rgba(234,88,12,0.78)');
+    ctx.fillStyle = winGrad;
+    ctx.fillRect(W * 0.19, H * 0.33, W * 0.27, H * 0.39);
+    ctx.fillRect(W * 0.54, H * 0.35, W * 0.25, H * 0.37);
+
+    ctx.fillStyle = 'rgba(5,7,10,0.85)';
+    ctx.fillRect(W - 860, 165, 810, 62);
+    ctx.fillStyle = pal.accent;
+    ctx.font = 'bold 28px Inter, sans-serif';
+    ctx.fillText(item.afterLabel, W - 835, 205);
+    ctx.restore();
+  } else {
+    // =====================================================================
+    // INTERIOR & VIRTUAL HOME STAGING BEFORE / AFTER 4K SIMULATION (AGENT V2)
+    // =====================================================================
+    // 1. LEFT: BEFORE (Empty / Dated Interior Room with Raw Walls)
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, splitX, H);
+    ctx.clip();
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 0, W, H);
+
+    // Perspective room lines (ceiling, back wall, floor)
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(W * 0.18, H * 0.22, W * 0.64, H * 0.52);
+    ctx.beginPath();
+    ctx.moveTo(0, 130); ctx.lineTo(W * 0.18, H * 0.22);
+    ctx.moveTo(W, 130); ctx.lineTo(W * 0.82, H * 0.22);
+    ctx.moveTo(0, H - 130); ctx.lineTo(W * 0.18, H * 0.74);
+    ctx.moveTo(W, H - 130); ctx.lineTo(W * 0.82, H * 0.74);
+    ctx.stroke();
+
+    // Unfinished window & electrical chases
+    ctx.strokeStyle = 'rgba(248,113,113,0.55)';
+    ctx.setLineDash([12, 8]);
+    ctx.strokeRect(W * 0.34, H * 0.28, W * 0.32, H * 0.36);
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = 'rgba(5,7,10,0.85)';
+    ctx.fillRect(50, 165, 780, 62);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = 'bold 28px Inter, sans-serif';
+    ctx.fillText(item.beforeLabel, 70, 205);
+    ctx.restore();
+
+    // 2. RIGHT: AFTER (Luxury Designer Interior 4K with 3D Sofa, Marble & LED)
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(splitX, 0, W - splitX, H);
+    ctx.clip();
+
+    const pal = item.palette || { wall: '#e7dec8', floor: '#7c5836', sofa: '#f8fafc', accent: '#fbbf24', marble: '#1e293b' };
+    // Ceiling with warm LED cove
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 130, W, H * 0.12);
+    // Walls
+    ctx.fillStyle = pal.wall;
+    ctx.fillRect(0, H * 0.22, W, H * 0.52);
+    // Parquet / Marble Floor
+    ctx.fillStyle = pal.floor;
+    ctx.fillRect(0, H * 0.72, W, H * 0.18);
+
+    // Feature Marble Wall & Panoramic Window
+    ctx.fillStyle = pal.marble;
+    ctx.fillRect(W * 0.20, H * 0.24, W * 0.25, H * 0.48);
+    const winSky = ctx.createLinearGradient(0, H * 0.26, 0, H * 0.68);
+    winSky.addColorStop(0, '#38bdf8');
+    winSky.addColorStop(1, '#fef08a');
+    ctx.fillStyle = winSky;
+    ctx.fillRect(W * 0.48, H * 0.26, W * 0.30, H * 0.44);
+
+    // 3D Designer Sofa / Island Block in Foreground
+    ctx.fillStyle = pal.sofa;
+    ctx.fillRect(W * 0.26, H * 0.60, W * 0.46, H * 0.16);
+    ctx.strokeStyle = pal.accent;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(W * 0.26, H * 0.60, W * 0.46, H * 0.16);
+
+    // Warm LED Linear Glow
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(W * 0.18, H * 0.23);
+    ctx.lineTo(W * 0.82, H * 0.23);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(5,7,10,0.85)';
+    ctx.fillRect(W - 860, 165, 810, 62);
+    ctx.fillStyle = pal.accent;
+    ctx.font = 'bold 28px Inter, sans-serif';
+    ctx.fillText(item.afterLabel, W - 835, 205);
+    ctx.restore();
+  }
+
+  // Center Wipe Line & Handle
+  ctx.strokeStyle = '#22d3ee';
+  ctx.lineWidth = 7;
+  ctx.beginPath();
+  ctx.moveTo(splitX, 130);
+  ctx.lineTo(splitX, H - 125);
+  ctx.stroke();
+
+  // Top Header Banner (Reparto 3 Banca Dati 6h)
+  ctx.fillStyle = 'rgba(5,7,10,0.94)';
+  ctx.fillRect(0, 0, W, 135);
+  ctx.fillStyle = '#c084fc';
+  ctx.font = 'bold 24px JetBrains Mono, monospace';
+  ctx.fillText(`BANCA DATI 6 ORE • ${item.id} • ${item.cycleSlot.toUpperCase()} • ${item.valueBoost}`, 55, 45);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 38px Inter, sans-serif';
+  ctx.fillText(item.title, 55, 92);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '22px Inter, sans-serif';
+  ctx.fillText(item.subtitle, 55, 122);
+
+  // Bottom Spot Footer
+  ctx.fillStyle = 'rgba(5,7,10,0.94)';
+  ctx.fillRect(0, H - 125, W, 125);
+  ctx.fillStyle = '#34d399';
+  ctx.font = 'bold 28px Inter, sans-serif';
+  ctx.fillText(`📣 SPOT CLIENTE PRONTO: ${item.valueBoost} • Stile: ${item.styleName} • XviDeo AI Studio 4K`, 55, H - 52);
+}
+
+window.toggleVaultMinivideoPlay = function () {
+  const btn = document.getElementById('playVaultMinivideoBtn');
+  const item = VAULT_6H_STATE.items.find((i) => i.id === VAULT_6H_STATE.selectedId) || VAULT_6H_STATE.items[0];
+
+  if (VAULT_6H_STATE.isPlayingMinivideo) {
+    VAULT_6H_STATE.isPlayingMinivideo = false;
+    if (VAULT_6H_STATE.animFrame) cancelAnimationFrame(VAULT_6H_STATE.animFrame);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (btn) btn.textContent = '▶️ Avvia Minivideo Prima/Dopo + Voce IA';
+    return;
+  }
+
+  VAULT_6H_STATE.isPlayingMinivideo = true;
+  if (btn) btn.textContent = '⏹️ Ferma Minivideo Prima/Dopo';
+
+  if (item && typeof window.speakWithClonedMasterVoice === 'function') {
+    window.speakWithClonedMasterVoice(
+      `${item.title}. ${item.beforeLabel}. ${item.afterLabel}. Impatto sul mercato: ${item.valueBoost}.`
+    );
+  }
+
+  function step() {
+    if (!VAULT_6H_STATE.isPlayingMinivideo) return;
+    VAULT_6H_STATE.animTime += 0.032;
+    const w = 50 + Math.sin(VAULT_6H_STATE.animTime) * 40;
+    VAULT_6H_STATE.wipePct = w;
+    const slider = document.getElementById('vaultWipeSlider');
+    const lbl = document.getElementById('vaultWipePctLabel');
+    if (slider) slider.value = String(Math.round(w));
+    if (lbl) lbl.textContent = `${Math.round(w)}%`;
+    drawVaultActiveCanvas(w);
+    VAULT_6H_STATE.animFrame = requestAnimationFrame(step);
+  }
+  step();
+};
+
+window.exportVaultMinivideoWebm = function () {
+  const canvas = document.getElementById('vaultActiveCanvas');
+  const btn = document.getElementById('recordVaultMinivideoBtn');
+  const item = VAULT_6H_STATE.items.find((i) => i.id === VAULT_6H_STATE.selectedId) || VAULT_6H_STATE.items[0];
+  if (!canvas || typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
+    window.downloadVaultRender4KPng();
+    return;
+  }
+  if (!VAULT_6H_STATE.isPlayingMinivideo) window.toggleVaultMinivideoPlay();
+
+  const stream = canvas.captureStream(30);
+  const rec = new MediaRecorder(stream);
+  const chunks = [];
+  rec.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+  rec.onstop = () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Minivideo_PrimaDopo_${item?.id || '4K'}.webm`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+    if (btn) btn.textContent = '🎥 Scarica Minivideo (.WEBM)';
+    appendLog(`🎬 Agente V3: Minivideo Prima/Dopo (${item?.id}) esportato in formato .WEBM!`);
+  };
+  if (btn) btn.textContent = '🔴 Registrazione Minivideo (5s)...';
+  rec.start();
+  setTimeout(() => {
+    if (rec.state === 'recording') rec.stop();
+    if (VAULT_6H_STATE.isPlayingMinivideo) window.toggleVaultMinivideoPlay();
+  }, 5000);
+};
+
+window.downloadVaultRender4KPng = function () {
+  const canvas = document.getElementById('vaultActiveCanvas');
+  const item = VAULT_6H_STATE.items.find((i) => i.id === VAULT_6H_STATE.selectedId) || VAULT_6H_STATE.items[0];
+  if (!canvas) return;
+  drawVaultActiveCanvas(48);
+  const a = document.createElement('a');
+  a.download = `Render_PrimaDopo_4K_${item?.id || 'Vault'}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  appendLog(`📥 Render Prima/Dopo 4K (${item?.id}) scaricato in .PNG!`);
+};
+
+window.loadVaultItemIntoMainStudio = function () {
+  const item = VAULT_6H_STATE.items.find((i) => i.id === VAULT_6H_STATE.selectedId) || VAULT_6H_STATE.items[0];
+  if (!item) return;
+  const dirInput = document.getElementById('agentDirectiveInput');
+  if (dirInput) dirInput.value = `${item.title} — ${item.subtitle}`;
+  document.querySelector('[data-tab="tab-mobile-ai"]')?.click();
+  runMultiAgentPipeline(`${item.title} — ${item.subtitle}`, true);
+  appendLog(`🎬 Scheda Banca Dati "${item.id}" caricata nel Viewport Principale Studio 4K.`);
+};
+
+window.broadcastSelectedVaultSpot = function (channel = 'whatsapp') {
+  const item = VAULT_6H_STATE.items.find((i) => i.id === VAULT_6H_STATE.selectedId) || VAULT_6H_STATE.items[0];
+  if (!item) return;
+  const text = `${item.spotCopy}\n🌐 Live Studio 4K: https://cuordivino.github.io/xvideo-cadbridge-4k/`;
+  if (channel === 'whatsapp') {
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    appendLog(`💬 Agente V5: Spot Cliente "${item.id}" inviato su WhatsApp.`);
+  } else if (channel === 'telegram') {
+    window.open(
+      `https://t.me/share/url?url=${encodeURIComponent('https://cuordivino.github.io/xvideo-cadbridge-4k/')}&text=${encodeURIComponent(item.spotCopy)}`,
+      '_blank'
+    );
+    appendLog(`✈️ Agente V5: Spot Cliente "${item.id}" inviato su Telegram.`);
+  } else {
+    navigator.clipboard.writeText(text);
+    appendLog(`📋 Agente V5: Spot Cliente "${item.id}" copiato negli appunti.`);
+  }
+};
+
+window.broadcastLatestVaultSpotToClients = function () {
+  if (VAULT_6H_STATE.items.length > 0) {
+    VAULT_6H_STATE.selectedId = VAULT_6H_STATE.items[0].id;
+    window.broadcastSelectedVaultSpot('whatsapp');
+  }
+};
+
 
