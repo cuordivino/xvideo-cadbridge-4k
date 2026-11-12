@@ -775,6 +775,23 @@
               </div>
             </div>
 
+            <!-- LUXURY 4K RENDER ENGINE (7 ARCHETIPI 2D->3D) -->
+            <div style="margin-top:10px;padding:8px;background:rgba(15,23,42,0.85);border:1px solid rgba(0,229,255,0.25);border-radius:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+                <span style="font-size:0.72rem;font-weight:800;color:#00e5ff;">💎 LUXURY 4K ENGINE — 7 Archetipi 2D &rarr; 3D:</span>
+                <span id="luxuryEngineTelemetry" style="font-size:0.65rem;color:#10b981;font-family:var(--font-mono);">⚡ 4 Agenti: Parser &bull; Extruder &bull; Shader &bull; Director [READY]</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:4px;" id="luxuryArchetypeSelector">
+                <button type="button" class="btn btn-cyan active" data-archetype="ISO_CUTAWAY" onclick="selectLuxuryArchetype('ISO_CUTAWAY')" style="font-size:0.64rem;padding:4px;">🧊 ISO_CUTAWAY</button>
+                <button type="button" class="btn" data-archetype="TOPDOWN_WALK" onclick="selectLuxuryArchetype('TOPDOWN_WALK')" style="font-size:0.64rem;padding:4px;">🧭 TOPDOWN_WALK</button>
+                <button type="button" class="btn" data-archetype="BUILD_TIMELAPSE" onclick="selectLuxuryArchetype('BUILD_TIMELAPSE')" style="font-size:0.64rem;padding:4px;">🏗️ BUILD_TIMELAPSE</button>
+                <button type="button" class="btn" data-archetype="MINIATURE_UNBOX" onclick="selectLuxuryArchetype('MINIATURE_UNBOX')" style="font-size:0.64rem;padding:4px;">📦 MINIATURE_UNBOX</button>
+                <button type="button" class="btn" data-archetype="SKETCH_EXTRUDE" onclick="selectLuxuryArchetype('SKETCH_EXTRUDE')" style="font-size:0.64rem;padding:4px;">✏️ SKETCH_EXTRUDE</button>
+                <button type="button" class="btn" data-archetype="MATERIAL_MORPH" onclick="selectLuxuryArchetype('MATERIAL_MORPH')" style="font-size:0.64rem;padding:4px;">✨ MATERIAL_MORPH</button>
+                <button type="button" class="btn" data-archetype="MACRO_SIX_SHOT" onclick="selectLuxuryArchetype('MACRO_SIX_SHOT')" style="font-size:0.64rem;padding:4px;">🔍 MACRO_SIX_SHOT</button>
+              </div>
+            </div>
+
             <div class="code-tabs">
               <button class="code-tab active" data-codetab="acad">AutoCAD (.LSP)</button>
               <button class="code-tab" data-codetab="skp">SketchUp (.RB)</button>
@@ -1346,6 +1363,12 @@
               <button type="button" onclick="selectPromoDemoSector('agenzia')" id="demo-sec-agenzia" class="btn" style="font-size:0.7rem;padding:7px;">
                 🏡 Spot 4: Agenzie Imm.
               </button>
+            </div>
+
+            <!-- HUMAN VOICE PRO LIVE BADGE -->
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(15,23,42,0.9);border:1px solid rgba(236,72,153,0.35);border-radius:8px;margin-bottom:8px;font-size:0.74rem;">
+              <span id="humanVoiceBadge" style="color:#f472b6;font-weight:700;">🎙️ Voce Attiva: Ing. Marco (M • Tecnico/Autorevole)</span>
+              <span id="humanVoiceSubtitle" style="color:#94a3b8;font-size:0.68rem;font-style:italic;">Prosodia naturale italiana &bull; Pause respiratorie 380ms</span>
             </div>
 
             <!-- CANVAS VIDEO DEMO PROMOZIONALE LIVE -->

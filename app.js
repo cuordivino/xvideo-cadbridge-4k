@@ -2218,6 +2218,25 @@ function drawCadPreview() {
   if (entHud) entHud.textContent = `ENTITÀ: ${APP_STATE.entities.length}`;
   const areaHud = document.getElementById('canvasAreaHud');
   if (areaHud) areaHud.textContent = `SUP. TOTALE: ${totalArea.toFixed(2)} mq`;
+
+  // Overlay HUD Luxury 4K Render Engine (Archetipo 2D->3D & 4 Agenti)
+  const arch = typeof getCurrentLuxuryArchetype === 'function' ? getCurrentLuxuryArchetype() : null;
+  if (arch) {
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
+    ctx.fillRect(10, 10, 310, 52);
+    ctx.strokeStyle = '#00e5ff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(10, 10, 310, 52);
+
+    ctx.fillStyle = '#00e5ff';
+    ctx.font = 'bold 11px Inter, sans-serif';
+    ctx.fillText(`💎 LUXURY 4K: ${arch.name}`, 18, 28);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '9px JetBrains Mono, monospace';
+    ctx.fillText(`Rot: ${arch.angle}° | Luce: ${arch.lighting}`, 18, 42);
+    ctx.fillText(`Director: ${arch.agents.Motion_Director.substring(0, 38)}`, 18, 54);
+  }
 }
 
 /* ============================================================================
@@ -3189,6 +3208,169 @@ const PROMO_SECTORS = {
   }
 };
 
+/* ============================================================================
+   1. HUMAN VOICE PRO (MULTI-REFERENTE M/F + PROSODIA NATURALE ITALIANA)
+   ============================================================================ */
+const HUMAN_VOICE_REFERENTS = {
+  architetto: {
+    name: 'Ing. Marco',
+    gender: 'M',
+    role: 'Tecnico / Autorevole',
+    voiceKeywords: ['giuseppe', 'diego', 'cosimo', 'luca', 'google'],
+    fallbackGender: 'male',
+    rate: 1.01,
+    pitch: 0.94
+  },
+  designer: {
+    name: 'Arch. Sofia',
+    gender: 'F',
+    role: 'Elegante / Morbida',
+    voiceKeywords: ['isabella', 'elsa', 'federica', 'alice', 'chiara'],
+    fallbackGender: 'female',
+    rate: 0.96,
+    pitch: 1.05
+  },
+  immobiliarista: {
+    name: 'Dott. Alessandro',
+    gender: 'M',
+    role: 'Executive / ROI',
+    voiceKeywords: ['diego', 'giuseppe', 'luca', 'cosimo', 'google'],
+    fallbackGender: 'male',
+    rate: 1.05,
+    pitch: 0.92
+  },
+  agenzia: {
+    name: 'Dott.ssa Elena',
+    gender: 'F',
+    role: 'Brillante / Commerciale',
+    voiceKeywords: ['elsa', 'isabella', 'alice', 'federica', 'chiara'],
+    fallbackGender: 'female',
+    rate: 1.02,
+    pitch: 1.08
+  }
+};
+
+function humanizeIT(text) {
+  if (!text) return '';
+  return text
+    .replace(/(?:>=|≥)\s*1\/8/gi, 'maggiore o uguale a un ottavo')
+    .replace(/\bRAI\b/g, 'rapporto aeroilluminante')
+    .replace(/\.LSP\/\.RB/gi, 'script Lisp e Ruby')
+    .replace(/\.LSP\b/gi, 'script Lisp')
+    .replace(/\.RB\b/gi, 'script Ruby')
+    .replace(/-85%/g, 'meno ottantacinque per cento')
+    .replace(/\+310%/g, 'più trecentodieci per cento')
+    .replace(/\+340%/g, 'più trecentoquaranta per cento')
+    .replace(/\+280%/g, 'più duecentoottanta per cento')
+    .replace(/\+22%/g, 'più ventidue per cento')
+    .replace(/\+45%/g, 'più quarantacinque per cento')
+    .replace(/-50%/g, 'meno cinquanta per cento')
+    .replace(/\b4K\b/gi, 'quattro kappa')
+    .replace(/\b8K\b/gi, 'otto kappa')
+    .replace(/\b10s\b/gi, 'dieci secondi')
+    .replace(/Prima\/Dopo/gi, 'Prima e Dopo')
+    .replace(/prima\/dopo/gi, 'prima e dopo')
+    .replace(/Video-to-Video/gi, 'Video to Video')
+    .replace(/PBR/gi, 'P B R')
+    .replace(/NZEB/gi, 'N Z E B')
+    .replace(/[•●■]/g, ', ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const HumanVoiceOrchestrator = {
+  activeUtterances: [],
+  isSpeaking: false,
+
+  updateBadge(secId) {
+    const ref = HUMAN_VOICE_REFERENTS[secId] || HUMAN_VOICE_REFERENTS.architetto;
+    const badge = document.getElementById('humanVoiceBadge');
+    const sub = document.getElementById('humanVoiceSubtitle');
+    if (badge) badge.textContent = `🎙️ Voce Attiva: ${ref.name} (${ref.gender} • ${ref.role})`;
+    if (sub) sub.textContent = `Cadenza: ${ref.rate}x | Timbro: ${ref.pitch}x | Pause respiratorie 380ms`;
+  },
+
+  selectVoice(voices, ref) {
+    const itVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('it'));
+    if (!itVoices.length) return voices[0] || null;
+    for (const kw of ref.voiceKeywords) {
+      const match = itVoices.find(v => v.name.toLowerCase().includes(kw));
+      if (match) return match;
+    }
+    const genderMatch = itVoices.find(v => {
+      const n = v.name.toLowerCase();
+      if (ref.fallbackGender === 'female') return n.includes('female') || n.includes('donna') || n.includes('cosimo') === false;
+      return n.includes('male') || n.includes('uomo') || n.includes('cosimo');
+    });
+    return genderMatch || itVoices[0];
+  },
+
+  speakSpot(sectorId, onComplete) {
+    if (!('speechSynthesis' in window)) {
+      if (onComplete) onComplete();
+      return;
+    }
+    window.speechSynthesis.cancel();
+    this.isSpeaking = true;
+    const ref = HUMAN_VOICE_REFERENTS[sectorId] || HUMAN_VOICE_REFERENTS.architetto;
+    this.updateBadge(sectorId);
+
+    const info = PROMO_SECTORS[sectorId] || PROMO_SECTORS.architetto;
+    // 4 segmenti respiratori per spot
+    const segments = [
+      humanizeIT(info.title),
+      humanizeIT(info.sub),
+      humanizeIT(`Risultato sul mercato: ${info.kpi1}, ${info.kpi2}`),
+      humanizeIT('Scatta col telefono in cantiere o nell immobile usato, genera il Prima e Dopo quattro kappa e chiudi la vendita sul posto.')
+    ];
+
+    const voices = window.speechSynthesis.getVoices();
+    const voice = this.selectVoice(voices, ref);
+
+    let idx = 0;
+    const speakNext = () => {
+      if (!this.isSpeaking || idx >= segments.length) {
+        this.isSpeaking = false;
+        if (onComplete) onComplete();
+        return;
+      }
+      const segText = segments[idx];
+      const isCta = (idx === segments.length - 1);
+      const utter = new SpeechSynthesisUtterance(segText);
+      utter.lang = 'it-IT';
+      if (voice) utter.voice = voice;
+      utter.rate = ref.rate;
+      // Abbassa il pitch del 3% sulla Call To Action finale per autorevolezza
+      utter.pitch = isCta ? parseFloat((ref.pitch * 0.97).toFixed(2)) : ref.pitch;
+
+      utter.onend = () => {
+        idx++;
+        if (idx < segments.length) {
+          // Pausa respiratoria umana da 380ms
+          setTimeout(speakNext, 380);
+        } else {
+          this.isSpeaking = false;
+          if (onComplete) onComplete();
+        }
+      };
+      utter.onerror = () => {
+        this.isSpeaking = false;
+        if (onComplete) onComplete();
+      };
+      window.speechSynthesis.speak(utter);
+    };
+
+    speakNext();
+  },
+
+  stop() {
+    this.isSpeaking = false;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  }
+};
+
+window.HumanVoiceOrchestrator = HumanVoiceOrchestrator;
+
 window.selectPromoDemoSector = function (secId) {
   MKT_ERP_STATE.activeDemoSector = secId;
   ['architetto', 'designer', 'immobiliarista', 'agenzia'].forEach((s) => {
@@ -3205,7 +3387,124 @@ window.selectPromoDemoSector = function (secId) {
 • Statistiche di Risposta sul Mercato: [ ${info.kpi1} ]  |  [ ${info.kpi2} ]  |  [ ${info.kpi3} ]
 • Call to Action: "Scatta col telefono in cantiere o nell'immobile usato, genera il Prima/Dopo 4K e chiudi la vendita sul posto."`;
   }
+  HumanVoiceOrchestrator.updateBadge(secId);
   drawPromoDemoCanvas(55);
+};
+
+/* ============================================================================
+   2. LUXURY 4K RENDER ENGINE (7 ARCHETIPI 2D -> 3D)
+   ============================================================================ */
+const LUXURY_4K_ARCHETYPES = {
+  ISO_CUTAWAY: {
+    name: 'Spaccato Assonometrico 35.264°',
+    desc: 'Spaccato 3D isolato, illuminazione Golden Hour / Night 2700K',
+    angle: 35.264,
+    lighting: '2700K Warm LED',
+    agents: {
+      CAD_Vector_Parser: 'Polilinee vano estrapolate da DWG/DXF',
+      Spatial_3D_Extruder: 'Estrusione muri 2.70m con taglio a 1.20m',
+      PBR_Luxury_Shader: 'Parquet rovere spazzolato + intonaco materico',
+      Motion_Director: 'Orbita assonometrica statica 35.264°'
+    }
+  },
+  TOPDOWN_WALK: {
+    name: 'Planivolumetrico Zenitale Nadir -90°',
+    desc: 'Vista zenitale ortogonale con percorso walkthrough tratteggiato',
+    angle: -90,
+    lighting: 'Luce Diffusa Daylight 5000K',
+    agents: {
+      CAD_Vector_Parser: 'Calcolo ingombri netti e layout arredi',
+      Spatial_3D_Extruder: 'Appiattimento ortogonale Z=0 con ombre di contatto',
+      PBR_Luxury_Shader: 'Mappatura materiali pavimento Calacatta e resina',
+      Motion_Director: 'Pan lineare lungo asse distributivo'
+    }
+  },
+  BUILD_TIMELAPSE: {
+    name: 'Costruzione Cantiere + Scansione Laser',
+    desc: 'Dalle fondazioni in C.A. alla finitura luxury con fascio laser',
+    angle: 45,
+    lighting: 'Illuminazione Dinamica Cantiere -> Smart Home',
+    agents: {
+      CAD_Vector_Parser: 'Sequenza strutturale pilastri -> solai -> pareti',
+      Spatial_3D_Extruder: 'Crescita volumetrica progressiva da quota 0.00',
+      PBR_Luxury_Shader: 'Transizione calcestruzzo grezzo -> facciata ventilata',
+      Motion_Director: 'Rotazione continua con scansione sweep laser ciano'
+    }
+  },
+  MINIATURE_UNBOX: {
+    name: 'Cofanetto Modello Diorama 1:50',
+    desc: 'Modello architettonico in scala su basamento espositivo illuminato',
+    angle: 30,
+    lighting: 'Faretto Spot Pin-Spot 3000K',
+    agents: {
+      CAD_Vector_Parser: 'Semplificazione volumetrica scala 1:50',
+      Spatial_3D_Extruder: 'Basamento in noce scuro con teca in cristallo',
+      PBR_Luxury_Shader: 'Materiale alabastro traslucido e finiture ottone',
+      Motion_Director: 'Apertura teca e sollevamento tetto in unboxing'
+    }
+  },
+  SKETCH_EXTRUDE: {
+    name: 'Evoluzione Schizzo a Mano -> Render 4K',
+    desc: 'Il tratto a matita si solleva e prende materia fotorealistica',
+    angle: 35,
+    lighting: 'Luce Solare Diretta Esterno',
+    agents: {
+      CAD_Vector_Parser: 'Vettorizzazione contorni a mano libera',
+      Spatial_3D_Extruder: 'Estrusione verticale dai tratti vettoriali',
+      PBR_Luxury_Shader: 'Dissolvenza grafite -> finitura travertino romano',
+      Motion_Director: 'Wipe diagonale tra schizzo 2D e render 3D'
+    }
+  },
+  MATERIAL_MORPH: {
+    name: 'Morphing Finiture & Moodboard PBR',
+    desc: 'Sostituzione istantanea di marmi, legni e tessuti in tempo reale',
+    angle: 40,
+    lighting: 'Studio Lighting Fotolaboratorio',
+    agents: {
+      CAD_Vector_Parser: 'Segmentazione semantica superfici per id layer',
+      Spatial_3D_Extruder: 'Mesh 3D suddivisa per pacchetti applicativi',
+      PBR_Luxury_Shader: 'Swap PBR: Calacatta -> Marquinia -> Rovere Termotrattato',
+      Motion_Director: 'Transizione fluida a onde concentriche'
+    }
+  },
+  MACRO_SIX_SHOT: {
+    name: '6 Dettagli Macro 4K Close-Up',
+    desc: 'Sequenza di 6 dettagli sartoriali di nodi architettonici e materiali',
+    angle: 50,
+    lighting: 'Macro Softbox 3200K',
+    agents: {
+      CAD_Vector_Parser: 'Individuazione nodi costruttivi e raccordi',
+      Spatial_3D_Extruder: 'Dettagliature micro-geometriche smussi e fughe',
+      PBR_Luxury_Shader: 'Micro-rugosità PBR e profondità di campo bokeh f/1.8',
+      Motion_Director: 'Sequenza 6 close-up cinematografici a stacco rapido'
+    }
+  }
+};
+
+let currentLuxuryArchetype = 'ISO_CUTAWAY';
+
+window.selectLuxuryArchetype = function (archetypeKey) {
+  const arch = LUXURY_4K_ARCHETYPES[archetypeKey] || LUXURY_4K_ARCHETYPES.ISO_CUTAWAY;
+  currentLuxuryArchetype = archetypeKey;
+
+  const buttons = document.querySelectorAll('#luxuryArchetypeSelector button');
+  buttons.forEach(btn => {
+    btn.classList.toggle('btn-cyan', btn.getAttribute('data-archetype') === archetypeKey);
+    btn.classList.toggle('active', btn.getAttribute('data-archetype') === archetypeKey);
+  });
+
+  const telemEl = document.getElementById('luxuryEngineTelemetry');
+  if (telemEl) {
+    telemEl.textContent = `⚡ [${archetypeKey}] Extruder: ${arch.angle}° | ${arch.lighting} | 4 Agenti SYNC`;
+  }
+
+  // Aggiorna anteprima CAD 2D/3D con l'archetipo selezionato
+  if (typeof drawCadPreview === 'function') drawCadPreview();
+  appendLog(`💎 Luxury 4K Engine: attivato archetipo "${arch.name}" (${arch.desc}).`);
+};
+
+window.getCurrentLuxuryArchetype = function() {
+  return LUXURY_4K_ARCHETYPES[currentLuxuryArchetype] || LUXURY_4K_ARCHETYPES.ISO_CUTAWAY;
 };
 
 const PROMO_SECTOR_PHOTOS = {
@@ -3263,7 +3562,8 @@ function drawPromoDemoCanvas(wipePct = 55, t = 0) {
   // Bottom Market Response KPI Banner
   ctx.fillStyle = 'rgba(5, 7, 10, 0.94)';
   ctx.fillRect(0, H - 150, W, 150);
-  const kpis = [info.kpi1, info.kpi2, info.kpi3, 'XviDeo AI Studio 4K'];
+  const ref = HUMAN_VOICE_REFERENTS[sec] || HUMAN_VOICE_REFERENTS.architetto;
+  const kpis = [info.kpi1, info.kpi2, `🎙️ ${ref.name} (${ref.gender})`, 'XviDeo AI Studio 4K'];
   kpis.forEach((k, idx) => {
     const bx = 60 + idx * 455;
     ctx.fillStyle = idx === 3 ? info.accent : '#131a29';
@@ -3272,8 +3572,8 @@ function drawPromoDemoCanvas(wipePct = 55, t = 0) {
     ctx.lineWidth = 3;
     ctx.strokeRect(bx, H - 122, 430, 92);
     ctx.fillStyle = idx === 3 ? '#05070a' : '#ffffff';
-    ctx.font = 'bold 30px Inter, sans-serif';
-    ctx.fillText(k, bx + 28, H - 65);
+    ctx.font = 'bold 28px Inter, sans-serif';
+    ctx.fillText(k, bx + 22, H - 65);
   });
 }
 
@@ -3283,16 +3583,20 @@ window.togglePromoDemoAnimation = function () {
   if (MKT_ERP_STATE.demoAnimRunning) {
     MKT_ERP_STATE.demoAnimRunning = false;
     if (MKT_ERP_STATE.demoAnimFrame) cancelAnimationFrame(MKT_ERP_STATE.demoAnimFrame);
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    HumanVoiceOrchestrator.stop();
     if (btn) btn.textContent = '▶️ Avvia Spot Video Demo + Voce IA';
     return;
   }
   MKT_ERP_STATE.demoAnimRunning = true;
   if (btn) btn.textContent = '⏹️ Ferma Spot Video Demo + Voce Master';
 
-  // Play Master Cloned Voice automatically with coherent Render 4K script!
-  const info = PROMO_SECTORS[MKT_ERP_STATE.activeDemoSector] || PROMO_SECTORS.architetto;
-  speakWithClonedMasterVoice(`${info.title}. ${info.sub}. Risultato sul mercato: ${info.kpi1}, ${info.kpi2}.`);
+  // HUMAN VOICE PRO: Avvia la voce sintetica umana specifica per il settore con prosodia naturale italiana
+  const sec = MKT_ERP_STATE.activeDemoSector || 'architetto';
+  HumanVoiceOrchestrator.speakSpot(sec, () => {
+    if (!MKT_ERP_STATE.demoAnimRunning && btn) {
+      btn.textContent = '▶️ Avvia Spot Video Demo + Voce IA';
+    }
+  });
 
   function step() {
     if (!MKT_ERP_STATE.demoAnimRunning) return;
