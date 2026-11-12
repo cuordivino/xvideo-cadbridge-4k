@@ -3943,6 +3943,14 @@ function renderVault6hArchiveGrid() {
             <span class="badge badge-guest" style="font-size:0.62rem;">${item.cycleSlot}</span>
           </div>
         </div>
+        <div style="position:relative;width:100%;aspect-ratio:16/7;border-radius:10px;overflow:hidden;margin-bottom:8px;background:#0b1120;">
+          <img src="${getVaultPhotoUrl(item, 700)}" alt="" loading="lazy" crossorigin="anonymous" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.2) contrast(1.05) sepia(0.12);" />
+          <img src="${getVaultPhotoUrl(item, 700)}" alt="" loading="lazy" crossorigin="anonymous" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(0.92) brightness(0.62) contrast(0.8);clip-path:inset(0 52% 0 0);" />
+          <div style="position:absolute;top:0;bottom:0;left:48%;width:2px;background:#fff;box-shadow:0 0 10px #fff;"></div>
+          <span style="position:absolute;left:8px;top:8px;font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(15,23,42,0.8);color:#cbd5e1;">PRIMA</span>
+          <span style="position:absolute;right:8px;top:8px;font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,0.9);color:#0f172a;">DOPO 4K</span>
+          <div style="position:absolute;left:0;right:0;bottom:0;padding:14px 10px 6px;background:linear-gradient(transparent,rgba(0,0,0,0.78));font-size:0.7rem;font-style:italic;color:#fbbf24;">“${getVaultTagline(item)}”</div>
+        </div>
         <div style="font-size:0.82rem;font-weight:800;color:#f8fafc;margin-bottom:3px;">
           ${item.title}
         </div>
@@ -4002,7 +4010,219 @@ window.updateVaultActiveWipe = function (val) {
   drawVaultActiveCanvas(VAULT_6H_STATE.wipePct);
 };
 
-function drawVaultActiveCanvas(wipePct = 50) {
+/* ---------------------------------------------------------------------------
+   MOTORE CINEMATOGRAFICO FOTOREALISTICO (Reparto 3): foto professionali reali
+   + color grading, bloom, vignettatura, grana, Ken Burns, lower-third emotivo.
+   Il "PRIMA" è lo stesso scatto degradato (spento, desaturato, cantiere/usato).
+   --------------------------------------------------------------------------- */
+const VAULT_PHOTO_EXT = ['1600596542815-ffad4c1539a9', '1512917774080-9991f1c4c750', '1600585154340-be6161a56a0c', '1600566753376-12c8ab7fb75b'];
+const VAULT_PHOTO_INT = ['1600607687939-ce8a6c25118c', '1600210492486-724fe5c67fb0', '1556912172-45b7abe8b7e1', '1600607687644-c7171b42498f', '1618221195710-dd6b41faaea6', '1600210491892-03d54c0aaf87'];
+const VAULT_PHOTO_BY_ID = {
+  'V6H-108': VAULT_PHOTO_EXT[0], 'V6H-107': VAULT_PHOTO_INT[0], 'V6H-106': VAULT_PHOTO_EXT[2], 'V6H-105': VAULT_PHOTO_INT[2],
+  'V6H-104': VAULT_PHOTO_EXT[1], 'V6H-103': VAULT_PHOTO_INT[3], 'V6H-102': VAULT_PHOTO_EXT[3], 'V6H-101': VAULT_PHOTO_INT[4]
+};
+const VAULT_TAGLINES = {
+  fabbricato: ['Da un sogno su carta a casa tua.', 'Quando la luce del tramonto accende il tuo futuro.', 'Ogni muro racconta una nuova storia.', 'Il progetto prende vita prima ancora del cantiere.'],
+  interno: ['Entra. Respira. Sei già a casa.', 'Dove ogni dettaglio diventa emozione.', 'Non è una stanza: è la tua vita che comincia.', 'La luce giusta cambia tutto.']
+};
+const VAULT_IMG_CACHE = {};
+let vaultGrainPattern = null;
+
+function vaultIdNum(item) {
+  return parseInt(String(item.id).replace(/\D/g, ''), 10) || 0;
+}
+function getVaultPhotoUrl(item, w = 1600) {
+  const pool = item.kind === 'fabbricato' ? VAULT_PHOTO_EXT : VAULT_PHOTO_INT;
+  const id = VAULT_PHOTO_BY_ID[item.id] || pool[vaultIdNum(item) % pool.length];
+  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=85`;
+}
+function getVaultTagline(item) {
+  const list = VAULT_TAGLINES[item.kind] || VAULT_TAGLINES.interno;
+  return list[vaultIdNum(item) % list.length];
+}
+function ensureVaultPhoto(url, onReady) {
+  const c = VAULT_IMG_CACHE[url];
+  if (c && c !== 'ERR') return c;
+  if (c === 'ERR' || c === 'LOADING') return null;
+  VAULT_IMG_CACHE[url] = 'LOADING';
+  const im = new Image();
+  im.crossOrigin = 'anonymous';
+  im.onload = () => { VAULT_IMG_CACHE[url] = im; if (onReady) onReady(); };
+  im.onerror = () => { VAULT_IMG_CACHE[url] = 'ERR'; if (onReady) onReady(); };
+  im.src = url;
+  return null;
+}
+function getGrainPattern(ctx) {
+  if (vaultGrainPattern) return vaultGrainPattern;
+  const g = document.createElement('canvas');
+  g.width = 200; g.height = 200;
+  const gx = g.getContext('2d');
+  const d = gx.createImageData(200, 200);
+  for (let i = 0; i < d.data.length; i += 4) {
+    const v = Math.random() * 255;
+    d.data[i] = d.data[i + 1] = d.data[i + 2] = v;
+    d.data[i + 3] = 255;
+  }
+  gx.putImageData(d, 0, 0);
+  vaultGrainPattern = ctx.createPattern(g, 'repeat');
+  return vaultGrainPattern;
+}
+
+function drawVaultActiveCanvas(wipePct = 50, t = 0) {
+  const canvas = document.getElementById('vaultActiveCanvas');
+  if (!canvas) return;
+  const item = VAULT_6H_STATE.items.find((i) => i.id === VAULT_6H_STATE.selectedId) || VAULT_6H_STATE.items[0];
+  if (!item) return;
+  const img = ensureVaultPhoto(getVaultPhotoUrl(item), () => drawVaultActiveCanvas(VAULT_6H_STATE.wipePct, VAULT_6H_STATE.animTime));
+  if (!img) {
+    if (VAULT_IMG_CACHE[getVaultPhotoUrl(item)] === 'ERR') drawVaultSchematicFallback(wipePct);
+    else {
+      const cx = canvas.getContext('2d');
+      cx.fillStyle = '#05070a';
+      cx.fillRect(0, 0, canvas.width, canvas.height);
+      cx.fillStyle = '#94a3b8';
+      cx.font = 'bold 34px Inter, sans-serif';
+      cx.fillText('🎬 Sviluppo render fotorealistico 4K in corso…', 60, canvas.height / 2);
+    }
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  const playing = VAULT_6H_STATE.isPlayingMinivideo;
+  const splitX = (W * wipePct) / 100;
+  const zoom = 1.03 + (playing ? 0.06 * (0.5 + 0.5 * Math.sin(t * 0.45)) : 0);
+  const s = Math.max(W / img.width, H / img.height) * zoom;
+  const dw = img.width * s;
+  const dh = img.height * s;
+  const dx = (W - dw) / 2 + (playing ? Math.sin(t * 0.35) * 38 : 0);
+  const dy = (H - dh) / 2 + (playing ? Math.cos(t * 0.3) * 16 : 0);
+  const paint = () => { ctx.drawImage(img, dx, dy, dw, dh); };
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+
+  // ===== DOPO: grading cinematografico =====
+  ctx.save();
+  ctx.beginPath(); ctx.rect(splitX, 0, W - splitX, H); ctx.clip();
+  paint();
+  ctx.globalCompositeOperation = 'soft-light';
+  ctx.fillStyle = 'rgba(255,190,120,0.42)'; ctx.fillRect(0, 0, W, H);
+  const teal = ctx.createLinearGradient(0, 0, 0, H);
+  teal.addColorStop(0, 'rgba(70,130,190,0.22)'); teal.addColorStop(1, 'rgba(255,170,90,0.20)');
+  ctx.fillStyle = teal; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'screen';
+  const sunX = W * 0.8, sunY = H * 0.18, pulse = 0.85 + 0.15 * Math.sin(t * 1.4);
+  const bloom = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 780);
+  bloom.addColorStop(0, `rgba(255,236,190,${0.38 * pulse})`); bloom.addColorStop(1, 'rgba(255,200,120,0)');
+  ctx.fillStyle = bloom; ctx.fillRect(0, 0, W, H);
+  if (playing) { // anamorphic flare in movimento
+    const fx = ((t * 160) % (W + 800)) - 400;
+    const fl = ctx.createLinearGradient(fx - 400, 0, fx + 400, 0);
+    fl.addColorStop(0, 'rgba(255,230,180,0)'); fl.addColorStop(0.5, 'rgba(255,240,210,0.16)'); fl.addColorStop(1, 'rgba(255,230,180,0)');
+    ctx.fillStyle = fl; ctx.fillRect(fx - 400, H * 0.42, 800, 8);
+  }
+  for (let i = 0; i < 38; i++) { // polvere luminosa
+    const px = (i * 241 + (playing ? t * 14 : 0) * (1 + (i % 3))) % W;
+    const py = (i * 137 + Math.sin(t * 0.6 + i) * 30) % H;
+    ctx.fillStyle = `rgba(255,240,210,${0.10 + (i % 5) * 0.05})`;
+    ctx.beginPath(); ctx.arc(px, py, 1.5 + (i % 4), 0, 6.283); ctx.fill();
+  }
+  ctx.restore();
+
+  // ===== PRIMA: lo stesso scatto spento / desaturato / non rifinito =====
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0, 0, splitX, H); ctx.clip();
+  paint();
+  ctx.globalCompositeOperation = 'saturation';
+  ctx.fillStyle = 'rgba(128,128,128,0.93)'; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = 'rgba(165,172,184,0.9)'; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(40,46,58,0.30)'; ctx.fillRect(0, 0, W, H);
+  if (item.kind === 'fabbricato') { // ponteggio e cantiere
+    ctx.strokeStyle = 'rgba(214,176,86,0.55)'; ctx.lineWidth = 7;
+    for (let x = W * 0.08; x < W * 0.94; x += 150) { ctx.beginPath(); ctx.moveTo(x, H * 0.12); ctx.lineTo(x, H * 0.9); ctx.stroke(); }
+    ctx.lineWidth = 5;
+    [0.3, 0.52, 0.74].forEach((yy) => { ctx.beginPath(); ctx.moveTo(W * 0.08, H * yy); ctx.lineTo(W * 0.94, H * yy); ctx.stroke(); });
+    ctx.strokeStyle = 'rgba(210,60,40,0.55)'; ctx.setLineDash([26, 18]); ctx.lineWidth = 8;
+    ctx.beginPath(); ctx.moveTo(0, H * 0.86); ctx.lineTo(W, H * 0.80); ctx.stroke(); ctx.setLineDash([]);
+  } else { // polvere e luce spenta
+    ctx.fillStyle = 'rgba(220,215,200,0.16)'; ctx.fillRect(0, 0, W, H);
+  }
+  ctx.restore();
+
+  // ===== Grana pellicola + vignettatura =====
+  ctx.save();
+  ctx.globalCompositeOperation = 'overlay';
+  ctx.globalAlpha = 0.14;
+  ctx.fillStyle = getGrainPattern(ctx);
+  ctx.translate(Math.random() * 100, Math.random() * 100);
+  ctx.fillRect(-100, -100, W + 200, H + 200);
+  ctx.restore();
+  const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, W * 0.75);
+  vig.addColorStop(0, 'rgba(0,0,0,0)'); vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+  ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+
+  // ===== Divisore con maniglia luminosa =====
+  ctx.save();
+  ctx.shadowColor = 'rgba(255,255,255,0.9)'; ctx.shadowBlur = 24;
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(splitX, 0); ctx.lineTo(splitX, H); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  ctx.beginPath(); ctx.arc(splitX, H * 0.5, 34, 0, 6.283); ctx.fill();
+  ctx.shadowBlur = 0; ctx.fillStyle = '#0f172a'; ctx.font = 'bold 30px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('◀▶', splitX, H * 0.5 + 11);
+  ctx.restore();
+  ctx.textAlign = 'left';
+
+  // ===== Etichette PRIMA / DOPO =====
+  const pill = (txt, x, y, bg, fg) => {
+    ctx.font = 'bold 26px Inter, sans-serif';
+    const w = ctx.measureText(txt).width + 44;
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, 50, 25) : ctx.rect(x, y, w, 50); ctx.fill();
+    ctx.fillStyle = fg; ctx.fillText(txt, x + 22, y + 34);
+  };
+  if (splitX > 260) pill('PRIMA • STATO DI FATTO', 48, 48, 'rgba(15,23,42,0.78)', '#cbd5e1');
+  if (W - splitX > 260) { ctx.font = 'bold 26px Inter, sans-serif'; pill('DOPO • RENDER 4K', W - 48 - (ctx.measureText('DOPO • RENDER 4K').width + 44), 48, 'rgba(255,255,255,0.88)', '#0f172a'); }
+
+  // ===== Lower-third emotivo =====
+  const fade = playing ? Math.min(1, t * 0.7) : 1;
+  const lt = ctx.createLinearGradient(0, H * 0.58, 0, H);
+  lt.addColorStop(0, 'rgba(0,0,0,0)'); lt.addColorStop(1, 'rgba(0,0,0,0.82)');
+  ctx.fillStyle = lt; ctx.fillRect(0, H * 0.58, W, H * 0.42);
+  ctx.globalAlpha = fade;
+  const parts = item.title.split(' — ');
+  ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 14;
+  ctx.fillStyle = item.kind === 'fabbricato' ? '#7dd3fc' : '#f9a8d4';
+  ctx.font = 'bold 24px JetBrains Mono, monospace';
+  ctx.fillText(`${item.kind === 'fabbricato' ? 'ARCHITETTURA' : 'INTERIOR DESIGN'} • ${item.styleName.toUpperCase()}`, 64, H - 232);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 54px Inter, sans-serif';
+  ctx.fillText(parts[0], 64, H - 168);
+  ctx.fillStyle = '#e2e8f0'; ctx.font = '30px Inter, sans-serif';
+  ctx.fillText(parts[1] || item.subtitle, 64, H - 118);
+  ctx.fillStyle = '#fbbf24'; ctx.font = 'italic 36px Georgia, serif';
+  ctx.fillText(`“${getVaultTagline(item)}”`, 64, H - 62);
+  ctx.shadowBlur = 0;
+  const bw = ctx.measureText(item.valueBoost).width;
+  ctx.font = 'bold 32px Inter, sans-serif';
+  const bW = ctx.measureText(item.valueBoost).width + 52;
+  ctx.fillStyle = '#10b981'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(W - 64 - bW, H - 120, bW, 62, 31) : ctx.rect(W - 64 - bW, H - 120, bW, 62); ctx.fill();
+  ctx.fillStyle = '#04120c'; ctx.fillText(item.valueBoost, W - 64 - bW + 26, H - 78);
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'bold 22px Inter, sans-serif';
+  ctx.fillText('XviDeo AI Studio 4K', W - 64 - ctx.measureText('XviDeo AI Studio 4K').width, H - 150);
+  ctx.globalAlpha = 1;
+
+  // ===== Barre cinema durante il minivideo =====
+  if (playing) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, 0); // (le barre sono nel lower-third; nessun taglio dei titoli)
+  }
+}
+
+function drawVaultSchematicFallback(wipePct = 50) {
   const canvas = document.getElementById('vaultActiveCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -4234,7 +4454,7 @@ window.toggleVaultMinivideoPlay = function () {
 
   if (item && typeof window.speakWithClonedMasterVoice === 'function') {
     window.speakWithClonedMasterVoice(
-      `${item.title}. ${item.beforeLabel}. ${item.afterLabel}. Impatto sul mercato: ${item.valueBoost}.`
+      `${item.title}. ${getVaultTagline(item)} ${item.beforeLabel}. ${item.afterLabel}. Impatto sul mercato: ${item.valueBoost}.`
     );
   }
 
@@ -4247,7 +4467,7 @@ window.toggleVaultMinivideoPlay = function () {
     const lbl = document.getElementById('vaultWipePctLabel');
     if (slider) slider.value = String(Math.round(w));
     if (lbl) lbl.textContent = `${Math.round(w)}%`;
-    drawVaultActiveCanvas(w);
+    drawVaultActiveCanvas(w, VAULT_6H_STATE.animTime);
     VAULT_6H_STATE.animFrame = requestAnimationFrame(step);
   }
   step();
