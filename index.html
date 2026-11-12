@@ -1389,6 +1389,89 @@
               </button>
             </div>
 
+            <!-- REGIA VOCALE UMANA PRO (M/F) — STUDIO HD MIXER -->
+            <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(244,114,182,0.35);border-radius:10px;padding:10px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px;">
+                <span style="font-size:0.75rem;font-weight:800;color:#f472b6;">🎛️ REGIA VOCALE UMANA PRO (M/F) — Mixer Neurale HD</span>
+                <span id="mixerEngineStatus" style="font-size:0.65rem;color:#34d399;font-family:var(--font-mono);">● edge-tts Studio HD + WebAudio DSP [READY]</span>
+              </div>
+
+              <!-- Selettore Voce e Auto-Switch -->
+              <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px;align-items:center;">
+                <div>
+                  <label style="font-size:0.68rem;color:#cbd5e1;display:block;margin-bottom:2px;">Selettore Voce Neurale / Master:</label>
+                  <select id="humanVoiceSelect" onchange="onHumanVoiceSelectChange(this.value)" class="cmd-input" style="width:100%;font-size:0.72rem;padding:6px 8px;">
+                    <optgroup label="♂ Voci Maschili Neurali HD">
+                      <option value="giuseppe">Giuseppe HD ♂ (Multilingual • Caldo/Cinema)</option>
+                      <option value="diego">Diego Executive ♂ (Determinato/ROI)</option>
+                      <option value="benigno">Benigno Senior ♂ (Autorevole/Istituzionale)</option>
+                      <option value="gianni">Gianni Natural ♂ (Disinvolto/Naturale)</option>
+                      <option value="calimero">Calimero Dynamic ♂ (Energico/Moderno)</option>
+                    </optgroup>
+                    <optgroup label="♀ Voci Femminili Neurali HD">
+                      <option value="isabella">Isabella HD ♀ (Vellutata/Luxury)</option>
+                      <option value="elsa">Elsa Brillante ♀ (Chiara/Commerciale)</option>
+                      <option value="fabiola">Fabiola Luxury ♀ (Avvolgente/Design)</option>
+                      <option value="fiamma">Fiamma Promo ♀ (Dinamica/Spot)</option>
+                      <option value="irma">Irma Tech ♀ (Precisa/Ingegneria)</option>
+                    </optgroup>
+                    <optgroup label="🎙️ Voci di Sistema">
+                      <option value="system_it">Voce di Sistema Italiana (Default)</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div style="padding-top:16px;">
+                  <label style="display:flex;align-items:center;gap:5px;font-size:0.68rem;color:#f8fafc;cursor:pointer;">
+                    <input type="checkbox" id="humanVoiceAutoSwitch" checked onchange="saveVoiceMixerSettings()" style="accent-color:#f472b6;" />
+                    <span>🔄 Auto M/F (Spot 1-4)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 4 Slider Mixer Controlli Fini -->
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:8px;margin-bottom:8px;font-size:0.68rem;color:#94a3b8;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                    <span>Timbro (Pitch):</span>
+                    <span id="voicePitchVal" style="color:#22d3ee;">1.00</span>
+                  </div>
+                  <input type="range" id="voicePitchSlider" min="0.75" max="1.25" step="0.01" value="1.00" oninput="updateVoiceSliderVal('voicePitch', this.value)" style="width:100%;accent-color:#22d3ee;" />
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                    <span>Cadenza (Rate):</span>
+                    <span id="voiceRateVal" style="color:#34d399;">1.00x</span>
+                  </div>
+                  <input type="range" id="voiceRateSlider" min="0.80" max="1.30" step="0.01" value="1.00" oninput="updateVoiceSliderVal('voiceRate', this.value)" style="width:100%;accent-color:#34d399;" />
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                    <span>Pausa Respiro:</span>
+                    <span id="voicePauseVal" style="color:#fbbf24;">380ms</span>
+                  </div>
+                  <input type="range" id="voicePauseSlider" min="150" max="800" step="10" value="380" oninput="updateVoiceSliderVal('voicePause', this.value)" style="width:100%;accent-color:#fbbf24;" />
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                    <span>Calore Mic Studio:</span>
+                    <span id="voiceWarmthVal" style="color:#f472b6;">60%</span>
+                  </div>
+                  <input type="range" id="voiceWarmthSlider" min="0" max="100" step="5" value="60" oninput="updateVoiceSliderVal('voiceWarmth', this.value)" style="width:100%;accent-color:#f472b6;" />
+                </div>
+              </div>
+
+              <!-- Testo Live e Tasto Prova -->
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                  <span style="font-size:0.68rem;color:#cbd5e1;">Testo Spot Editabile Live (con normalizzazione fonetica automatica):</span>
+                  <button type="button" id="previewVoiceMixerBtn" onclick="previewCurrentHumanVoice()" class="btn btn-cyan" style="padding:3px 8px;font-size:0.68rem;width:auto;">
+                    🎧 Prova Subito Voce
+                  </button>
+                </div>
+                <textarea id="liveSpotVoiceText" rows="2" class="cmd-input" style="width:100%;font-size:0.72rem;line-height:1.4;resize:vertical;" oninput="saveVoiceMixerSettings()"></textarea>
+              </div>
+            </div>
+
             <pre id="promoCopyAndStatsBox" class="code-output" style="max-height:175px;color:#fde68a;line-height:1.45;"></pre>
           </div>
         </div>

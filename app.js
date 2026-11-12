@@ -2861,6 +2861,7 @@ const MKT_ERP_STATE = {
 function initMarketingAndErpDivision() {
   generateAutomatedOmnichannelCampaign();
   selectPromoDemoSector('architetto');
+  initVoiceMixerUI();
   renderErpLedger();
   runAutonomousCorporateCycle(false);
 }
@@ -3213,36 +3214,48 @@ const PROMO_SECTORS = {
    ============================================================================ */
 const HUMAN_VOICE_REFERENTS = {
   architetto: {
+    key: 'giuseppe',
     name: 'Ing. Marco',
     gender: 'M',
     role: 'Tecnico / Autorevole',
+    edgeVoice: 'it-IT-GiuseppeMultilingualNeural',
+    staticMp3: 'voices/spot_1_architetto.mp3',
     voiceKeywords: ['giuseppe', 'diego', 'cosimo', 'luca', 'google'],
     fallbackGender: 'male',
     rate: 1.01,
     pitch: 0.94
   },
   designer: {
+    key: 'isabella',
     name: 'Arch. Sofia',
     gender: 'F',
     role: 'Elegante / Morbida',
+    edgeVoice: 'it-IT-IsabellaNeural',
+    staticMp3: 'voices/spot_2_designer.mp3',
     voiceKeywords: ['isabella', 'elsa', 'federica', 'alice', 'chiara'],
     fallbackGender: 'female',
     rate: 0.96,
     pitch: 1.05
   },
   immobiliarista: {
+    key: 'diego',
     name: 'Dott. Alessandro',
     gender: 'M',
     role: 'Executive / ROI',
+    edgeVoice: 'it-IT-DiegoNeural',
+    staticMp3: 'voices/spot_3_immobiliarista.mp3',
     voiceKeywords: ['diego', 'giuseppe', 'luca', 'cosimo', 'google'],
     fallbackGender: 'male',
     rate: 1.05,
     pitch: 0.92
   },
   agenzia: {
+    key: 'elsa',
     name: 'Dott.ssa Elena',
     gender: 'F',
     role: 'Brillante / Commerciale',
+    edgeVoice: 'it-IT-ElsaNeural',
+    staticMp3: 'voices/spot_4_agenzia.mp3',
     voiceKeywords: ['elsa', 'isabella', 'alice', 'federica', 'chiara'],
     fallbackGender: 'female',
     rate: 1.02,
@@ -3250,44 +3263,85 @@ const HUMAN_VOICE_REFERENTS = {
   }
 };
 
-function humanizeIT(text) {
-  if (!text) return '';
-  return text
-    .replace(/(?:>=|≥)\s*1\/8/gi, 'maggiore o uguale a un ottavo')
-    .replace(/\bRAI\b/g, 'rapporto aeroilluminante')
-    .replace(/\.LSP\/\.RB/gi, 'script Lisp e Ruby')
-    .replace(/\.LSP\b/gi, 'script Lisp')
-    .replace(/\.RB\b/gi, 'script Ruby')
-    .replace(/-85%/g, 'meno ottantacinque per cento')
-    .replace(/\+310%/g, 'più trecentodieci per cento')
-    .replace(/\+340%/g, 'più trecentoquaranta per cento')
-    .replace(/\+280%/g, 'più duecentoottanta per cento')
-    .replace(/\+22%/g, 'più ventidue per cento')
-    .replace(/\+45%/g, 'più quarantacinque per cento')
-    .replace(/-50%/g, 'meno cinquanta per cento')
-    .replace(/\b4K\b/gi, 'quattro kappa')
-    .replace(/\b8K\b/gi, 'otto kappa')
-    .replace(/\b10s\b/gi, 'dieci secondi')
-    .replace(/Prima\/Dopo/gi, 'Prima e Dopo')
-    .replace(/prima\/dopo/gi, 'prima e dopo')
-    .replace(/Video-to-Video/gi, 'Video to Video')
-    .replace(/PBR/gi, 'P B R')
-    .replace(/NZEB/gi, 'N Z E B')
-    .replace(/[•●■]/g, ', ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+const VOICE_PRESET_MAP = {
+  giuseppe: { name: 'Giuseppe HD ♂ (Multilingual • Caldo/Cinema)', gender: 'M', edgeVoice: 'it-IT-GiuseppeMultilingualNeural', rate: 1.00, pitch: 0.94 },
+  diego: { name: 'Diego Executive ♂ (Determinato/ROI)', gender: 'M', edgeVoice: 'it-IT-DiegoNeural', rate: 1.04, pitch: 0.92 },
+  benigno: { name: 'Benigno Senior ♂ (Autorevole/Istituzionale)', gender: 'M', edgeVoice: 'it-IT-GiuseppeMultilingualNeural', rate: 0.95, pitch: 0.88 },
+  gianni: { name: 'Gianni Natural ♂ (Disinvolto/Naturale)', gender: 'M', edgeVoice: 'it-IT-DiegoNeural', rate: 1.02, pitch: 0.98 },
+  calimero: { name: 'Calimero Dynamic ♂ (Energico/Moderno)', gender: 'M', edgeVoice: 'it-IT-DiegoNeural', rate: 1.08, pitch: 1.02 },
+  isabella: { name: 'Isabella HD ♀ (Vellutata/Luxury)', gender: 'F', edgeVoice: 'it-IT-IsabellaNeural', rate: 0.97, pitch: 1.05 },
+  elsa: { name: 'Elsa Brillante ♀ (Chiara/Commerciale)', gender: 'F', edgeVoice: 'it-IT-ElsaNeural', rate: 1.02, pitch: 1.08 },
+  fabiola: { name: 'Fabiola Luxury ♀ (Avvolgente/Design)', gender: 'F', edgeVoice: 'it-IT-IsabellaNeural', rate: 0.95, pitch: 1.02 },
+  fiamma: { name: 'Fiamma Promo ♀ (Dinamica/Spot)', gender: 'F', edgeVoice: 'it-IT-ElsaNeural', rate: 1.06, pitch: 1.10 },
+  irma: { name: 'Irma Tech ♀ (Precisa/Ingegneria)', gender: 'F', edgeVoice: 'it-IT-ElsaNeural', rate: 0.98, pitch: 1.04 },
+  system_it: { name: 'Voce di Sistema Italiana', gender: 'M/F', edgeVoice: 'it-IT-GiuseppeMultilingualNeural', rate: 1.00, pitch: 1.00 }
+};
 
 const HumanVoiceOrchestrator = {
   activeUtterances: [],
+  activeAudio: null,
   isSpeaking: false,
+  audioCtx: null,
+  bassFilter: null,
+  trebleFilter: null,
+
+  initAudioGraph(audioElement) {
+    if (this.audioCtx) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      this.audioCtx = new AudioCtx();
+      const source = this.audioCtx.createMediaElementSource(audioElement);
+      // Lowshelf per calore microfono (180 Hz)
+      this.bassFilter = this.audioCtx.createBIAFFilter ? this.audioCtx.createBIAFFilter() : this.audioCtx.createBiquadFilter();
+      this.bassFilter.type = 'lowshelf';
+      this.bassFilter.frequency.value = 180;
+      this.bassFilter.gain.value = 4.5;
+      // Highshelf per presenza studio broadcast (4500 Hz)
+      this.trebleFilter = this.audioCtx.createBiquadFilter();
+      this.trebleFilter.type = 'highshelf';
+      this.trebleFilter.frequency.value = 4500;
+      this.trebleFilter.gain.value = 2.0;
+
+      source.connect(this.bassFilter);
+      this.bassFilter.connect(this.trebleFilter);
+      this.trebleFilter.connect(this.audioCtx.destination);
+    } catch (_) {}
+  },
+
+  applyWarmthGain(warmthPct) {
+    if (!this.bassFilter) return;
+    const gainDb = (warmthPct / 100) * 8.0; // 0..8 dB boost caldo
+    this.bassFilter.gain.value = gainDb;
+    if (this.trebleFilter) this.trebleFilter.gain.value = (warmthPct / 100) * 3.0;
+  },
+
+  getSettings() {
+    return {
+      voiceKey: localStorage.getItem('xvideo_voice_key') || 'auto',
+      autoSwitch: localStorage.getItem('xvideo_voice_autoswitch') !== 'false',
+      pitch: parseFloat(localStorage.getItem('xvideo_voice_pitch')) || 1.00,
+      rate: parseFloat(localStorage.getItem('xvideo_voice_rate')) || 1.00,
+      pauseMs: parseInt(localStorage.getItem('xvideo_voice_pause'), 10) || 380,
+      warmth: parseInt(localStorage.getItem('xvideo_voice_warmth'), 10) || 60,
+      customText: localStorage.getItem('xvideo_voice_custom_text') || ''
+    };
+  },
 
   updateBadge(secId) {
-    const ref = HUMAN_VOICE_REFERENTS[secId] || HUMAN_VOICE_REFERENTS.architetto;
+    const s = this.getSettings();
+    let label = '';
+    if (s.voiceKey !== 'auto' && VOICE_PRESET_MAP[s.voiceKey]) {
+      const p = VOICE_PRESET_MAP[s.voiceKey];
+      label = `🎙️ Voce Attiva: ${p.name}`;
+    } else {
+      const ref = HUMAN_VOICE_REFERENTS[secId] || HUMAN_VOICE_REFERENTS.architetto;
+      label = `🎙️ Voce Attiva: ${ref.name} (${ref.gender} • ${ref.role})`;
+    }
     const badge = document.getElementById('humanVoiceBadge');
     const sub = document.getElementById('humanVoiceSubtitle');
-    if (badge) badge.textContent = `🎙️ Voce Attiva: ${ref.name} (${ref.gender} • ${ref.role})`;
-    if (sub) sub.textContent = `Cadenza: ${ref.rate}x | Timbro: ${ref.pitch}x | Pause respiratorie 380ms`;
+    if (badge) badge.textContent = label;
+    if (sub) sub.textContent = `Cadenza: ${s.rate.toFixed(2)}x | Timbro: ${s.pitch.toFixed(2)}x | Pause: ${s.pauseMs}ms | Calore: ${s.warmth}%`;
   },
 
   selectVoice(voices, ref) {
@@ -3299,24 +3353,93 @@ const HumanVoiceOrchestrator = {
     }
     const genderMatch = itVoices.find(v => {
       const n = v.name.toLowerCase();
-      if (ref.fallbackGender === 'female') return n.includes('female') || n.includes('donna') || n.includes('cosimo') === false;
+      if (ref.fallbackGender === 'female') return n.includes('female') || n.includes('donna') || !n.includes('cosimo');
       return n.includes('male') || n.includes('uomo') || n.includes('cosimo');
     });
     return genderMatch || itVoices[0];
   },
 
-  speakSpot(sectorId, onComplete) {
+  async speakSpot(sectorId, onComplete) {
+    this.stop();
+    this.isSpeaking = true;
+    const settings = this.getSettings();
+    this.updateBadge(sectorId);
+
+    const ref = HUMAN_VOICE_REFERENTS[sectorId] || HUMAN_VOICE_REFERENTS.architetto;
+    const info = PROMO_SECTORS[sectorId] || PROMO_SECTORS.architetto;
+
+    // Seleziona la voce effettiva
+    let selectedEdgeVoice = ref.edgeVoice;
+    if (settings.voiceKey !== 'auto' && VOICE_PRESET_MAP[settings.voiceKey]) {
+      selectedEdgeVoice = VOICE_PRESET_MAP[settings.voiceKey].edgeVoice;
+    }
+
+    // Costruisci il testo completo (priorità al box editabile se presente)
+    const customInput = document.getElementById('liveSpotVoiceText');
+    const customText = customInput?.value.trim() || settings.customText;
+    const fullText = customText || `${info.title}. ${info.sub}. Risultato sul mercato: ${info.kpi1}, ${info.kpi2}. Scatta col telefono in cantiere o nell'immobile usato, genera il Prima e Dopo 4K e chiudi la vendita sul posto con XviDeo AI Studio 4K.`;
+    const normalizedText = humanizeIT(fullText);
+
+    // Tentativo 1: Streaming API Live edge-tts via /api/tts
+    const ratePct = `${settings.rate >= 1 ? '+' : ''}${Math.round((settings.rate - 1) * 100)}%`;
+    const pitchHz = `${settings.pitch >= 1 ? '+' : ''}${Math.round((settings.pitch - 1) * 40)}Hz`;
+    const ttsUrl = `/api/tts?voice=${encodeURIComponent(selectedEdgeVoice)}&rate=${encodeURIComponent(ratePct)}&pitch=${encodeURIComponent(pitchHz)}&text=${encodeURIComponent(normalizedText)}`;
+
+    const statusEl = document.getElementById('mixerEngineStatus');
+
+    try {
+      if (statusEl) statusEl.textContent = '● Streaming Live edge-tts HD...';
+      const audio = new Audio();
+      this.activeAudio = audio;
+      audio.crossOrigin = 'anonymous';
+      audio.src = ttsUrl;
+      this.initAudioGraph(audio);
+      this.applyWarmthGain(settings.warmth);
+
+      await new Promise((resolve, reject) => {
+        audio.oncanplaythrough = resolve;
+        audio.onerror = reject;
+        setTimeout(reject, 2800); // timeout rapido di 2.8s per fallback su file statico
+      });
+
+      if (!this.isSpeaking) return;
+      if (statusEl) statusEl.textContent = '🟢 edge-tts Studio HD Live [ATTIVO]';
+      audio.onended = () => {
+        this.isSpeaking = false;
+        if (onComplete) onComplete();
+      };
+      await audio.play();
+      return;
+    } catch (_) {
+      // Fallback 2: file MP3 pre-generato statico se non personalizzato
+      if (!customText && ref.staticMp3) {
+        try {
+          if (statusEl) statusEl.textContent = '● Riproduzione MP3 HD Pre-generato...';
+          const staticAudio = new Audio(ref.staticMp3);
+          this.activeAudio = staticAudio;
+          staticAudio.crossOrigin = 'anonymous';
+          this.initAudioGraph(staticAudio);
+          this.applyWarmthGain(settings.warmth);
+          staticAudio.playbackRate = settings.rate;
+          staticAudio.onended = () => {
+            this.isSpeaking = false;
+            if (onComplete) onComplete();
+          };
+          await staticAudio.play();
+          if (statusEl) statusEl.textContent = '🟢 MP3 HD Locale Studio [ATTIVO]';
+          return;
+        } catch (_) {}
+      }
+    }
+
+    // Fallback 3: Sintesi Vocale Web Speech con pause respiratorie e WebAudio DSP
+    if (statusEl) statusEl.textContent = '● Web Speech Synthesis DSP...';
     if (!('speechSynthesis' in window)) {
+      this.isSpeaking = false;
       if (onComplete) onComplete();
       return;
     }
-    window.speechSynthesis.cancel();
-    this.isSpeaking = true;
-    const ref = HUMAN_VOICE_REFERENTS[sectorId] || HUMAN_VOICE_REFERENTS.architetto;
-    this.updateBadge(sectorId);
 
-    const info = PROMO_SECTORS[sectorId] || PROMO_SECTORS.architetto;
-    // 4 segmenti respiratori per spot
     const segments = [
       humanizeIT(info.title),
       humanizeIT(info.sub),
@@ -3339,15 +3462,13 @@ const HumanVoiceOrchestrator = {
       const utter = new SpeechSynthesisUtterance(segText);
       utter.lang = 'it-IT';
       if (voice) utter.voice = voice;
-      utter.rate = ref.rate;
-      // Abbassa il pitch del 3% sulla Call To Action finale per autorevolezza
-      utter.pitch = isCta ? parseFloat((ref.pitch * 0.97).toFixed(2)) : ref.pitch;
+      utter.rate = settings.rate;
+      utter.pitch = isCta ? parseFloat((settings.pitch * 0.97).toFixed(2)) : settings.pitch;
 
       utter.onend = () => {
         idx++;
         if (idx < segments.length) {
-          // Pausa respiratoria umana da 380ms
-          setTimeout(speakNext, 380);
+          setTimeout(speakNext, settings.pauseMs);
         } else {
           this.isSpeaking = false;
           if (onComplete) onComplete();
@@ -3365,11 +3486,117 @@ const HumanVoiceOrchestrator = {
 
   stop() {
     this.isSpeaking = false;
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (this.activeAudio) {
+      try {
+        this.activeAudio.pause();
+        this.activeAudio.currentTime = 0;
+      } catch (_) {}
+      this.activeAudio = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    const statusEl = document.getElementById('mixerEngineStatus');
+    if (statusEl) statusEl.textContent = '● edge-tts Studio HD + WebAudio DSP [READY]';
   }
 };
 
 window.HumanVoiceOrchestrator = HumanVoiceOrchestrator;
+
+// Helper UI Mixer Vocale
+window.updateVoiceSliderVal = function(key, val) {
+  if (key === 'voicePitch') {
+    const el = document.getElementById('voicePitchVal');
+    if (el) el.textContent = parseFloat(val).toFixed(2);
+    localStorage.setItem('xvideo_voice_pitch', val);
+  } else if (key === 'voiceRate') {
+    const el = document.getElementById('voiceRateVal');
+    if (el) el.textContent = `${parseFloat(val).toFixed(2)}x`;
+    localStorage.setItem('xvideo_voice_rate', val);
+  } else if (key === 'voicePause') {
+    const el = document.getElementById('voicePauseVal');
+    if (el) el.textContent = `${val}ms`;
+    localStorage.setItem('xvideo_voice_pause', val);
+  } else if (key === 'voiceWarmth') {
+    const el = document.getElementById('voiceWarmthVal');
+    if (el) el.textContent = `${val}%`;
+    localStorage.setItem('xvideo_voice_warmth', val);
+    HumanVoiceOrchestrator.applyWarmthGain(parseInt(val, 10));
+  }
+  const sec = MKT_ERP_STATE.activeDemoSector || 'architetto';
+  HumanVoiceOrchestrator.updateBadge(sec);
+};
+
+window.onHumanVoiceSelectChange = function(val) {
+  if (val === 'auto') {
+    localStorage.setItem('xvideo_voice_key', 'auto');
+  } else {
+    localStorage.setItem('xvideo_voice_key', val);
+    const autoChk = document.getElementById('humanVoiceAutoSwitch');
+    if (autoChk) {
+      autoChk.checked = false;
+      localStorage.setItem('xvideo_voice_autoswitch', 'false');
+    }
+    if (VOICE_PRESET_MAP[val]) {
+      const p = VOICE_PRESET_MAP[val];
+      const pSlider = document.getElementById('voicePitchSlider');
+      const rSlider = document.getElementById('voiceRateSlider');
+      if (pSlider) { pSlider.value = p.pitch; window.updateVoiceSliderVal('voicePitch', p.pitch); }
+      if (rSlider) { rSlider.value = p.rate; window.updateVoiceSliderVal('voiceRate', p.rate); }
+    }
+  }
+  const sec = MKT_ERP_STATE.activeDemoSector || 'architetto';
+  HumanVoiceOrchestrator.updateBadge(sec);
+};
+
+window.saveVoiceMixerSettings = function() {
+  const autoChk = document.getElementById('humanVoiceAutoSwitch');
+  if (autoChk) {
+    localStorage.setItem('xvideo_voice_autoswitch', autoChk.checked ? 'true' : 'false');
+    if (autoChk.checked) {
+      localStorage.setItem('xvideo_voice_key', 'auto');
+    }
+  }
+  const txt = document.getElementById('liveSpotVoiceText')?.value || '';
+  localStorage.setItem('xvideo_voice_custom_text', txt);
+};
+
+window.previewCurrentHumanVoice = function() {
+  const sec = MKT_ERP_STATE.activeDemoSector || 'architetto';
+  const btn = document.getElementById('previewVoiceMixerBtn');
+  if (HumanVoiceOrchestrator.isSpeaking) {
+    HumanVoiceOrchestrator.stop();
+    if (btn) btn.textContent = '🎧 Prova Subito Voce';
+    return;
+  }
+  if (btn) btn.textContent = '⏹️ Ferma Ascolto';
+  HumanVoiceOrchestrator.speakSpot(sec, () => {
+    if (btn) btn.textContent = '🎧 Prova Subito Voce';
+  });
+};
+
+function initVoiceMixerUI() {
+  const s = HumanVoiceOrchestrator.getSettings();
+  const sel = document.getElementById('humanVoiceSelect');
+  if (sel && s.voiceKey && s.voiceKey !== 'auto') sel.value = s.voiceKey;
+  const autoChk = document.getElementById('humanVoiceAutoSwitch');
+  if (autoChk) autoChk.checked = s.autoSwitch;
+  const pSlider = document.getElementById('voicePitchSlider');
+  if (pSlider) { pSlider.value = s.pitch; window.updateVoiceSliderVal('voicePitch', s.pitch); }
+  const rSlider = document.getElementById('voiceRateSlider');
+  if (rSlider) { rSlider.value = s.rate; window.updateVoiceSliderVal('voiceRate', s.rate); }
+  const paSlider = document.getElementById('voicePauseSlider');
+  if (paSlider) { paSlider.value = s.pauseMs; window.updateVoiceSliderVal('voicePause', s.pauseMs); }
+  const wSlider = document.getElementById('voiceWarmthSlider');
+  if (wSlider) { wSlider.value = s.warmth; window.updateVoiceSliderVal('voiceWarmth', s.warmth); }
+  const txtArea = document.getElementById('liveSpotVoiceText');
+  const sec = MKT_ERP_STATE.activeDemoSector || 'architetto';
+  const info = PROMO_SECTORS[sec] || PROMO_SECTORS.architetto;
+  if (txtArea && !txtArea.value) {
+    txtArea.value = `${info.title}. ${info.sub}. Risultato sul mercato: ${info.kpi1}, ${info.kpi2}. Scatta col telefono in cantiere o nell'immobile usato, genera il Prima e Dopo 4K e chiudi la vendita sul posto con XviDeo AI Studio 4K.`;
+  }
+  HumanVoiceOrchestrator.updateBadge(sec);
+}
 
 window.selectPromoDemoSector = function (secId) {
   MKT_ERP_STATE.activeDemoSector = secId;
@@ -3387,6 +3614,24 @@ window.selectPromoDemoSector = function (secId) {
 • Statistiche di Risposta sul Mercato: [ ${info.kpi1} ]  |  [ ${info.kpi2} ]  |  [ ${info.kpi3} ]
 • Call to Action: "Scatta col telefono in cantiere o nell'immobile usato, genera il Prima/Dopo 4K e chiudi la vendita sul posto."`;
   }
+
+  // Se autoSwitch è attivo, imposta la voce associata allo spot
+  const s = HumanVoiceOrchestrator.getSettings();
+  if (s.autoSwitch) {
+    const ref = HUMAN_VOICE_REFERENTS[secId];
+    if (ref) {
+      const sel = document.getElementById('humanVoiceSelect');
+      if (sel) sel.value = ref.key;
+    }
+  }
+
+  // Aggiorna testo live dello spot nel mixer
+  const txtArea = document.getElementById('liveSpotVoiceText');
+  if (txtArea) {
+    txtArea.value = `${info.title}. ${info.sub}. Risultato sul mercato: ${info.kpi1}, ${info.kpi2}. Scatta col telefono in cantiere o nell'immobile usato, genera il Prima e Dopo 4K e chiudi la vendita sul posto con XviDeo AI Studio 4K.`;
+    localStorage.setItem('xvideo_voice_custom_text', txtArea.value);
+  }
+
   HumanVoiceOrchestrator.updateBadge(secId);
   drawPromoDemoCanvas(55);
 };
