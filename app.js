@@ -759,237 +759,288 @@ window.setStudioStyle = function (name, facade, accent, skyTop) {
   runMultiAgentPipeline(document.getElementById('agentDirectiveInput').value, false);
 };
 
+const STUDIO_PERSONA_PHOTOS = {
+  architetto: '1600596542815-ffad4c1539a9',
+  designer: '1600607687939-ce8a6c25118c',
+  immobiliarista: '1512917774080-9991f1c4c750',
+  agenzia: '1600210492486-724fe5c67fb0'
+};
+
+function paintCinematicBeforeAfter(ctx, W, H, imgSource, opts = {}) {
+  const {
+    wipePct = 50,
+    t = 0,
+    playing = false,
+    isExterior = true,
+    timeOfDay = 16.5,
+    panOffset = 0,
+    topOffset = 0,
+    bottomOffset = 0,
+    beforePill = 'PRIMA • STATO DI FATTO',
+    afterPill = 'DOPO • RENDER 4K',
+    onBeforeOverlay = null,
+    onAfterOverlay = null
+  } = opts;
+
+  const splitX = (W * wipePct) / 100;
+  const srcW = imgSource.videoWidth || imgSource.naturalWidth || imgSource.width || W;
+  const srcH = imgSource.videoHeight || imgSource.naturalHeight || imgSource.height || H;
+  const zoom = 1.03 + (playing ? 0.06 * (0.5 + 0.5 * Math.sin(t * 0.45)) : 0);
+  const s = Math.max(W / srcW, H / srcH) * zoom;
+  const dw = srcW * s;
+  const dh = srcH * s;
+  const dx = (W - dw) / 2 + panOffset * 0.5 + (playing ? Math.sin(t * 0.35) * 38 : 0);
+  const dy = (H - dh) / 2 + (playing ? Math.cos(t * 0.3) * 16 : 0);
+  const paint = () => ctx.drawImage(imgSource, dx, dy, dw, dh);
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+
+  // DOPO: grading cinematografico 4K
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(splitX, 0, W - splitX, H);
+  ctx.clip();
+  paint();
+  const isNight = timeOfDay >= 20 || timeOfDay <= 6;
+  const isSunset = timeOfDay >= 17.5 || timeOfDay <= 7.5;
+  ctx.globalCompositeOperation = 'soft-light';
+  ctx.fillStyle = isNight ? 'rgba(30,58,138,0.52)' : isSunset ? 'rgba(255,165,90,0.48)' : 'rgba(255,190,120,0.40)';
+  ctx.fillRect(0, 0, W, H);
+  const skyTint = ctx.createLinearGradient(0, 0, 0, H);
+  skyTint.addColorStop(0, isNight ? 'rgba(15,23,42,0.45)' : 'rgba(70,130,190,0.22)');
+  skyTint.addColorStop(1, isNight ? 'rgba(234,88,12,0.18)' : 'rgba(255,170,90,0.20)');
+  ctx.fillStyle = skyTint;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.globalCompositeOperation = 'screen';
+  const sunX = W * Math.max(0.15, Math.min(0.85, (timeOfDay - 6) / 15)) + panOffset * 0.25;
+  const sunY = H * (0.16 + Math.abs(14 - timeOfDay) * 0.02);
+  const pulse = 0.85 + 0.15 * Math.sin(t * 1.4);
+  const bloom = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 780);
+  bloom.addColorStop(0, `rgba(255,236,190,${(isNight ? 0.18 : 0.38) * pulse})`);
+  bloom.addColorStop(1, 'rgba(255,200,120,0)');
+  ctx.fillStyle = bloom;
+  ctx.fillRect(0, 0, W, H);
+
+  if (playing) {
+    const fx = ((t * 160) % (W + 800)) - 400;
+    const fl = ctx.createLinearGradient(fx - 400, 0, fx + 400, 0);
+    fl.addColorStop(0, 'rgba(255,230,180,0)');
+    fl.addColorStop(0.5, 'rgba(255,240,210,0.18)');
+    fl.addColorStop(1, 'rgba(255,230,180,0)');
+    ctx.fillStyle = fl;
+    ctx.fillRect(fx - 400, H * 0.42, 800, 8);
+  }
+  for (let i = 0; i < 34; i++) {
+    const px = (i * 241 + (playing ? t * 14 : 0) * (1 + (i % 3))) % W;
+    const py = (i * 137 + Math.sin(t * 0.6 + i) * 30) % H;
+    ctx.fillStyle = `rgba(255,240,210,${0.10 + (i % 5) * 0.05})`;
+    ctx.beginPath();
+    ctx.arc(px, py, 1.5 + (i % 4), 0, 6.283);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  if (onAfterOverlay) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(splitX, 0, W - splitX, H);
+    ctx.clip();
+    onAfterOverlay();
+    ctx.restore();
+  }
+
+  // PRIMA: stato di fatto spento / desaturato / cantiere
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, splitX, H);
+  ctx.clip();
+  paint();
+  ctx.globalCompositeOperation = 'saturation';
+  ctx.fillStyle = 'rgba(128,128,128,0.93)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = 'rgba(165,172,184,0.9)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(40,46,58,0.30)';
+  ctx.fillRect(0, 0, W, H);
+  if (isExterior) {
+    ctx.strokeStyle = 'rgba(214,176,86,0.52)';
+    ctx.lineWidth = 6;
+    for (let x = W * 0.08; x < W * 0.94; x += 150) {
+      ctx.beginPath(); ctx.moveTo(x, H * 0.12); ctx.lineTo(x, H * 0.9); ctx.stroke();
+    }
+    ctx.lineWidth = 4;
+    [0.3, 0.52, 0.74].forEach((yy) => {
+      ctx.beginPath(); ctx.moveTo(W * 0.08, H * yy); ctx.lineTo(W * 0.94, H * yy); ctx.stroke();
+    });
+    ctx.strokeStyle = 'rgba(210,60,40,0.55)';
+    ctx.setLineDash([26, 18]);
+    ctx.lineWidth = 7;
+    ctx.beginPath(); ctx.moveTo(0, H * 0.86); ctx.lineTo(W, H * 0.80); ctx.stroke();
+    ctx.setLineDash([]);
+  } else {
+    ctx.fillStyle = 'rgba(220,215,200,0.16)';
+    ctx.fillRect(0, 0, W, H);
+  }
+  if (onBeforeOverlay) onBeforeOverlay();
+  ctx.restore();
+
+  // Grana pellicola + vignettatura
+  ctx.save();
+  ctx.globalCompositeOperation = 'overlay';
+  ctx.globalAlpha = 0.14;
+  ctx.fillStyle = getGrainPattern(ctx);
+  ctx.translate(Math.random() * 100, Math.random() * 100);
+  ctx.fillRect(-100, -100, W + 200, H + 200);
+  ctx.restore();
+
+  const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, W * 0.75);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  // Divisore luminoso
+  ctx.save();
+  ctx.shadowColor = 'rgba(255,255,255,0.9)';
+  ctx.shadowBlur = 24;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(splitX, topOffset);
+  ctx.lineTo(splitX, H - bottomOffset);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  ctx.beginPath();
+  ctx.arc(splitX, H * 0.5, 32, 0, 6.283);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 28px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('◀▶', splitX, H * 0.5 + 10);
+  ctx.restore();
+  ctx.textAlign = 'left';
+
+  // Pill PRIMA / DOPO
+  const drawPill = (txt, x, y, bg, fg) => {
+    ctx.font = 'bold 24px Inter, sans-serif';
+    const w = ctx.measureText(txt).width + 40;
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x, y, w, 46, 23) : ctx.rect(x, y, w, 46);
+    ctx.fill();
+    ctx.fillStyle = fg;
+    ctx.fillText(txt, x + 20, y + 31);
+  };
+  const pillY = topOffset + 32;
+  if (splitX > 280) drawPill(beforePill, 44, pillY, 'rgba(15,23,42,0.82)', '#cbd5e1');
+  if (W - splitX > 280) {
+    ctx.font = 'bold 24px Inter, sans-serif';
+    drawPill(afterPill, W - 44 - (ctx.measureText(afterPill).width + 40), pillY, 'rgba(255,255,255,0.90)', '#0f172a');
+  }
+}
+
 function redrawStudio4KCanvas() {
   const canvas = document.getElementById('studio-canvas');
   if (!canvas) return;
-  const { ratio, splitValue, style, customImage, isVideoSource, activeVideoEl, timeOfDay, cameraPanOffset, sketchStrokes, pins } = APP_STATE.studio;
+  const { ratio, splitValue, style, customImage, isVideoSource, activeVideoEl, timeOfDay, cameraPanOffset, pins, persona, isAnimatingVideo } = APP_STATE.studio;
 
   canvas.width = ratio.w;
   canvas.height = ratio.h;
   const ctx = canvas.getContext('2d');
   const W = canvas.width;
   const H = canvas.height;
-
-  ctx.clearRect(0, 0, W, H);
   const splitX = (W * splitValue) / 100;
 
-  // =========================================================================
-  // 1. LEFT SIDE (BEFORE: PHOTO / VIDEO / SKETCH / CAD WIREFRAME BASE)
-  // =========================================================================
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, 0, splitX, H);
-  ctx.clip();
-
+  let imgSource = null;
   if (isVideoSource && activeVideoEl && activeVideoEl.readyState >= 2) {
-    ctx.drawImage(activeVideoEl, 0, 0, W, H);
+    imgSource = activeVideoEl;
   } else if (customImage) {
-    ctx.drawImage(customImage, 0, 0, W, H);
+    imgSource = customImage;
   } else {
-    // Architectural Blueprint / Wireframe Sketch Base
-    ctx.fillStyle = '#0f172a';
+    const pid = STUDIO_PERSONA_PHOTOS[persona] || STUDIO_PERSONA_PHOTOS.architetto;
+    const url = `https://images.unsplash.com/photo-${pid}?auto=format&fit=crop&w=1600&q=85`;
+    imgSource = ensureVaultPhoto(url, () => redrawStudio4KCanvas());
+  }
+
+  if (imgSource) {
+    const animT = (Date.now() * 0.001) % 1000;
+    paintCinematicBeforeAfter(ctx, W, H, imgSource, {
+      wipePct: splitValue,
+      t: animT,
+      playing: isAnimatingVideo,
+      isExterior: persona !== 'designer' && persona !== 'agenzia',
+      timeOfDay,
+      panOffset: cameraPanOffset,
+      beforePill: customImage || isVideoSource ? 'PRIMA • RIPRESA CAMPO' : 'PRIMA • RILIEVO STATO DI FATTO',
+      afterPill: `DOPO • ${style.name.toUpperCase()}`,
+      onBeforeOverlay: () => drawFreehandStrokes(ctx, W, H),
+      onAfterOverlay: () => {
+        // HUD Render 4K
+        ctx.fillStyle = 'rgba(5, 7, 10, 0.78)';
+        ctx.fillRect(W - 640, 88, 600, 108);
+        ctx.fillStyle = '#22d3ee';
+        ctx.font = 'bold 24px Inter, sans-serif';
+        ctx.fillText(`RENDER 4K IA — ${style.name}`, W - 620, 122);
+        ctx.fillStyle = '#34d399';
+        ctx.font = 'bold 18px Inter, sans-serif';
+        ctx.fillText('🏡 CLASSE A4 NZEB • VIZMAKER VIDEO-2-VIDEO • STAGING 3D', W - 620, 152);
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '18px JetBrains Mono, monospace';
+        ctx.fillText(`Sole ${Math.floor(timeOfDay)}:${(timeOfDay % 1) ? '30' : '00'} | GPS ${APP_STATE.geo.lat.toFixed(4)}°N ${APP_STATE.geo.lng.toFixed(4)}°E`, W - 620, 182);
+
+        (APP_STATE.studio.placedAssets || []).forEach((asset) => {
+          const ax = (asset.x / 100) * W + cameraPanOffset * 0.65;
+          const ay = (asset.y / 100) * H;
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.92)';
+          ctx.beginPath();
+          ctx.roundRect ? ctx.roundRect(ax - 110, ay - 24, 240, 48, 12) : ctx.fillRect(ax - 110, ay - 24, 240, 48);
+          ctx.fill();
+          ctx.fillStyle = '#05070a';
+          ctx.font = 'bold 20px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(asset.label, ax + 10, ay + 7);
+          ctx.textAlign = 'left';
+        });
+
+        if (APP_STATE.studio.twoPointGrid) {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.24)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([12, 10]);
+          [0.2, 0.35, 0.5, 0.65, 0.8].forEach((frac) => {
+            ctx.beginPath(); ctx.moveTo(W * frac, 0); ctx.lineTo(W * frac, H); ctx.stroke();
+          });
+          ctx.strokeStyle = 'rgba(52, 211, 153, 0.40)';
+          ctx.beginPath(); ctx.moveTo(0, H * 0.5); ctx.lineTo(W, H * 0.5); ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+    });
+  } else {
+    ctx.fillStyle = '#05070a';
     ctx.fillRect(0, 0, W, H);
-
-    ctx.strokeStyle = 'rgba(34, 211, 238, 0.14)';
-    ctx.lineWidth = 2;
-    for (let x = 0; x < W; x += 60) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-    }
-    for (let y = 0; y < H; y += 60) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-    }
-
-    // Wireframe architectural elevation lines
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(W * 0.16, H * 0.28, W * 0.68, H * 0.50);
-    ctx.strokeRect(W * 0.22, H * 0.36, W * 0.28, H * 0.42);
-    ctx.strokeRect(W * 0.54, H * 0.36, W * 0.24, H * 0.42);
-
     ctx.fillStyle = '#94a3b8';
     ctx.font = 'bold 34px Inter, sans-serif';
-    ctx.fillText('PRIMA: BASE RILIEVO FOTO / VIDEO / SCHIZZO CAD', 60, 85);
-    ctx.font = '24px JetBrains Mono, monospace';
-    ctx.fillStyle = '#22d3ee';
-    ctx.fillText(`GPS: ${APP_STATE.geo.lat.toFixed(5)}°N, ${APP_STATE.geo.lng.toFixed(5)}°E`, 60, 128);
+    ctx.fillText('🎬 Caricamento render fotorealistico 4K…', 60, H / 2);
   }
 
-  // Draw any freehand sketch strokes on top of Before
-  drawFreehandStrokes(ctx, W, H);
-  ctx.restore();
-
-  // =========================================================================
-  // 2. RIGHT SIDE (AFTER: AI 4K PHOTOREALISTIC RENDER + POST-PRODUCTION)
-  // =========================================================================
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(splitX, 0, W - splitX, H);
-  ctx.clip();
-
-  // Dynamic Sky Gradient based on Time of Day (Agent 3 & Agent 5)
-  const isSunset = timeOfDay >= 17.5 || timeOfDay <= 7.5;
-  const isNight = timeOfDay >= 20 || timeOfDay <= 6;
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.75);
-  if (isNight) {
-    skyGrad.addColorStop(0, '#020617');
-    skyGrad.addColorStop(1, '#1e1b4b');
-  } else if (isSunset) {
-    skyGrad.addColorStop(0, '#1e3a8a');
-    skyGrad.addColorStop(0.55, '#ea580c');
-    skyGrad.addColorStop(1, '#fde047');
-  } else {
-    skyGrad.addColorStop(0, style.skyTop || '#0284c7');
-    skyGrad.addColorStop(1, '#bae6fd');
-  }
-  ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, W, H);
-
-  // If user uploaded a photo or video, blend it with architectural lighting & render grading!
-  if (isVideoSource && activeVideoEl && activeVideoEl.readyState >= 2) {
-    ctx.globalAlpha = 0.68;
-    ctx.drawImage(activeVideoEl, cameraPanOffset * 0.4, 0, W, H);
-    ctx.globalAlpha = 1.0;
-  } else if (customImage) {
-    ctx.globalAlpha = 0.65;
-    ctx.drawImage(customImage, cameraPanOffset * 0.4, 0, W, H);
-    ctx.globalAlpha = 1.0;
-  }
-
-  // Sun / Moon Orb
-  const sunX = W * ((timeOfDay - 6) / 16) + cameraPanOffset * 0.3;
-  const sunY = H * (0.18 + Math.abs(14 - timeOfDay) * 0.03);
-  const sunGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 160);
-  sunGrad.addColorStop(0, '#fef08a');
-  sunGrad.addColorStop(0.4, 'rgba(251, 191, 36, 0.45)');
-  sunGrad.addColorStop(1, 'rgba(251, 191, 36, 0)');
-  ctx.fillStyle = sunGrad;
-  ctx.beginPath();
-  ctx.arc(sunX, sunY, 160, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Landscape Ground & Reflective Pool / Terrace
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(0, H * 0.76, W, H * 0.24);
-  const poolGrad = ctx.createLinearGradient(0, H * 0.80, 0, H);
-  poolGrad.addColorStop(0, 'rgba(14, 165, 233, 0.65)');
-  poolGrad.addColorStop(1, 'rgba(3, 105, 161, 0.85)');
-  ctx.fillStyle = poolGrad;
-  ctx.fillRect(W * 0.14 + cameraPanOffset, H * 0.81, W * 0.72, H * 0.15);
-
-  // Main Architectural Villa Volume (With Camera Pan Offset for Video Render)
-  const bx = W * 0.16 + cameraPanOffset;
-  const by = H * 0.28;
-  const bw = W * 0.68;
-  const bh = H * 0.49;
-
-  // Cantilevered Roof Slab & Fascia
-  ctx.fillStyle = style.facade;
-  ctx.shadowColor = 'rgba(0,0,0,0.45)';
-  ctx.shadowBlur = 35;
-  ctx.fillRect(bx, by, bw, bh);
-  ctx.shadowBlur = 0;
-
-  // Architectural Accent Volume & Bioclimatic Pergola
-  ctx.fillStyle = style.accent;
-  ctx.fillRect(bx + bw * 0.54, by + bh * 0.08, bw * 0.42, bh * 0.92);
-
-  // Warm Interior Illuminated Low-E Glass Windows
-  const glassGrad = ctx.createLinearGradient(bx, by + bh * 0.16, bx + bw * 0.46, by + bh * 0.96);
-  glassGrad.addColorStop(0, isSunset || isNight ? 'rgba(251, 191, 36, 0.85)' : 'rgba(56, 189, 248, 0.72)');
-  glassGrad.addColorStop(1, isSunset || isNight ? 'rgba(234, 88, 12, 0.65)' : 'rgba(15, 23, 42, 0.85)');
-  ctx.fillStyle = glassGrad;
-  ctx.fillRect(bx + bw * 0.06, by + bh * 0.18, bw * 0.44, bh * 0.78);
-  ctx.fillRect(bx + bw * 0.58, by + bh * 0.22, bw * 0.34, bh * 0.74);
-
-  // Mullions
-  ctx.strokeStyle = '#0f172a';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(bx + bw * 0.06, by + bh * 0.18, bw * 0.44, bh * 0.78);
-  ctx.strokeRect(bx + bw * 0.58, by + bh * 0.22, bw * 0.34, bh * 0.74);
-
-  // HUD Watermark on Render Side (Includes Persona + Real Estate / VizMaker Badge)
-  ctx.fillStyle = 'rgba(5, 7, 10, 0.78)';
-  ctx.fillRect(W - 640, 36, 600, 122);
-  ctx.fillStyle = '#22d3ee';
-  ctx.font = 'bold 26px Inter, sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText(`DOPO: RENDER 4K IA — ${style.name}`, W - 620, 72);
-  ctx.fillStyle = '#34d399';
-  ctx.font = 'bold 20px Inter, sans-serif';
-  ctx.fillText(`🏡 CLASSE A4 NZEB • VIZMAKER VIDEO-2-VIDEO • VIRTUAL STAGING`, W - 620, 104);
-  ctx.fillStyle = '#f8fafc';
-  ctx.font = '19px JetBrains Mono, monospace';
-  ctx.fillText(`Sole ${Math.floor(timeOfDay)}:${(timeOfDay % 1) ? '30' : '00'} | GPS ${APP_STATE.geo.lat.toFixed(4)}°N ${APP_STATE.geo.lng.toFixed(4)}°E | 12 IA`, W - 620, 138);
-
-  // Draw Placed 3D Assets from VizAcademy Library (Agent 7)
-  (APP_STATE.studio.placedAssets || []).forEach((asset) => {
-    const ax = (asset.x / 100) * W + cameraPanOffset * 0.65;
-    const ay = (asset.y / 100) * H;
-    ctx.fillStyle = 'rgba(16, 185, 129, 0.92)';
-    ctx.beginPath();
-    ctx.roundRect ? ctx.roundRect(ax - 110, ay - 24, 240, 48, 12) : ctx.fillRect(ax - 110, ay - 24, 240, 48);
-    ctx.fill();
-    ctx.fillStyle = '#05070a';
-    ctx.font = 'bold 20px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(asset.label, ax + 10, ay + 7);
-  });
-
-  // Draw 2-Point Perspective Vertical Alignment Grid & Horizon Level HUD (Agent 8)
-  if (APP_STATE.studio.twoPointGrid) {
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.28)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([12, 10]);
-    [0.2, 0.35, 0.5, 0.65, 0.8].forEach((frac) => {
-      ctx.beginPath();
-      ctx.moveTo(W * frac, 0);
-      ctx.lineTo(W * frac, H);
-      ctx.stroke();
-    });
-    // Horizon Level Line
-    ctx.strokeStyle = 'rgba(52, 211, 153, 0.45)';
-    ctx.beginPath();
-    ctx.moveTo(0, H * 0.5);
-    ctx.lineTo(W, H * 0.5);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  ctx.restore();
-
-  // =========================================================================
-  // 3. SPLIT DIVIDER LINE & PINS OVERLAY
-  // =========================================================================
-  ctx.strokeStyle = '#22d3ee';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.moveTo(splitX, 0);
-  ctx.lineTo(splitX, H);
-  ctx.stroke();
-
-  // Draw Technical Pins
+  // Draw Technical Pins on top
   pins.forEach((p, idx) => {
     const px = (p.x / 100) * W + cameraPanOffset * 0.5;
     const py = (p.y / 100) * H;
     ctx.fillStyle = '#f59e0b';
-    ctx.beginPath();
-    ctx.arc(px, py, 24, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    ctx.fillStyle = '#05070a';
-    ctx.font = 'bold 22px Inter, sans-serif';
-    ctx.textAlign = 'center';
+    ctx.beginPath(); ctx.arc(px, py, 24, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = '#05070a'; ctx.font = 'bold 22px Inter, sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(String(idx + 1), px, py + 8);
-
-    // Pin Tag Label
     ctx.fillStyle = 'rgba(5, 7, 10, 0.82)';
     ctx.fillRect(px + 30, py - 20, Math.max(180, p.title.length * 12), 40);
-    ctx.fillStyle = '#fbbf24';
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.fillStyle = '#fbbf24'; ctx.textAlign = 'left'; ctx.font = 'bold 18px Inter, sans-serif';
     ctx.fillText(p.title, px + 40, py + 6);
   });
 }
@@ -3157,84 +3208,44 @@ window.selectPromoDemoSector = function (secId) {
   drawPromoDemoCanvas(55);
 };
 
-function drawPromoDemoCanvas(wipePct = 55) {
+const PROMO_SECTOR_PHOTOS = {
+  architetto: '1600596542815-ffad4c1539a9',
+  designer: '1600210492486-724fe5c67fb0',
+  immobiliarista: '1512917774080-9991f1c4c750',
+  agenzia: '1600607687939-ce8a6c25118c'
+};
+
+function drawPromoDemoCanvas(wipePct = 55, t = 0) {
   const c = document.getElementById('promoDemoVideoCanvas');
   if (!c) return;
   const ctx = c.getContext('2d');
   const W = c.width;
   const H = c.height;
-  const info = PROMO_SECTORS[MKT_ERP_STATE.activeDemoSector] || PROMO_SECTORS.architetto;
-  const splitX = (W * wipePct) / 100;
+  const sec = MKT_ERP_STATE.activeDemoSector || 'architetto';
+  const info = PROMO_SECTORS[sec] || PROMO_SECTORS.architetto;
+  const pid = PROMO_SECTOR_PHOTOS[sec] || PROMO_SECTOR_PHOTOS.architetto;
+  const url = `https://images.unsplash.com/photo-${pid}?auto=format&fit=crop&w=1600&q=85`;
+  const img = ensureVaultPhoto(url, () => drawPromoDemoCanvas(wipePct, MKT_ERP_STATE.demoTime));
 
-  ctx.clearRect(0, 0, W, H);
-
-  // Left half: BEFORE (Raw Construction / Used Property Wireframe)
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, 0, splitX, H);
-  ctx.clip();
-  ctx.fillStyle = '#090d16';
-  ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
-  ctx.lineWidth = 2;
-  for (let x = 0; x < W; x += 64) { ctx.beginPath(); ctx.moveTo(x, 160); ctx.lineTo(x, H - 150); ctx.stroke(); }
-  for (let y = 160; y < H - 150; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-  ctx.strokeStyle = '#64748b';
-  ctx.lineWidth = 5;
-  ctx.strokeRect(W * 0.14, H * 0.25, W * 0.72, H * 0.52);
-  ctx.strokeRect(W * 0.20, H * 0.33, W * 0.28, H * 0.44);
-  ctx.strokeRect(W * 0.52, H * 0.33, W * 0.28, H * 0.44);
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = 'bold 34px Inter, sans-serif';
-  ctx.fillText('PRIMA: STATO DI FATTO / CANTIERE GREZZO / USATO', 70, 235);
-  ctx.restore();
-
-  // Right half: AFTER (Photorealistic 4K Luxury Restyling)
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(splitX, 0, W - splitX, H);
-  ctx.clip();
-  const sky = ctx.createLinearGradient(0, 150, 0, H * 0.78);
-  sky.addColorStop(0, '#0f172a');
-  sky.addColorStop(0.55, '#0284c7');
-  sky.addColorStop(1, '#fde047');
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, H);
-
-  // Ground & Pool
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(0, H * 0.74, W, H * 0.26);
-  ctx.fillStyle = 'rgba(34, 211, 238, 0.55)';
-  ctx.fillRect(W * 0.14, H * 0.76, W * 0.72, H * 0.10);
-
-  // Luxury Architectural Volume
-  ctx.fillStyle = info.facade;
-  ctx.fillRect(W * 0.14, H * 0.25, W * 0.72, H * 0.50);
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(W * 0.50, H * 0.28, W * 0.34, H * 0.47);
-
-  // Warm Glowing Windows
-  const winGrad = ctx.createLinearGradient(0, H * 0.33, 0, H * 0.75);
-  winGrad.addColorStop(0, 'rgba(251, 191, 36, 0.9)');
-  winGrad.addColorStop(1, 'rgba(234, 88, 12, 0.75)');
-  ctx.fillStyle = winGrad;
-  ctx.fillRect(W * 0.18, H * 0.33, W * 0.28, H * 0.42);
-  ctx.fillRect(W * 0.54, H * 0.35, W * 0.26, H * 0.40);
-
-  ctx.fillStyle = 'rgba(5, 7, 10, 0.82)';
-  ctx.fillRect(W - 720, 185, 650, 70);
-  ctx.fillStyle = info.accent;
-  ctx.font = 'bold 30px Inter, sans-serif';
-  ctx.fillText('DOPO: REDESIGN 4K & VIRTUAL STAGING IA', W - 695, 230);
-  ctx.restore();
-
-  // Animated Split Line
-  ctx.strokeStyle = info.accent;
-  ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.moveTo(splitX, 150);
-  ctx.lineTo(splitX, H - 150);
-  ctx.stroke();
+  if (img) {
+    paintCinematicBeforeAfter(ctx, W, H, img, {
+      wipePct,
+      t,
+      playing: MKT_ERP_STATE.demoAnimRunning,
+      isExterior: sec === 'architetto' || sec === 'immobiliarista',
+      timeOfDay: 17.5,
+      topOffset: 155,
+      bottomOffset: 150,
+      beforePill: 'PRIMA: CANTIERE GREZZO / USATO',
+      afterPill: 'DOPO: REDESIGN 4K & STAGING IA'
+    });
+  } else {
+    ctx.fillStyle = '#05070a';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 34px Inter, sans-serif';
+    ctx.fillText('🎬 Caricamento Spot Video Demo 4K…', 60, H / 2);
+  }
 
   // Top Header Bar (Commercial Brand Banner)
   ctx.fillStyle = 'rgba(5, 7, 10, 0.94)';
@@ -3287,7 +3298,7 @@ window.togglePromoDemoAnimation = function () {
     if (!MKT_ERP_STATE.demoAnimRunning) return;
     MKT_ERP_STATE.demoTime += 0.035;
     const wipe = 50 + Math.sin(MKT_ERP_STATE.demoTime) * 38;
-    drawPromoDemoCanvas(wipe);
+    drawPromoDemoCanvas(wipe, MKT_ERP_STATE.demoTime);
     MKT_ERP_STATE.demoAnimFrame = requestAnimationFrame(step);
   }
   step();
