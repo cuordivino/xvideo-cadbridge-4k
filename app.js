@@ -4053,8 +4053,8 @@ function getVaultTagline(item) {
 }
 function ensureVaultPhoto(url, onReady) {
   const c = VAULT_IMG_CACHE[url];
-  if (c && c !== 'ERR') return c;
   if (c === 'ERR' || c === 'LOADING') return null;
+  if (c) return c;
   VAULT_IMG_CACHE[url] = 'LOADING';
   const im = new Image();
   im.crossOrigin = 'anonymous';
