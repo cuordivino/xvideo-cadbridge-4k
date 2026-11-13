@@ -236,6 +236,9 @@
       <button class="tab-btn" data-tab="tab-bridge">
         💻 Terminale PC &amp; Plugin CAD
       </button>
+      <button class="tab-btn" data-tab="tab-multivideo" id="multiVideoTabBtn">
+        🎬 Multi-Video, Restyling &amp; Cataloghi
+      </button>
     </nav>
 
     <!-- ====================================================================
@@ -1911,6 +1914,149 @@
   </main>
 
   <!-- MOBILE BOTTOM DOCK -->
+      <section id="tab-multivideo" class="tab-panel">
+      <style>
+        #tab-multivideo .mvc{background:#0f172a;border:1px solid rgba(56,189,248,.3);border-radius:12px;padding:10px;margin-bottom:10px}
+        #tab-multivideo h3{margin:0 0 6px;font-size:.82rem;color:#7dd3fc}
+        #tab-multivideo .mvr{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0}
+        #tab-multivideo canvas{max-width:100%;border-radius:8px;background:#020617;border:1px solid #1e293b}
+        #tab-multivideo textarea,#tab-multivideo input[type=text],#tab-multivideo input[type=number],#tab-multivideo select{background:#020617;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:4px 6px;font-size:.72rem}
+        #tab-multivideo .btn{font-size:10px;padding:5px 8px;white-space:nowrap}
+        #tab-multivideo label{font-size:.68rem;color:#cbd5e1}
+        #tab-multivideo .mvg{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:8px}
+        #tab-multivideo .mvbox{font-size:.7rem;color:#e2e8f0;background:#020617;border:1px solid #1e293b;border-radius:8px;padding:6px;white-space:pre-wrap}
+      </style>
+
+      <div class="mvc">
+        <h3>🎬 Studio Multi-Video Parallelo — 1 Immagine/Volume Master → 4 Capitoli di Video</h3>
+        <div class="mvr">
+          <button class="btn btn-cyan" onclick="mvUseStudio()">📥 Usa immagine dallo Studio 4K</button>
+          <label class="btn" style="cursor:pointer">🖼️ Carica Foto/Pianta Master<input type="file" accept="image/*" class="hidden" onchange="mvLoadMaster(event)"></label>
+          <span id="mvMasterInfo" style="font-size:.68rem;color:#94a3b8">Nessuna immagine: uso facciata segnaposto.</span>
+        </div>
+        <canvas id="mvMasterCv" width="320" height="180"></canvas>
+        <div style="font-size:.62rem;color:#94a3b8">🔒 Seed &amp; Material Lock: tutti i video partono dalla stessa immagine/volume. I video sono animazioni procedurali sul canvas (non generazione IA).</div>
+      </div>
+
+      <div class="mvc">
+        <h3>📕 Volume Parametrico (Video 4 · quote in cm → SketchUp .RB)</h3>
+        <div class="mvg">
+          <div>
+            <label>Catena di quote (dx,dy in cm, una per riga — le quote scritte hanno priorità sulla scala grafica)</label>
+            <textarea id="mvQuotes" rows="6" style="width:100%" oninput="mvVolChanged()">540,0
+0,420
+-540,0
+0,-420</textarea>
+            <div class="mvr"><label>H (cm) <input id="mvH" type="number" value="300" step="10" style="width:70px" oninput="mvVolChanged()"></label>
+              <label>Sup. finestrata mq <input id="mvWin" type="number" value="3.2" step="0.1" style="width:70px" oninput="mvVolChanged()"></label></div>
+            <div class="mvr" id="mvSceneBtns"></div>
+            <div class="mvr">
+              <button class="btn btn-cyan" onclick="mvExportSketchup()">⬇️ Esporta pacchetto (.rb + .md + .png)</button>
+              <button class="btn" onclick="mvCopyRuby()">📋 Copia stringa Console Ruby</button>
+            </div>
+            <div class="mvbox" id="mvRubyStr" style="font-family:monospace"></div>
+          </div>
+          <div><canvas id="mvVolCv" width="560" height="320"></canvas><div class="mvbox" id="mvVolInfo"></div></div>
+        </div>
+      </div>
+
+      <div class="mvc">
+        <h3>🛠️ Ridefinizione Ambiente &amp; Reti In-Loco</h3>
+        <div class="mvr">
+          <label><input type="checkbox" onchange="MV.mep.el=this.checked;mvRefresh()"> ⚡ Elettrica/KNX/LED 2700K</label>
+          <label><input type="checkbox" onchange="MV.mep.idr=this.checked;mvRefresh()"> 💧 Idrico-Sanitaria</label>
+          <label><input type="checkbox" onchange="MV.mep.hvac=this.checked;mvRefresh()"> ❄️ HVAC/VMC/Radiante</label>
+          <label><input type="checkbox" onchange="MV.mep.gas=this.checked;mvRefresh()"> 🔥 Gas/Fibra/Sensori</label>
+        </div>
+        <div class="mvr">
+          <label>Materiale <select onchange="MV.mat=this.value;mvRefresh()">
+            <option value="travertino">Travertino Romano</option><option value="noce">Noce Cannettato</option><option value="parquet">Parquet Spina</option>
+            <option value="marmo">Marmo Policromo &amp; Velluto</option><option value="resina">Resina</option></select></label>
+          <label><input type="checkbox" id="mvFx" checked onchange="mvRefresh()"> Applica Enhancer ai video</label>
+          <label>LUT <select id="mvLut" onchange="mvFxChange()"><option value="warm_ad">AD Warm Gold</option><option value="deco_onyx">Art Deco Pastel</option><option value="nordic">Lago Clean</option><option value="blue_hour">Blue Hour</option></select></label>
+        </div>
+        <div class="mvr">
+          <label>Sharpness <input type="range" id="mvSharp" min="0" max="100" value="80" oninput="mvFxChange()"></label>
+          <label>LED Bloom 2700K <input type="range" id="mvBloom" min="0" max="100" value="45" oninput="mvFxChange()"></label>
+          <label>HDR Shadows <input type="range" id="mvHdr" min="0" max="100" value="65" oninput="mvFxChange()"></label>
+          <label><input type="checkbox" id="mv60" checked> 60fps Smooth (30fps in export WEBM)</label>
+        </div>
+        <div class="mvr">
+          <input type="text" id="mvTxt" placeholder="Scrivi: es. 'altezza 280, pavimento noce, aggiungi pergola, rete idrica'" style="flex:1;min-width:200px">
+          <button class="btn btn-cyan" onclick="mvAddText()">➕ Applica</button>
+          <button class="btn" id="mvMicBtn" onclick="mvDictate()">🎙️ Dettatura Vocale</button>
+          <label class="btn" style="cursor:pointer">📎 Schizzo/PDF/Foto<input type="file" multiple class="hidden" accept="image/*,.pdf,.dxf,.dwg,.zip,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onchange="mvAddScheme(event)"></label>
+        </div>
+        <div class="mvbox" id="mvSuggest"></div>
+      </div>
+
+      <div class="mvc">
+        <h3>🛒 Cataloghi Edilportale &amp; Archiproducts → Iniezione 1-Click</h3>
+        <div class="mvr">
+          <input type="text" id="mvQ" placeholder="Cerca: cappotto, infissi, strip LED 2700K, boiserie, sanitari…" style="flex:1;min-width:200px" oninput="mvCatSearch()">
+          <button class="btn" onclick="mvOpenPortal('edilportale')">🔗 Cerca su Edilportale</button>
+          <button class="btn" onclick="mvOpenPortal('archiproducts')">🔗 Cerca su Archiproducts</button>
+        </div>
+        <div class="mvr">
+          <input type="text" id="mvPName" placeholder="Prodotto dal portale (nome)" style="min-width:160px">
+          <input type="text" id="mvPUrl" placeholder="Link scheda prodotto" style="min-width:160px">
+          <select id="mvPSrc"><option value="Edilportale">Edilportale</option><option value="Archiproducts">Archiproducts</option></select>
+          <button class="btn btn-cyan" onclick="mvCatManual()">➕ Inietta prodotto da link</button>
+        </div>
+        <div id="mvCatList" class="mvg"></div>
+        <div class="mvbox" id="mvInjected" style="margin-top:6px"></div>
+        <div style="font-size:.6rem;color:#94a3b8">I portali non offrono API pubbliche accessibili dal browser: il catalogo qui è un elenco locale di categorie di prodotto di esempio; per prodotti/brand reali usa i pulsanti di ricerca e incolla nome e link.</div>
+      </div>
+
+      <div class="mvc" id="mvChaptersBox">
+        <h3>🎞️ Video Paralleli (4 Capitoli) — Play singolo, Play tutti, Export .WEBM</h3>
+        <div class="mvr"><button class="btn btn-cyan" onclick="mvPlayAll()">▶ Play tutti</button><button class="btn" onclick="mvStopAll()">⏹ Stop</button></div>
+        <div id="mvChapters"></div>
+      </div>
+
+      <div class="mvc">
+        <h3>🏛️ Restyling Simultaneo &amp; Proposta Motivata IA (fabbricato esistente)</h3>
+        <div class="mvr" id="mvIntv"></div>
+        <canvas id="mvResCv" width="640" height="360" style="touch-action:none"></canvas>
+        <div class="mvr">
+          <label>Prima ◀▶ Dopo <input type="range" id="mvWipe" min="0" max="100" value="55" oninput="MV.wipe=+this.value;mvRes()"></label>
+          <button class="btn" id="mvDrawBtn" onclick="mvToggleDraw()">✍️ Disegna schizzo sopra</button>
+          <button class="btn" onclick="MV.strokes=[];mvRes()">🧹 Cancella schizzi</button>
+        </div>
+        <div class="mvg"><div class="mvbox" id="mvMotiv"></div><div class="mvbox" id="mvHist"></div></div>
+      </div>
+
+      <div class="mvc">
+        <h3>🎞️ Video Documentario di Trasformazione (6 Atti)</h3>
+        <div class="mvr">
+          <label>Durata <select id="mvDur" onchange="mvDocScript()"><option value="60">60s</option><option value="75">75s</option><option value="90" selected>90s</option><option value="120">120s</option></select></label>
+          <button class="btn btn-cyan" onclick="mvPlayDoc()">▶ Play</button>
+          <button class="btn" onclick="mvStopDoc()">⏹ Stop</button>
+          <button class="btn" onclick="mvExportWebm('doc')">⏺ Export .WEBM</button>
+          <button class="btn" onclick="mvNarrateDoc()">🎙️ Narra atti</button>
+        </div>
+        <canvas id="mvDocCv" width="640" height="360"></canvas>
+        <div class="mvbox" id="mvDocTxt"></div>
+      </div>
+
+      <div class="mvc">
+        <h3>🎙️ Regia Vocale Umana Pro (10 Voci Neurali M/F) — condivisa con tutti i video</h3>
+        <div class="mvr">
+          <select id="mvVoice" onchange="mvVoiceSel(this.value)">
+            <optgroup label="♂ Maschili"><option value="giuseppe">Giuseppe HD ♂</option><option value="diego">Diego ♂</option><option value="benigno">Benigno ♂</option><option value="gianni">Gianni ♂</option><option value="calimero">Calimero ♂</option></optgroup>
+            <optgroup label="♀ Femminili"><option value="isabella">Isabella HD ♀</option><option value="elsa">Elsa ♀</option><option value="fabiola">Fabiola ♀</option><option value="fiamma">Fiamma ♀</option><option value="irma">Irma ♀</option></optgroup>
+          </select>
+          <label>Pitch <input type="range" min="0.75" max="1.25" step="0.01" value="1" oninput="mvVoiceSl('pitch',this.value)"></label>
+          <label>Rate <input type="range" min="0.8" max="1.3" step="0.01" value="1" oninput="mvVoiceSl('rate',this.value)"></label>
+          <label>Pausa <input type="range" min="150" max="800" step="10" value="380" oninput="mvVoiceSl('pause',this.value)"></label>
+          <label>Calore EQ <input type="range" min="0" max="100" value="60" oninput="mvVoiceSl('warmth',this.value)"></label>
+          <button class="btn btn-cyan" onclick="mvNarrate('Prova della regia vocale: maggiore o uguale a un ottavo, rapporto aeroilluminante verificato.')">🎧 Prova</button>
+          <button class="btn" onclick="HumanVoiceOrchestrator.stop()">⏹</button>
+        </div>
+      </div>
+    </section>
+
+
   <nav class="mobile-dock" aria-label="Menu Mobile">
     <button class="dock-item active" data-tab="tab-mobile-ai">
       <span>🤖📸</span>
@@ -1939,6 +2085,10 @@
     <button class="dock-item" data-tab="tab-bridge">
       <span>💻</span>
       <span>PC Bridge</span>
+    </button>
+    <button class="dock-item" data-tab="tab-multivideo">
+      <span>🎬</span>
+      <span>Multi-Video</span>
     </button>
   </nav>
 

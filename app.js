@@ -5902,3 +5902,341 @@ function applyEnhancerPostFx(ctx, W, H) {
   if (E.bloom > 0) { const g = ctx.createRadialGradient(W / 2, H / 2, 10, W / 2, H / 2, Math.max(W, H) / 1.6); g.addColorStop(0, `rgba(255,190,100,${(E.bloom / 400).toFixed(3)})`); g.addColorStop(1, 'rgba(255,190,100,0)'); ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
   ctx.restore();
 }
+
+/* ===== v12: STUDIO MULTI-VIDEO, VOLUME PARAMETRICO, RESTYLING, DOCUMENTARIO, CATALOGHI ===== */
+const MV = { master: null, vol: { quotes: [], H: 300, win: 3.2 }, scene: 1, mep: { el: false, idr: false, hvac: false, gas: false }, mat: 'travertino',
+  inputs: [], strokes: [], schemes: [], products: [], wipe: 55, detail: 0, draw: false, players: {}, doc: { playing: false, t0: 0 }, fx: true,
+  intv: { facciata: true, frangisole: true, vetrate: true, pergola: false, led: true, cappotto: true } };
+const MV_MATS = { travertino: ['#d8c7a3', '#e9dfc9'], noce: ['#6b4a2b', '#8a6a4a'], parquet: ['#b58a5a', '#e6e0d4'], marmo: ['#8b5a8c', '#d9a4b8'], resina: ['#9aa0a6', '#cfd3d6'] };
+const MV_MOTIV = {
+  facciata: ['Estetica: rivestimento continuo in travertino/gres che riordina ritmo e proporzioni della facciata.', 'Tecnica/Energia: facciata ventilata + isolamento riducono dispersioni e ponti termici (salto di 1-2 classi, stima).', 'Valore/ROI: la riqualificazione di facciata può aumentare il valore percepito (stima indicativa +8-15%).'],
+  frangisole: ['Estetica: lamelle in noce/alluminio danno profondità e identità.', 'Tecnica/Energia: schermatura solare estiva, meno carichi di raffrescamento.', 'Valore/ROI: comfort e immagine premium a costo contenuto.'],
+  vetrate: ['Estetica: aperture più ampie portano luce e relazione con il giardino.', 'Tecnica/Energia: serramenti Uw ≤ 1,1 e verifica RAI ≥ 1/8; guadagni solari invernali.', 'Valore/ROI: ambienti luminosi si vendono prima.'],
+  pergola: ['Estetica: filtro tra interno ed esterno, estende la zona giorno.', 'Tecnica/Energia: pergola bioclimatica regola ombra e ventilazione (verificare titolo edilizio).', 'Valore/ROI: superficie vivibile aggiuntiva percepita.'],
+  led: ['Estetica: strip/lampade architetturali 2700K esaltano materiali e volumi di sera.', 'Tecnica/Energia: LED a basso consumo, sensori e domotica KNX.', 'Valore/ROI: sicurezza e atmosfera nelle foto serali.'],
+  cappotto: ['Estetica: superfici planari, nuova finitura uniforme.', 'Tecnica/Energia: cappotto EPS/lana di roccia, correzione ponti termici, detrazioni se applicabili.', 'Valore/ROI: riduzione bollette e salto di classe energetica.']
+};
+const MV_CAT = [
+  ['Edilportale', 'Cappotto termico EPS grafitato 12 cm', 'cappotto', 'cappotto'], ['Edilportale', 'Isolante in lana di roccia', 'cappotto', 'cappotto'],
+  ['Edilportale', 'Serramento taglio termico Uw 1.0 triplo vetro', 'vetrate', 'vetrate'], ['Edilportale', 'Tegole in laterizio / copertura ventilata', 'facciata', 'facciata'],
+  ['Edilportale', 'Rivestimento facciata ventilata gres effetto travertino', 'facciata', 'facciata'], ['Edilportale', 'Pompa di calore + VMC (MEP)', 'hvac', 'hvac'],
+  ['Archiproducts', 'Strip LED architetturale 2700K', 'led', 'led'], ['Archiproducts', 'Lampadario in vetro soffiato', 'led', 'led'],
+  ['Archiproducts', 'Boiserie in noce cannettato', 'noce', 'noce'], ['Archiproducts', 'Pavimento parquet a spina', 'parquet', 'parquet'],
+  ['Archiproducts', 'Frangisole in alluminio effetto legno', 'frangisole', 'frangisole'], ['Archiproducts', 'Pergola bioclimatica a lamelle', 'pergola', 'pergola'],
+  ['Archiproducts', 'Sanitari sospesi e rubinetteria', 'resina', 'resina'], ['Archiproducts', 'Tessuto bouclé e velluto per arredi', 'marmo', 'marmo']
+];
+const $mv = id => document.getElementById(id);
+const mvShade = (hex, f) => { const n = parseInt(hex.slice(1), 16); const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.max(0, Math.min(255, Math.round(v * f)))); return `rgb(${c})`; };
+
+function mvGeom() {
+  const pts = [[0, 0]]; let x = 0, y = 0;
+  MV.vol.quotes.forEach(([dx, dy]) => { x += dx; y += dy; pts.push([x, y]); });
+  const err = Math.hypot(x, y); if (err < 1 && pts.length > 3) pts.pop();
+  let a = 0; pts.forEach((p, i) => { const n = pts[(i + 1) % pts.length]; a += p[0] * n[1] - n[0] * p[1]; });
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  return { pts, err, ex: x, ey: y, area: Math.abs(a) / 2 / 10000, ccw: a > 0, minx: Math.min(...xs), maxx: Math.max(...xs), miny: Math.min(...ys), maxy: Math.max(...ys) };
+}
+function mvDrawMaster(ctx, x, y, w, h, dim) {
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  if (MV.master) {
+    const r = Math.max(w / MV.master.width, h / MV.master.height), iw = MV.master.width * r, ih = MV.master.height * r;
+    ctx.drawImage(MV.master, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
+  } else {
+    const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#9ec5e8'); g.addColorStop(1, '#d9c8a6'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = '#b9a98a'; ctx.fillRect(x + w * .18, y + h * .28, w * .64, h * .6); ctx.fillStyle = '#8a7a5e'; ctx.fillRect(x + w * .14, y + h * .22, w * .72, h * .08);
+    ctx.fillStyle = '#7aa3c4'; for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) ctx.fillRect(x + w * (.24 + i * .2), y + h * (.38 + j * .24), w * .12, h * .14);
+    ctx.fillStyle = '#6b8f4e'; ctx.fillRect(x, y + h * .88, w, h * .12);
+  }
+  if (dim) { ctx.fillStyle = `rgba(2,6,23,${dim})`; ctx.fillRect(x, y, w, h); }
+  ctx.restore();
+}
+function mvRestyled(ctx, x, y, w, h) {
+  mvDrawMaster(ctx, x, y, w, h, 0);
+  const I = MV.intv, d = 1 + MV.detail * 0.15, prod = MV.products.map(p => p.key);
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.fillStyle = 'rgba(245,158,11,0.10)'; ctx.fillRect(x, y, w, h);
+  if (I.facciata || prod.includes('facciata')) { ctx.fillStyle = (MV.mat === 'noce' ? 'rgba(107,74,43,0.28)' : 'rgba(216,199,163,0.30)'); ctx.fillRect(x + w * .14, y + h * .26, w * .72, h * .62); }
+  if (I.cappotto) { ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fillRect(x, y, w, h); }
+  if (I.vetrate) { ctx.fillStyle = 'rgba(190,225,255,0.38)'; for (let i = 0; i < 3; i++) ctx.fillRect(x + w * (.2 + i * .22), y + h * .4, w * .16, h * .34); }
+  if (I.frangisole) { ctx.fillStyle = 'rgba(92,58,33,0.85)'; const n = Math.round(14 * d); for (let i = 0; i < n; i++) ctx.fillRect(x + w * .62 + i * (w * .22 / n), y + h * .3, 3, h * .52); }
+  if (I.pergola) { ctx.strokeStyle = 'rgba(40,30,20,0.9)'; ctx.lineWidth = 3; for (let i = 0; i < 8; i++) { ctx.beginPath(); ctx.moveTo(x + w * .1, y + h * (.2 + i * .012)); ctx.lineTo(x + w * .9, y + h * (.2 + i * .012)); ctx.stroke(); } }
+  if (I.led || prod.includes('led')) { for (let i = 0; i < 14; i++) { const g = ctx.createRadialGradient(x + w * (.16 + i * .05), y + h * .86, 1, x + w * (.16 + i * .05), y + h * .86, 16); g.addColorStop(0, 'rgba(255,200,110,.9)'); g.addColorStop(1, 'rgba(255,200,110,0)'); ctx.fillStyle = g; ctx.fillRect(x + w * (.16 + i * .05) - 16, y + h * .86 - 16, 32, 32); } }
+  ctx.restore();
+}
+function mvDrawStrokes(ctx, x, y, w, h) {
+  ctx.save(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 5;
+  MV.strokes.forEach(s => { ctx.beginPath(); s.forEach((p, i) => i ? ctx.lineTo(x + p[0] * w, y + p[1] * h) : ctx.moveTo(x + p[0] * w, y + p[1] * h)); ctx.stroke(); });
+  ctx.restore();
+}
+
+/* --- volume 3D --- */
+function mvDrawVolume(ctx, W, H, o) {
+  const g = mvGeom(), Hc = MV.vol.H, sc = o.scene, top = sc === 1, prog = o.progress == null ? 1 : o.progress;
+  const roof = o.roof != null ? o.roof : sc === 2, furn = o.furn != null ? o.furn : sc === 5, mep = o.mep || (sc === 4 ? { el: 1, idr: 1, hvac: 1, gas: 1 } : MV.mep);
+  const rawP = (x, y, z) => top ? [x, -y] : [(x - y) * .866, (x + y) * .5 - z];
+  const all = []; g.pts.forEach(p => { all.push(rawP(p[0], p[1], 0), rawP(p[0], p[1], Hc + (o.lift || 0))); });
+  const bx = Math.min(...all.map(a => a[0])), BX = Math.max(...all.map(a => a[0])), by = Math.min(...all.map(a => a[1])), BY = Math.max(...all.map(a => a[1]));
+  const s = Math.min((W - 60) / Math.max(1, BX - bx), (H - 70) / Math.max(1, BY - by));
+  const P = (x, y, z) => { const r = rawP(x, y, z); return [30 + (W - 60 - (BX - bx) * s) / 2 + (r[0] - bx) * s, 40 + (H - 70 - (BY - by) * s) / 2 + (r[1] - by) * s]; };
+  const poly = (pts, fill, stroke) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = o.wire ? 2 : 1; ctx.stroke(); } };
+  const [fc, wc] = MV_MATS[MV.mat] || MV_MATS.travertino, n = g.pts.length, vis = Math.ceil(prog * n);
+  if (!o.wire) poly(g.pts.map(p => P(p[0], p[1], 0)), fc, '#334155');
+  if (o.zoning) { ctx.save(); ctx.beginPath(); g.pts.forEach((p, i) => { const q = P(p[0], p[1], 0); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.clip();
+    const a = P(g.minx, g.miny, 0), b = P(g.maxx, g.maxy, 0), w3 = (b[0] - a[0]) / 3; [['rgba(6,182,212,.55)', 'Giorno 42%'], ['rgba(168,85,247,.55)', 'Notte 35%'], ['rgba(16,185,129,.55)', 'Servizi 23%']].forEach((z, i) => { ctx.fillStyle = z[0]; ctx.fillRect(Math.min(a[0], b[0]) + i * Math.abs(w3), 0, Math.abs(w3), H); ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif'; ctx.fillText(z[1], Math.min(a[0], b[0]) + i * Math.abs(w3) + 4, H / 2); }); ctx.restore(); }
+  const edges = g.pts.map((p, i) => ({ a: p, b: g.pts[(i + 1) % n], i })).sort((u, v) => (u.a[0] + u.a[1] + u.b[0] + u.b[1]) - (v.a[0] + v.a[1] + v.b[0] + v.b[1]));
+  edges.forEach(e => {
+    if (top || e.i >= vis) return;
+    const dx = e.b[0] - e.a[0], dy = e.b[1] - e.a[1], L = Math.hypot(dx, dy) || 1, nx = (g.ccw ? dy : -dy) / L, light = .75 + .25 * nx;
+    const q = [P(e.a[0], e.a[1], 0), P(e.b[0], e.b[1], 0), P(e.b[0], e.b[1], Hc), P(e.a[0], e.a[1], Hc)];
+    poly(q, o.wire ? null : mvShade(wc, light), o.wire ? '#fff' : '#475569');
+    if (L > 150 && !o.wire) { const mx = (e.a[0] + e.b[0]) / 2, my = (e.a[1] + e.b[1]) / 2, ux = dx / L * 60, uy = dy / L * 60;
+      poly([P(mx - ux, my - uy, 90), P(mx + ux, my + uy, 90), P(mx + ux, my + uy, 220), P(mx - ux, my - uy, 220)], 'rgba(147,197,253,.75)', '#1e3a8a'); }
+  });
+  if (top) { ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 2; poly(g.pts.map(p => P(p[0], p[1], 0)), null, o.wire ? '#fff' : '#0ea5e9');
+    ctx.fillStyle = '#facc15'; ctx.font = 'bold 11px monospace'; g.pts.forEach((p, i) => { const q = g.pts[(i + 1) % n], m = P((p[0] + q[0]) / 2, (p[1] + q[1]) / 2, 0); ctx.fillText(Math.round(Math.hypot(q[0] - p[0], q[1] - p[1])) + ' cm', m[0] - 14, m[1] - 4); }); }
+  if (roof) poly(g.pts.map(p => P(p[0], p[1], Hc + (o.lift || 0))), 'rgba(120,80,60,.9)', '#3f2a20');
+  const L2 = (a, b, c, d2, z, col) => { const p1 = P(a, b, z), p2 = P(c, d2, z); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke(); };
+  const cx = (g.minx + g.maxx) / 2, cy = (g.miny + g.maxy) / 2, m = 30;
+  if (mep.el) { for (let i = 0; i < n; i++) { const a = g.pts[i], b = g.pts[(i + 1) % n]; L2(a[0] + (cx - a[0]) * .06, a[1] + (cy - a[1]) * .06, b[0] + (cx - b[0]) * .06, b[1] + (cy - b[1]) * .06, 30, '#facc15'); } }
+  if (mep.idr) { L2(g.minx + m, g.miny + m, cx, cy, 10, '#38bdf8'); L2(cx, cy, g.maxx - m, g.miny + m, 10, '#38bdf8'); }
+  if (mep.hvac) { for (let k = 1; k < 4; k++) L2(g.minx + m, g.miny + (g.maxy - g.miny) * k / 4, g.maxx - m, g.miny + (g.maxy - g.miny) * k / 4, Hc - 15, '#22d3ee'); }
+  if (mep.gas) { L2(g.minx + m, g.maxy - m, g.maxx - m, g.maxy - m, 20, '#f87171'); L2(g.maxx - m, g.maxy - m, g.maxx - m, g.miny + m, 20, '#c084fc'); }
+  if (furn) { const bw = g.maxx - g.minx, bh = g.maxy - g.miny;
+    [[g.minx + 40, g.miny + 40, 200, 90, 80, '#be185d'], [cx - 60, cy - 35, 120, 70, 45, '#92400e'], [Math.max(g.minx + 40, g.maxx - 200), Math.max(g.miny + 40, g.maxy - 240), 160, 200, 50, '#e7d6c4']].forEach(([x, y, w, d, h, c]) => {
+      if (top) { poly([P(x, y, 0), P(x + w, y, 0), P(x + w, y + d, 0), P(x, y + d, 0)], c, '#000'); return; }
+      poly([P(x, y + d, 0), P(x + w, y + d, 0), P(x + w, y + d, h), P(x, y + d, h)], mvShade(c, .8), '#000'); poly([P(x + w, y, 0), P(x + w, y + d, 0), P(x + w, y + d, h), P(x + w, y, h)], mvShade(c, .6), '#000'); poly([P(x, y, h), P(x + w, y, h), P(x + w, y + d, h), P(x, y + d, h)], c, '#000'); }); }
+}
+
+/* --- viewport & ruby export --- */
+function mvParseQuotes() {
+  const rows = ($mv('mvQuotes').value || '').split('\n').map(l => (l.match(/-?\d+(?:[.,]\d+)?/g) || []).map(v => parseFloat(v.replace(',', '.')))).filter(r => r.length >= 2);
+  MV.vol.quotes = rows.map(r => [r[0], r[1]]); MV.vol.H = parseFloat($mv('mvH').value) || 300; MV.vol.win = parseFloat($mv('mvWin').value) || 0;
+}
+window.mvVolChanged = function () { mvParseQuotes(); mvRefresh(); };
+window.mvRefresh = function () {
+  mvParseQuotes(); const c = $mv('mvVolCv'); if (!c) return; const x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height);
+  mvDrawVolume(x, c.width, c.height, { scene: MV.scene }); if ($mv('mvFx')?.checked) applyEnhancerPostFx(x, c.width, c.height);
+  x.fillStyle = '#e2e8f0'; x.font = 'bold 11px sans-serif'; x.fillText(['', '1. Pianta dall\'alto', '2. Assonometria con Tetto', '3. Assonometria Tetto Nascosto', '4. Solo Pareti, Aperture & Reti', '5. Modello Completo con Arredi'][MV.scene], 10, 16);
+  const g = mvGeom(), rai = g.area > 0 ? MV.vol.win / g.area : 0;
+  $mv('mvVolInfo').textContent = `Σdx=${g.ex.toFixed(1)} cm  Σdy=${g.ey.toFixed(1)} cm  scarto di chiusura=${g.err.toFixed(1)} cm\nSup.=${g.area.toFixed(2)} mq  H=${MV.vol.H} cm  RAI=${rai.toFixed(3)} (${rai >= .125 ? 'OK ≥ 1/8' : 'INSUFFICIENTE: servono ' + (g.area / 8).toFixed(2) + ' mq finestrati'})`;
+  const f = mvRuby(); $mv('mvRubyStr').textContent = "rb = Dir[File.join(Dir.home, 'Downloads', '*_3D*.rb')].max_by { |f| File.mtime(f) }; load rb";
+  mvSuggest(); mvMotiv(); mvRes(); mvInjected(); mvDocScript(); mvDrawMasterCv(); mvStaticPlayers();
+};
+function mvRuby() {
+  const g = mvGeom(), H = MV.vol.H, f = v => v.toFixed(1) + '.cm', n = g.pts.length, cx = (g.minx + g.maxx) / 2, cy = (g.miny + g.maxy) / 2, sp = Math.max(g.maxx - g.minx, g.maxy - g.miny);
+  let wins = ''; g.pts.forEach((p, i) => { const q = g.pts[(i + 1) % n], dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy); if (L < 150) return;
+    const nx = (g.ccw ? dy : -dy) / L, ny = (g.ccw ? -dx : dx) / L, mx = (p[0] + q[0]) / 2 + nx * .5, my = (p[1] + q[1]) / 2 + ny * .5, ux = dx / L * 60, uy = dy / L * 60;
+    wins += `win.entities.add_face([${mx - ux}.cm,${my - uy}.cm,90.cm],[${mx + ux}.cm,${my + uy}.cm,90.cm],[${mx + ux}.cm,${my + uy}.cm,220.cm],[${mx - ux}.cm,${my - uy}.cm,220.cm]).material = 'LightBlue'\n`; });
+  const sc = [["1. Pianta dall'alto", [cx, cy, sp * 2.2], [cx, cy, 0], [0, 1, 0], 'false', 'true', 'false'], ['2. Assonometria con Tetto', [cx + sp, cy - sp, sp * 1.1], [cx, cy, H / 2], [0, 0, 1], 'true', 'true', 'false'],
+    ['3. Assonometria Tetto Nascosto', [cx + sp, cy - sp, sp * 1.1], [cx, cy, H / 2], [0, 0, 1], 'false', 'true', 'false'], ['4. Solo Pareti, Aperture & Reti (Senza Mobili)', [cx + sp, cy - sp, sp * 1.1], [cx, cy, H / 2], [0, 0, 1], 'false', 'false', 'true'],
+    ['5. Modello Completo con Arredi', [cx + sp * .8, cy - sp * .8, sp * .6], [cx, cy, H / 3], [0, 0, 1], 'false', 'true', 'false']];
+  const prods = MV.products.map(p => `# Prodotto iniettato: ${p.src} - ${p.name}${p.url ? ' (' + p.url + ')' : ''}`).join('\n');
+  const rb = `# CADBridge Pro - volume parametrico (quote in cm, H=${H})\n# Scarto di chiusura quote: ${g.err.toFixed(1)} cm\n${prods}\nmodel = Sketchup.active_model\nents = model.active_entities\nmodel.start_operation('CADBridge 3D', true)\nh = ${H}.0.cm\npts = [${g.pts.map(p => `[${f(p[0])},${f(p[1])},0]`).join(',')}]\nvol = ents.add_group; vol.name = 'Volume'\nface = vol.entities.add_face(pts)\nface.reverse! if face.normal.z < 0\nface.pushpull(h)\nL_roof = model.layers.add('Tetto'); L_furn = model.layers.add('Arredi'); L_mep = model.layers.add('Reti MEP')\nroof = ents.add_group; roof.entities.add_face(pts.map{|p| [p[0],p[1],h]}); roof.layer = L_roof\nm = model.materials.add('LightBlue'); m.color = [147,197,253]; m.alpha = 0.6\nwin = ents.add_group; win.name = 'Aperture'\n${wins}mep = ents.add_group; mep.layer = L_mep\nmep.entities.add_edges(*pts.map{|p| [p[0],p[1],30.cm]}, [pts[0][0],pts[0][1],30.cm])\nfurn = ents.add_group; furn.layer = L_furn\nbox = lambda{|x,y,w,d,hh| f = furn.entities.add_face([x,y,0],[x+w,y,0],[x+w,y+d,0],[x,y+d,0]); f.reverse! if f.normal.z < 0; f.pushpull(hh)}\nbox.call(${f(g.minx + 40)},${f(g.miny + 40)},200.cm,90.cm,80.cm)\nbox.call(${f(cx - 60)},${f(cy - 35)},120.cm,70.cm,45.cm)\nview = model.active_view\nscenes = ${JSON.stringify(sc)}\nscenes.each do |n,e,t,u,rv,fv,mv|\n  L_roof.visible = rv; L_furn.visible = fv; L_mep.visible = mv\n  view.camera = Sketchup::Camera.new(Geom::Point3d.new(*e.map{|v| v.cm}), Geom::Point3d.new(*t.map{|v| v.cm}), Geom::Vector3d.new(*u))\n  model.pages.add(n)\nend\nL_roof.visible = true; L_furn.visible = true; L_mep.visible = false\nmodel.commit_operation\n`;
+  return rb;
+}
+window.mvExportSketchup = function () {
+  mvParseQuotes(); const g = mvGeom(), stamp = Date.now(), base = `CADBridge_${stamp}`;
+  const dl = (name, data, type) => { const a = document.createElement('a'); a.href = typeof data === 'string' && data.startsWith('data:') ? data : URL.createObjectURL(new Blob([data], { type })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); };
+  dl(`${base}_3D.rb`, mvRuby().replace(/\]\.map\{\|v\| v\.cm\}/g, '].map{|v| v.cm}'), 'text/plain');
+  dl(`${base}_NOTE.md`, `# Note volume parametrico\n\n- Quote in cm (priorità alle quote scritte)\n- Catena: ${MV.vol.quotes.map(q => q.join(',')).join(' | ')}\n- Σdx=${g.ex.toFixed(1)} cm, Σdy=${g.ey.toFixed(1)} cm, **scarto di chiusura ${g.err.toFixed(1)} cm**\n- H=${MV.vol.H} cm, Sup.=${g.area.toFixed(2)} mq\n- Prodotti: ${MV.products.map(p => p.src + ': ' + p.name).join('; ') || 'nessuno'}\n`, 'text/markdown');
+  const s0 = MV.scene; MV.scene = 5; mvRefresh(); dl(`${base}_Anteprima.png`, $mv('mvVolCv').toDataURL('image/png')); MV.scene = s0; mvRefresh();
+  appendLog('📦 Pacchetto SketchUp esportato (.rb + _NOTE.md + _Anteprima.png). In Console Ruby: incolla la stringa mostrata.');
+};
+window.mvCopyRuby = function () { navigator.clipboard?.writeText($mv('mvRubyStr').textContent); appendLog('📋 Stringa Console Ruby copiata.'); };
+
+/* --- suggestions, motivations, history --- */
+function mvSuggest() {
+  const g = mvGeom(), rai = g.area ? MV.vol.win / g.area : 0, t = [];
+  t.push(rai >= .125 ? `✔ RAI ${rai.toFixed(3)} ≥ 1/8` : `⚠ RAI ${rai.toFixed(3)} < 1/8: aggiungi almeno ${(g.area / 8 - MV.vol.win).toFixed(2)} mq di superficie finestrata`);
+  if (g.err > 2) t.push(`⚠ Catena quote non chiusa (scarto ${g.err.toFixed(1)} cm): verifica una quota.`);
+  t.push('⚡ Tracce impianti: dorsali perimetrali a ~30 cm da pavimento, punti luce LED 2700K su linee dedicate, quadro vicino all\'ingresso.');
+  t.push('💧 Collettore idrico baricentrico, scarichi con pendenza ≥ 1%, bagni/cucina sullo stesso cavedio.');
+  t.push('❄️ Canali HVAC a controsoffitto sul lato corridoio; VMC con bocchette lontane dalle finestre.');
+  t.push(`🎨 Abbinamento: ${{ travertino: 'travertino + noce + ottone', noce: 'noce + bouclé avorio + LED caldo', parquet: 'parquet a spina + pareti calce + nero opaco', marmo: 'marmo policromo + velluto rosa + oro', resina: 'resina + legno chiaro + verde salvia' }[MV.mat]}`);
+  $mv('mvSuggest').textContent = '💡 Suggerimenti IA (regole locali)\n' + t.join('\n');
+}
+function mvMotiv() {
+  const act = Object.keys(MV.intv).filter(k => MV.intv[k]);
+  $mv('mvMotiv').textContent = '💡 Suggerimento Motivato (stime indicative)\n\n' + (act.map(k => `■ ${k.toUpperCase()}\n ${MV_MOTIV[k].join('\n ')}`).join('\n\n') || 'Nessun intervento selezionato.');
+}
+function mvInjected() {
+  $mv('mvInjected').textContent = MV.products.length ? '📌 Prodotti iniettati (3D .rb, restyling, documentario, video):\n' + MV.products.map((p, i) => `${i + 1}. [${p.src}] ${p.name}${p.url ? ' — ' + p.url : ''}`).join('\n') : 'Nessun prodotto iniettato.';
+  $mv('mvHist').textContent = '🔗 Loop condizionato a catena\n' + (MV.inputs.map((x, i) => `Step ${i + 1} [${x.type}] ${x.text}` + (i ? `  (condizionato da step 1–${i})` : '')).join('\n') || 'Aggiungi testo, voce, schizzi o schemi: ogni step modifica il successivo.');
+}
+function mvApplyKeys(txt) {
+  const s = txt.toLowerCase(), set = (k, v) => { if (k in MV.intv) MV.intv[k] = v; };
+  const h = s.match(/altezza\s*(\d{3})/); if (h) { $mv('mvH').value = h[1]; }
+  [['travertino', 'travertino'], ['noce', 'noce'], ['parquet', 'parquet'], ['marmo', 'marmo'], ['velluto', 'marmo'], ['resina', 'resina']].forEach(([k, m]) => { if (s.includes(k)) { MV.mat = m; } });
+  ['pergola', 'frangisole', 'vetrat', 'led', 'cappotto', 'facciata'].forEach(k => { if (s.includes(k)) set(k === 'vetrat' ? 'vetrate' : k, !/(togli|rimuovi|senza)/.test(s)); });
+  if (/elettric|knx/.test(s)) MV.mep.el = true; if (/idric/.test(s)) MV.mep.idr = true; if (/hvac|clima|vmc/.test(s)) MV.mep.hvac = true; if (/gas|fibra/.test(s)) MV.mep.gas = true;
+}
+function mvAddInput(type, text) { MV.inputs.push({ type, text }); MV.detail++; mvApplyKeys(text); mvIntvUI(); mvVolChanged(); appendLog(`🔗 Step ${MV.inputs.length} (${type}): ${text}`); }
+window.mvAddText = function () { const v = $mv('mvTxt').value.trim(); if (v) { mvAddInput('testo', v); $mv('mvTxt').value = ''; } };
+window.mvDictate = function () {
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition; if (!R) { appendLog('⚠️ Dettatura non supportata da questo browser.'); return; }
+  const r = new R(); r.lang = 'it-IT'; r.onresult = e => mvAddInput('voce', e.results[0][0].transcript); r.onend = () => $mv('mvMicBtn').textContent = '🎙️ Dettatura Vocale'; $mv('mvMicBtn').textContent = '🔴 Ascolto…'; r.start();
+};
+window.mvAddScheme = async function (ev) {
+  for (const f of Array.from(ev.target.files || [])) {
+    if (f.type.startsWith('image/')) { const img = new Image(); img.onload = () => { MV.schemes.push(img); mvAddInput('schema', f.name); }; img.src = URL.createObjectURL(f); }
+    else { await processDocumentFile(f); mvAddInput('documento', f.name); }
+  } ev.target.value = '';
+};
+
+/* --- restyling canvas --- */
+function mvIntvUI() {
+  $mv('mvIntv').innerHTML = Object.keys(MV.intv).map(k => `<label><input type="checkbox" ${MV.intv[k] ? 'checked' : ''} onchange="MV.intv['${k}']=this.checked;mvRefresh()"> ${k}</label>`).join(' ');
+}
+window.mvRes = function () {
+  const c = $mv('mvResCv'); if (!c) return; const x = c.getContext('2d'), W = c.width, H = c.height, wx = W * MV.wipe / 100;
+  mvDrawMaster(x, 0, 0, W, H, 0); x.save(); x.beginPath(); x.rect(wx, 0, W - wx, H); x.clip(); mvRestyled(x, 0, 0, W, H); x.restore();
+  x.fillStyle = '#fff'; x.fillRect(wx - 1, 0, 2, H); x.font = 'bold 12px sans-serif'; x.fillText('PRIMA', 10, 18); x.fillText('DOPO', W - 52, 18);
+  MV.schemes.slice(-3).forEach((im, i) => { x.globalAlpha = .85; x.drawImage(im, 10 + i * 90, H - 70, 80, 60); x.globalAlpha = 1; });
+  mvDrawStrokes(x, 0, 0, W, H); if ($mv('mvFx')?.checked) applyEnhancerPostFx(x, W, H);
+};
+window.mvToggleDraw = function () { MV.draw = !MV.draw; $mv('mvDrawBtn').textContent = MV.draw ? '✅ Disegno attivo (tocca il canvas)' : '✍️ Disegna schizzo sopra'; };
+function mvInitDraw() {
+  const c = $mv('mvResCv'); let cur = null;
+  const pt = e => { const r = c.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
+  c.addEventListener('pointerdown', e => { if (!MV.draw) return; cur = [pt(e)]; MV.strokes.push(cur); c.setPointerCapture(e.pointerId); });
+  c.addEventListener('pointermove', e => { if (cur) { cur.push(pt(e)); mvRes(); } });
+  c.addEventListener('pointerup', () => { if (cur) { cur = null; mvAddInput('schizzo', `tratto ${MV.strokes.length}`); } });
+}
+
+/* --- catalogo --- */
+window.mvCatSearch = function () {
+  const q = ($mv('mvQ').value || '').toLowerCase(), list = MV_CAT.filter(p => !q || p[1].toLowerCase().includes(q) || p[0].toLowerCase().includes(q));
+  $mv('mvCatList').innerHTML = list.map((p, i) => `<div class="mvbox"><b>${p[0]}</b> — ${p[1]}<br><button class="btn btn-cyan" onclick="mvInject(${MV_CAT.indexOf(p)})">💉 Inietta nel modello</button></div>`).join('') || '<div class="mvbox">Nessun risultato locale: usa i pulsanti di ricerca sul portale.</div>';
+};
+function mvInjectProduct(p) {
+  MV.products.push(p); const k = p.key;
+  if (k in MV.intv) MV.intv[k] = true; if (k in MV_MATS) MV.mat = k;
+  if (k === 'hvac') MV.mep.hvac = true; if (k === 'led') MV.mep.el = true;
+  mvIntvUI(); mvVolChanged(); appendLog(`💉 Prodotto iniettato: [${p.src}] ${p.name}`);
+}
+window.mvInject = function (i) { const p = MV_CAT[i]; mvInjectProduct({ src: p[0], name: p[1], key: p[2], url: '' }); };
+window.mvCatManual = function () { const n = $mv('mvPName').value.trim(); if (!n) return; const s = n.toLowerCase(); const key = ['cappotto', 'vetrate', 'facciata', 'led', 'noce', 'parquet', 'frangisole', 'pergola', 'resina', 'marmo', 'travertino'].find(k => s.includes(k.replace('vetrate', 'infiss'))) || 'facciata'; mvInjectProduct({ src: $mv('mvPSrc').value, name: n, key, url: $mv('mvPUrl').value.trim() }); $mv('mvPName').value = ''; $mv('mvPUrl').value = ''; };
+window.mvOpenPortal = function (p) { const q = encodeURIComponent($mv('mvQ').value || ''); window.open(p === 'edilportale' ? `https://www.edilportale.com/prodotti?q=${q}` : `https://www.archiproducts.com/it/search?q=${q}`, '_blank', 'noopener'); };
+
+/* --- master --- */
+window.mvUseStudio = function () { const c = $mv('studio-canvas'); if (!c) return; const im = new Image(); im.onload = () => { MV.master = im; $mv('mvMasterInfo').textContent = 'Master dallo Studio 4K (bloccata).'; mvRefresh(); }; im.src = c.toDataURL('image/png'); };
+window.mvLoadMaster = function (ev) { const f = ev.target.files[0]; if (!f) return; const im = new Image(); im.onload = () => { MV.master = im; $mv('mvMasterInfo').textContent = `Master: ${f.name} (bloccata)`; mvRefresh(); }; im.src = URL.createObjectURL(f); };
+function mvDrawMasterCv() { const c = $mv('mvMasterCv'); if (c) mvDrawMaster(c.getContext('2d'), 0, 0, c.width, c.height, 0); }
+
+/* --- fx & voice --- */
+window.mvFxChange = function () { Object.assign(ENHANCER_POST_FX, { lut: $mv('mvLut').value, sharpness: +$mv('mvSharp').value, bloom: +$mv('mvBloom').value, hdr: +$mv('mvHdr').value }); mvRefresh(); };
+window.mvVoiceSel = function (v) { onHumanVoiceSelectChange(v); };
+window.mvVoiceSl = function (k, v) { localStorage.setItem('xvideo_voice_' + k, v); try { updateVoiceSliderVal('voice' + k[0].toUpperCase() + k.slice(1), v); } catch (e) { } };
+window.mvNarrate = function (text, done) { const el = $mv('liveSpotVoiceText'), old = el ? el.value : null; if (el) el.value = text; HumanVoiceOrchestrator.speakSpot('architetto', () => { if (el && old !== null) el.value = old; done && done(); }); };
+
+/* --- player draw functions --- */
+const MV_BG = (ctx, W, H) => { ctx.fillStyle = '#020617'; ctx.fillRect(0, 0, W, H); };
+const MV_LBL = (ctx, s, W, H) => { ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, H - 22, W, 22); ctx.fillStyle = '#fff'; ctx.font = '11px sans-serif'; ctx.fillText(s, 8, H - 7); };
+const MV_PRODCAP = (ctx, W) => { if (MV.products.length) { ctx.fillStyle = '#fde68a'; ctx.font = '10px sans-serif'; ctx.fillText('Prodotti: ' + MV.products.slice(-3).map(p => p.name).join(' · ').slice(0, 90), 8, 14); } };
+function d1A(ctx, W, H, t) {
+  MV_BG(ctx, W, H); const st = Math.floor(t / 2) % 5, p = (t % 2) / 2;
+  const lab = ['Pianta', '/axo Assonometria esplosa', '/section Sezione A-A', '/zoning Giorno 42% · Notte 35% · Servizi 23%', '6-Step: Site → Base → Sculpt → Struct → Circ → Program'];
+  if (st === 0) mvDrawVolume(ctx, W, H, { scene: 1 }); else if (st === 1) mvDrawVolume(ctx, W, H, { scene: 2, lift: 120 * p, roof: true });
+  else if (st === 2) { const g = mvGeom(), w = W * .6, h = MV.vol.H / (g.maxx - g.minx) * w; ctx.fillStyle = MV_MATS[MV.mat][1]; ctx.fillRect(W * .2, H * .75 - h, w, h); ctx.strokeStyle = '#facc15'; ctx.strokeRect(W * .2, H * .75 - h, w, h); ctx.fillStyle = '#facc15'; ctx.fillText(`H = ${MV.vol.H} cm`, W * .2 + 6, H * .75 - h - 6); ctx.fillStyle = '#64748b'; ctx.fillRect(W * .15, H * .75, w + W * .1, 6); }
+  else if (st === 3) mvDrawVolume(ctx, W, H, { scene: 1, zoning: true });
+  else for (let i = 0; i < 6; i++) { const on = i <= Math.floor(p * 6) + 0; ctx.fillStyle = on ? '#0ea5e9' : '#1e293b'; ctx.fillRect(20 + i * (W - 40) / 6, H / 2 - 30 - i * 8, (W - 40) / 6 - 8, 60 + i * 16); }
+  MV_LBL(ctx, `1A /board — ${lab[st]}`, W, H); MV_PRODCAP(ctx, W);
+}
+function d1B(ctx, W, H, t) { const p = (t % 10) / 10; mvDrawMaster(ctx, 0, 0, W, H, .45); if (p < .7) { mvDrawVolume(ctx, W, H, { scene: 3, wire: true, progress: p / .7, roof: false }); } else { ctx.globalAlpha = (p - .7) / .3; mvRestyled(ctx, 0, 0, W, H); ctx.globalAlpha = 1; } MV_LBL(ctx, '1B /overlay — tracciamento wireframe bianco, quote mm → render', W, H); MV_PRODCAP(ctx, W); }
+function d1C(ctx, W, H, t) {
+  MV_BG(ctx, W, H); const gap = 28 * (.5 + .5 * Math.sin(t * 1.5)), s = 1.1, P = (x, y, z) => [W / 2 + (x - y) * .866 * s, H * .75 + (x + y) * .5 * s - z * s];
+  const box = (x, y, z, w, d, h, c) => { const q = (a, b, cc) => P(a, b, cc), poly = (pp, f) => { ctx.beginPath(); pp.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.fillStyle = f; ctx.fill(); ctx.strokeStyle = '#000'; ctx.stroke(); }; poly([q(x, y + d, z), q(x + w, y + d, z), q(x + w, y + d, z + h), q(x, y + d, z + h)], mvShade(c, .8)); poly([q(x + w, y, z), q(x + w, y + d, z), q(x + w, y + d, z + h), q(x + w, y, z + h)], mvShade(c, .6)); poly([q(x, y, z + h), q(x + w, y, z + h), q(x + w, y + d, z + h), q(x, y + d, z + h)], c); };
+  const col = MV_MATS[MV.mat][0]; box(-60, -30, 0, 120, 60, 25, '#6b4a2b'); box(-60, -30, 25 + gap, 120, 60, 25, '#be185d'); box(-60, 20, 50 + gap * 2, 120, 12, 45, '#d9a4b8'); box(-45, -30, 75 + gap * 3, 30, 30, 10, col);
+  [['Travertino', '#e2d5c3'], ['Noce', '#5c3a21'], ['Bouclé', '#f5f5dc'], ['Ottone', '#d4af37']].forEach((s2, i) => { ctx.beginPath(); ctx.arc(40 + i * 90, H - 50, 14, 0, 7); ctx.fillStyle = s2[1]; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.stroke(); ctx.fillStyle = '#cbd5e1'; ctx.font = '10px sans-serif'; ctx.fillText(s2[0], 58 + i * 90, H - 46); });
+  MV_LBL(ctx, '1C /exploded — esploso tecnico arredo + swatches materiali', W, H); MV_PRODCAP(ctx, W);
+}
+function d2A(ctx, W, H, t) {
+  MV_BG(ctx, W, H); const A = typeof APOLLO_VAULT_STATE !== 'undefined' ? APOLLO_VAULT_STATE : { rotation: 0, tilt: 15, zoom: 50 }, cw = W / 3, ch = (H - 22) / 3;
+  for (let i = 0; i < 9; i++) { const cx = (i % 3) * cw, cy = Math.floor(i / 3) * ch, rot = ((i % 3) - 1) * 18 + A.rotation / 10 + Math.sin(t) * 3, zm = 1 + ((24 + (i * 61 / 8)) - 24) / 61 * .9 + (A.zoom - 50) / 200;
+    ctx.save(); ctx.beginPath(); ctx.rect(cx + 2, cy + 2, cw - 4, ch - 4); ctx.clip(); ctx.translate(cx + cw / 2, cy + ch / 2); ctx.rotate(rot * Math.PI / 180); ctx.scale(zm, zm); mvDrawMaster(ctx, -cw / 2, -ch / 2 + A.tilt / 4, cw, ch, 0); ctx.restore(); ctx.fillStyle = '#fff'; ctx.font = '9px monospace'; ctx.fillText(`${Math.round(24 + i * 61 / 8)}mm`, cx + 6, cy + 12); }
+  MV_LBL(ctx, `2A /cube3x3 — Rot ${A.rotation}° Tilt ${A.tilt}° Zoom ${A.zoom}mm (9 viste coerenti)`, W, H);
+}
+function d2B(ctx, W, H, t) {
+  MV_BG(ctx, W, H); const T = t % 8, items = [[.15, .62, .7, .25, MV_MATS[MV.mat][0], 0], [.15, .22, .06, .4, MV_MATS[MV.mat][1], .6], [.79, .22, .06, .4, MV_MATS[MV.mat][1], .9], [.15, .15, .7, .07, '#78503c', 1.3], [.28, .4, .14, .22, '#93c5fd', 1.8], [.58, .4, .14, .22, '#93c5fd', 2.1], [.4, .5, .2, .12, '#be185d', 2.6]];
+  items.forEach(([x, y, w, h, c, d]) => { const q = Math.max(0, Math.min(1, (T - d) / 1.1)), e = 1 - Math.pow(1 - q, 3), bounce = q >= 1 ? 0 : 0; ctx.fillStyle = c; ctx.fillRect(x * W, (y * H) - (1 - e) * H * 1.1 + bounce, w * W, h * H); });
+  MV_LBL(ctx, '2B /gravity — Gravity Build slow-motion', W, H); MV_PRODCAP(ctx, W);
+}
+function d2C(ctx, W, H, t) {
+  const T = t % 12; if (T < 5) { MV_BG(ctx, W, H); ctx.fillStyle = '#6b4a2b'; ctx.fillRect(0, H * .55, W, H * .45); ctx.beginPath(); ctx.arc(W * (.2 + Math.min(1, T / 3) * .3), H * .68, 34, 0, 7); ctx.fillStyle = MV_MATS[MV.mat][0]; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.stroke(); MV_LBL(ctx, '2C /matchcut — campione fisico sul tavolo', W, H); return; }
+  const q = (T - 5) / 7; if (T < 5.2) { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); return; }
+  ctx.save(); ctx.translate(W / 2 + Math.sin(t * 1.3) * 12, H / 2); ctx.rotate(Math.sin(t * .9) * .03); const z = 1 + q * .9; ctx.scale(z, z); mvRestyled(ctx, -W / 2, -H / 2, W, H); ctx.restore(); MV_LBL(ctx, '2C FPV drone one-take — volo continuo nella scena', W, H); MV_PRODCAP(ctx, W);
+}
+function d3(ctx, W, H, t, pl) { MV_BG(ctx, W, H); mvDrawMaster(ctx, 0, 0, W, H, .65); drawLuxuryScene(ctx, W, H, pl.key || 'ISO_CUTAWAY'); MV_PRODCAP(ctx, W); }
+function d4(ctx, W, H, t) {
+  MV_BG(ctx, W, H); const s = Math.floor(t / 3) % 5 + 1, p = (t % 3) / 3, g = mvGeom(), nm = ['', 'Pianta dall\'alto', 'Assonometria con Tetto', 'Assonometria Tetto Nascosto', 'Solo Pareti, Aperture & Reti', 'Modello Completo con Arredi'];
+  mvDrawVolume(ctx, W, H, { scene: s, progress: s === 4 ? p : 1, mep: s === 4 ? { el: p > .3, idr: p > .5, hvac: p > .7, gas: p > .85 } : undefined, furn: s === 5 ? p > .2 : undefined });
+  MV_LBL(ctx, `4 — Scena ${s}/5: ${nm[s]} · Σ scarto quote ${g.err.toFixed(1)} cm · H ${MV.vol.H} cm`, W, H);
+}
+const MV_PL = [
+  ['1', '1A', '/board — One Plan → 6 Drawings A3', d1A, 'Dalla pianta alla tavola A3: assonometria, sezione, zoning e volume in sei passi.'], ['1', '1B', '/overlay — Renovation White-Wireframe', d1B, 'Sul rilievo grezzo traccio le linee bianche CAD con quote in millimetri, poi appare il render.'],
+  ['1', '1C', '/exploded — Esploso Arredo & Swatches', d1C, 'Esploso tecnico dell\'arredo su misura con campioni dei materiali.'],
+  ['2', '2A', '/cube3x3 — Cubo Camera 3D', d2A, 'Nove inquadrature coerenti da ventiquattro a ottantacinque millimetri.'], ['2', '2B', '/gravity — Gravity Build', d2B, 'Muri, vetrate e arredi scendono dall\'alto e si incastrano.'],
+  ['2', '2C', '/matchcut — Match-Cut + FPV Drone', d2C, 'Dal campione sul tavolo al volo continuo dentro la stanza.'],
+  ['3', '3A', '13 Archetipi Luxury', d3, 'Archetipo luxury dal volume master.'], ['4', '4', 'Video 4 — 5 Scene SketchUp', d4, 'Sequenza tecnica delle cinque scene con verifica quote in centimetri.']
+];
+const MV_CH = { 1: '📘 CAPITOLO 1 · Video 1 @architect.apollo', 2: '📗 CAPITOLO 2 · Video 2 @izun.studio', 3: '📙 CAPITOLO 3 · Video 3 @renderdilusso', 4: '📕 CAPITOLO 4 · Video 4 @aiperarchitetti' };
+function mvBuildPlayers() {
+  let h = '', last = '';
+  MV_PL.forEach(([ch, id, title]) => {
+    if (ch !== last) { h += `<div style="margin:8px 0 2px;font-weight:800;color:#7dd3fc;font-size:.74rem">${MV_CH[ch]}</div>`; last = ch; }
+    h += `<div style="display:inline-block;margin:4px;vertical-align:top"><div style="font-size:.66rem;color:#cbd5e1">${id} ${title}</div><canvas id="mvp_${id}" width="400" height="225" style="width:360px"></canvas><div class="mvr">
+      <button class="btn btn-cyan" onclick="mvPlay('${id}')">▶</button><button class="btn" onclick="mvStop('${id}')">⏹</button><button class="btn" onclick="mvExportWebm('${id}')">⏺ .WEBM</button><button class="btn" onclick="mvNarratePl('${id}')">🎙️</button>
+      ${id === '3A' ? '<select onchange="MV.players[\'3A\'].key=this.value;mvStaticPlayers()">' + Object.keys(LUXURY_4K_ARCHETYPES).map(k => `<option>${k}</option>`).join('') + '</select>' : ''}</div></div>`;
+    const cv = () => $mv('mvp_' + id); MV.players[id] = MV.players[id] || {}; Object.assign(MV.players[id], { id, draw: MV_PL.find(p => p[1] === id)[3], text: MV_PL.find(p => p[1] === id)[4], playing: false, t0: 0, cv });
+  }); $mv('mvChapters').innerHTML = h;
+}
+function mvFrame(pl, t) { const c = pl.cv ? pl.cv() : null; if (!c) return; const x = c.getContext('2d'); x.save(); pl.draw(x, c.width, c.height, t, pl); x.restore(); if ($mv('mvFx')?.checked) applyEnhancerPostFx(x, c.width, c.height); }
+function mvStaticPlayers() { Object.values(MV.players).forEach(p => { if (!p.playing && p.cv && p.cv()) mvFrame(p, 1); }); const dc = $mv('mvDocCv'); if (dc && !MV.doc.playing) mvDocFrame(0.5); }
+window.mvPlay = id => { const p = MV.players[id]; p.playing = true; p.t0 = performance.now(); mvLoop(); };
+window.mvStop = id => { MV.players[id].playing = false; };
+window.mvPlayAll = () => Object.keys(MV.players).forEach(mvPlay); window.mvStopAll = () => Object.keys(MV.players).forEach(mvStop);
+window.mvNarratePl = id => mvNarrate(MV.players[id].text + (MV.products.length ? ' Prodotti impiegati: ' + MV.products.map(p => p.name).join(', ') + '.' : ''));
+let mvRaf = 0;
+function mvLoop() { if (mvRaf) return; const f = () => { let any = false; Object.values(MV.players).forEach(p => { if (p.playing) { any = true; mvFrame(p, (performance.now() - p.t0) / 1000); } }); if (MV.doc.playing) { any = true; mvDocFrame((performance.now() - MV.doc.t0) / 1000); } mvRaf = any ? requestAnimationFrame(f) : 0; }; mvRaf = requestAnimationFrame(f); }
+window.mvExportWebm = function (id) {
+  const isDoc = id === 'doc', c = isDoc ? $mv('mvDocCv') : $mv('mvp_' + id); if (!c || !c.captureStream || !window.MediaRecorder) { appendLog('⚠️ Export WEBM non supportato in questo browser.'); return; }
+  const dur = isDoc ? +$mv('mvDur').value : 12, rec = new MediaRecorder(c.captureStream(30), { mimeType: 'video/webm' }), chunks = [];
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); a.download = `CADBridge_video_${id}_${Date.now()}.webm`; a.click(); appendLog(`⏺ Export .WEBM ${id} completato (senza audio: la voce di sistema non è registrabile dal canvas).`); };
+  if (isDoc) mvPlayDoc(); else mvPlay(id); rec.start(); appendLog(`⏺ Registrazione ${id}: ${dur}s…`); setTimeout(() => { rec.stop(); }, dur * 1000 + 300);
+};
+
+/* --- documentario 6 atti --- */
+function mvDocScriptArr() {
+  const g = mvGeom(), notes = MV.inputs.slice(-3).map(i => i.text).join('; ') || 'nessuna annotazione', act = Object.keys(MV.intv).filter(k => MV.intv[k]).join(', ') || 'nessun intervento', pr = MV.products.map(p => p.name).join(', ') || 'nessun prodotto selezionato';
+  return ['Stato di fatto: ' + g.area.toFixed(1) + ' metri quadri, altezza ' + MV.vol.H + ' centimetri, scarto di chiusura quote ' + g.err.toFixed(1) + ' centimetri. Diagnosi delle criticità esterne e interne.',
+    'Sovrapposizione di schizzi, schemi e note vocali: ' + notes + '. Wireframe bianco CAD con quote.',
+    'Trasformazione dei materiali: ' + act + '. Motivazioni estetiche, energetiche e di valore. Prodotti: ' + pr + '.',
+    'Esplorazione multi camera, tavola A3, spaccato con reti MEP e le cinque scene SketchUp.',
+    'Studio solare diurno e notturno a 2700 kelvin e sei zoom macro sui nuovi materiali.',
+    'Confronto finale prima e dopo con i benefici ottenuti: comfort, classe energetica e valore dell\'immobile.'];
+}
+window.mvDocScript = function () { const d = +$mv('mvDur').value, a = d / 6, s = mvDocScriptArr(); $mv('mvDocTxt').textContent = s.map((t, i) => `Atto ${i + 1} (${Math.round(i * a)}–${Math.round((i + 1) * a)}s): ${t}`).join('\n'); };
+function mvDocFrame(t) {
+  const c = $mv('mvDocCv'); if (!c) return; const x = c.getContext('2d'), W = c.width, H = c.height, d = +$mv('mvDur').value, al = d / 6, k = Math.min(5, Math.floor(t / al)), p = (t % al) / al, tt = t;
+  x.save(); MV_BG(x, W, H);
+  if (k === 0) { mvDrawMaster(x, 0, 0, W, H, .35); x.fillStyle = '#fff'; x.font = 'bold 14px sans-serif'; x.fillText('STATO DI FATTO — rilievo quote in cm', 14, 24); mvDrawVolume(x, W * .45, H * .55, { scene: 1 }); }
+  else if (k === 1) { mvDrawMaster(x, 0, 0, W, H, .45); mvDrawVolume(x, W, H, { scene: 3, wire: true, progress: Math.min(1, p * 1.5) }); mvDrawStrokes(x, 0, 0, W, H); MV.schemes.slice(-3).forEach((im, i) => x.drawImage(im, 12 + i * 90, H - 80, 80, 60)); x.fillStyle = '#fff'; x.font = '12px sans-serif'; MV.inputs.slice(-3).forEach((n, i) => x.fillText(`• ${n.text}`.slice(0, 70), 12, 40 + i * 16)); }
+  else if (k === 2) { mvDrawMaster(x, 0, 0, W, H, 0); x.save(); x.beginPath(); x.rect(0, 0, W * p, H); x.clip(); mvRestyled(x, 0, 0, W, H); x.restore(); x.fillStyle = '#fff'; x.fillRect(W * p - 1, 0, 2, H); }
+  else if (k === 3) { const q = Math.floor(p * 4); if (q === 0) d2A(x, W, H, tt); else if (q === 1) d1A(x, W, H, tt); else if (q === 2) d4(x, W, H, 9 + p * 3); else d4(x, W, H, tt); }
+  else if (k === 4) { if (p < .5) { MV_BG(x, W, H); drawLuxuryScene(x, W, H, 'ISO_CUTAWAY'); } else { const z = Math.floor((p - .5) * 12); x.save(); const f = 1.4 + ((p * 12) % 1) * .6, cx = [.3, .7, .5, .25, .75, .5][z % 6], cy = [.4, .5, .3, .6, .6, .5][z % 6]; x.translate(W / 2, H / 2); x.scale(f, f); x.translate(-W * cx, -H * cy); mvRestyled(x, 0, 0, W, H); x.restore(); x.fillStyle = '#fff'; x.font = '12px sans-serif'; x.fillText(`Macro ${z % 6 + 1}/6`, 12, 20); } }
+  else { const w = W * (.5 + .5 * Math.sin(p * Math.PI * 2)); mvDrawMaster(x, 0, 0, W, H, 0); x.save(); x.beginPath(); x.rect(w, 0, W - w, H); x.clip(); mvRestyled(x, 0, 0, W, H); x.restore(); x.fillStyle = '#fff'; x.fillRect(w - 1, 0, 2, H); x.font = 'bold 13px sans-serif'; x.fillText('PRIMA', 12, 20); x.fillText('DOPO', W - 56, 20); x.fillText('Benefici: comfort · classe energetica · valore', 12, H - 30); }
+  MV_LBL(x, `Atto ${k + 1}/6 · ${Math.floor(t)}s / ${d}s`, W, H); MV_PRODCAP(x, W); x.restore(); if ($mv('mvFx')?.checked) applyEnhancerPostFx(x, W, H);
+}
+window.mvPlayDoc = () => { MV.doc.playing = true; MV.doc.t0 = performance.now(); mvLoop(); setTimeout(() => { if (MV.doc.playing && (performance.now() - MV.doc.t0) / 1000 > +$mv('mvDur').value) MV.doc.playing = false; }, (+$mv('mvDur').value) * 1000 + 400); };
+window.mvStopDoc = () => { MV.doc.playing = false; HumanVoiceOrchestrator.stop(); };
+window.mvNarrateDoc = function () { const s = mvDocScriptArr(); let i = 0; const next = () => { if (i < s.length) mvNarrate(s[i++], next); }; mvPlayDoc(); next(); };
+
+/* --- init --- */
+function mvInit() {
+  if (!$mv('tab-multivideo')) return; const sb = $mv('mvSceneBtns');
+  sb.innerHTML = ['1 Pianta', '2 Assonometria+Tetto', '3 Tetto nascosto', '4 Pareti/Aperture/Reti', '5 Completo+Arredi'].map((n, i) => `<button class="btn" onclick="MV.scene=${i + 1};mvRefresh()">${n}</button>`).join('');
+  mvBuildPlayers(); mvIntvUI(); mvCatSearch(); mvInitDraw(); mvParseQuotes(); mvRefresh();
+  document.querySelectorAll('[data-tab="tab-multivideo"]').forEach(b => b.addEventListener('click', () => setTimeout(mvRefresh, 60)));
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mvInit); else mvInit();
