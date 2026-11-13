@@ -6198,12 +6198,26 @@ window.mvPlayAll = () => Object.keys(MV.players).forEach(mvPlay); window.mvStopA
 window.mvNarratePl = id => mvNarrate(MV.players[id].text + (MV.products.length ? ' Prodotti impiegati: ' + MV.products.map(p => p.name).join(', ') + '.' : ''));
 let mvRaf = 0;
 function mvLoop() { if (mvRaf) return; const f = () => { let any = false; Object.values(MV.players).forEach(p => { if (p.playing) { any = true; mvFrame(p, (performance.now() - p.t0) / 1000); } }); if (MV.doc.playing) { any = true; mvDocFrame((performance.now() - MV.doc.t0) / 1000); } mvRaf = any ? requestAnimationFrame(f) : 0; }; mvRaf = requestAnimationFrame(f); }
-window.mvExportWebm = function (id) {
-  const isDoc = id === 'doc', c = isDoc ? $mv('mvDocCv') : $mv('mvp_' + id); if (!c || !c.captureStream || !window.MediaRecorder) { appendLog('⚠️ Export WEBM non supportato in questo browser.'); return; }
-  const dur = isDoc ? +$mv('mvDur').value : 12, rec = new MediaRecorder(c.captureStream(30), { mimeType: 'video/webm' }), chunks = [];
+window.mvExportWebm = async function (id) {
+  const isDoc = id === 'doc', c = isDoc ? $mv('mvDocCv') : $mv('mvp_' + id);
+  if (!c || !c.captureStream || !window.MediaRecorder) { appendLog('⚠️ Export WEBM non supportato in questo browser.'); return; }
+  const dur = isDoc ? +$mv('mvDur').value : 12, stream = c.captureStream(30);
+  const text = humanizeIT(isDoc ? mvDocScriptArr().join(' ') : (MV.players[id].text || ''));
+  let src = null, actx = null, audioOk = false;
+  try { // voce neurale edge-tts dal bridge locale → traccia audio nel WEBM
+    const key = localStorage.getItem('xvideo_voice_key'), voice = (!key || key === 'auto') ? 'giuseppe' : key;
+    const rate = parseFloat(localStorage.getItem('xvideo_voice_rate')) || 1, pitch = parseFloat(localStorage.getItem('xvideo_voice_pitch')) || 1;
+    const q = new URLSearchParams({ text, voice, rate: ((rate - 1) * 100 >= 0 ? '+' : '') + Math.round((rate - 1) * 100) + '%', pitch: ((pitch - 1) * 100 >= 0 ? '+' : '') + Math.round((pitch - 1) * 100) + 'Hz' });
+    const r = await fetch('/api/tts?' + q); if (!r.ok) throw new Error('tts ' + r.status);
+    actx = new (window.AudioContext || window.webkitAudioContext)(); const buf = await actx.decodeAudioData(await r.arrayBuffer());
+    const dest = actx.createMediaStreamDestination(); src = actx.createBufferSource(); src.buffer = buf; src.connect(dest);
+    dest.stream.getAudioTracks().forEach(t => stream.addTrack(t)); audioOk = true;
+  } catch (e) { appendLog('ℹ️ Export senza audio: bridge TTS non raggiungibile (apri l\'app da http://localhost:8088). ' + (e.message || '')); }
+  const rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus') ? 'video/webm;codecs=vp9,opus' : 'video/webm' }), chunks = [];
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
-  rec.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); a.download = `CADBridge_video_${id}_${Date.now()}.webm`; a.click(); appendLog(`⏺ Export .WEBM ${id} completato (senza audio: la voce di sistema non è registrabile dal canvas).`); };
-  if (isDoc) mvPlayDoc(); else mvPlay(id); rec.start(); appendLog(`⏺ Registrazione ${id}: ${dur}s…`); setTimeout(() => { rec.stop(); }, dur * 1000 + 300);
+  rec.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); a.download = `CADBridge_video_${id}_${Date.now()}.webm`; a.click(); actx && actx.close(); appendLog(`⏺ Export .WEBM ${id} completato ${audioOk ? 'con voce neurale' : 'senza audio'}.`); };
+  if (isDoc) mvPlayDoc(); else mvPlay(id);
+  rec.start(); if (src) src.start(); appendLog(`⏺ Registrazione ${id}: ${dur}s…`); setTimeout(() => rec.stop(), dur * 1000 + 300);
 };
 
 /* --- documentario 6 atti --- */
