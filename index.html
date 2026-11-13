@@ -344,6 +344,9 @@
               </div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;">
                 <button type="button" class="btn btn-cyan" onclick="generaComputo()" style="font-size:10px;padding:5px 9px;">📊 Genera Computo</button>
+                <button type="button" class="btn" onclick="quantitySurveyFromVolume()" style="font-size:10px;padding:5px 9px;">📐 Da Quote Volume 3D</button>
+                <button type="button" class="btn" onclick="exportComputoCSV()" style="font-size:10px;padding:5px 9px;">📥 .CSV</button>
+                <button type="button" class="btn" onclick="exportComputoJSON()" style="font-size:10px;padding:5px 9px;">📥 .JSON</button>
                 <button type="button" class="btn" onclick="exportDossierPDF()" style="font-size:10px;padding:5px 9px;background:#059669;color:#fff;">📄 Esporta Dossier PDF</button>
               </div>
               <div id="computoOut" style="margin-top:6px;font-size:0.68rem;color:#e2e8f0;overflow-x:auto;"></div>
@@ -1977,6 +1980,8 @@
             <option value="travertino">Travertino Romano</option><option value="noce">Noce Cannettato</option><option value="parquet">Parquet Spina</option>
             <option value="marmo">Marmo Policromo &amp; Velluto</option><option value="resina">Resina</option></select></label>
           <label><input type="checkbox" id="mvFx" checked onchange="mvRefresh()"> Applica Enhancer ai video</label>
+          <label><input type="checkbox" id="mvWebglPbr" checked onchange="mvRefresh()"> ✨ RealLux WebGL PBR (Speculare + AO)</label>
+          <label>Export Video <select id="mvExportRes"><option value="1280x720">720p HD</option><option value="1920x1080" selected>1080p FullHD</option><option value="3840x2160">4K UHD</option></select></label>
           <label>LUT <select id="mvLut" onchange="mvFxChange()"><option value="warm_ad">AD Warm Gold</option><option value="deco_onyx">Art Deco Pastel</option><option value="nordic">Lago Clean</option><option value="blue_hour">Blue Hour</option></select></label>
         </div>
         <div class="mvr">

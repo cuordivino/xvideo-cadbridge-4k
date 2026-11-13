@@ -6074,6 +6074,7 @@ window.mvVolChanged = function () { mvParseQuotes(); mvRefresh(); };
 window.mvRefresh = function () {
   mvParseQuotes(); const c = $mv('mvVolCv'); if (!c) return; const x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height);
   mvDrawVolume(x, c.width, c.height, { scene: MV.scene }); if ($mv('mvFx')?.checked) applyEnhancerPostFx(x, c.width, c.height);
+  if ($mv('mvWebglPbr')?.checked && typeof RealLuxPBR !== 'undefined') RealLuxPBR.apply(c);
   x.fillStyle = '#e2e8f0'; x.font = 'bold 11px sans-serif'; x.fillText(['', '1. Pianta dall\'alto', '2. Assonometria con Tetto', '3. Assonometria Tetto Nascosto', '4. Solo Pareti, Aperture & Reti', '5. Modello Completo con Arredi'][MV.scene], 10, 16);
   const g = mvGeom(), rai = g.area > 0 ? MV.vol.win / g.area : 0;
   $mv('mvVolInfo').textContent = `Σdx=${g.ex.toFixed(1)} cm  Σdy=${g.ey.toFixed(1)} cm  scarto di chiusura=${g.err.toFixed(1)} cm\nSup.=${g.area.toFixed(2)} mq  H=${MV.vol.H} cm  RAI=${rai.toFixed(3)} (${rai >= .125 ? 'OK ≥ 1/8' : 'INSUFFICIENTE: servono ' + (g.area / 8).toFixed(2) + ' mq finestrati'})`;
@@ -6360,12 +6361,17 @@ window.mvNarratePl = id => mvNarrate(MV.players[id].text + (MV.products.length ?
 let mvRaf = 0;
 function mvLoop() { if (mvRaf) return; const f = () => { let any = false; Object.values(MV.players).forEach(p => { if (p.playing) { any = true; mvFrame(p, (performance.now() - p.t0) / 1000); } }); if (MV.doc.playing) { any = true; mvDocFrame((performance.now() - MV.doc.t0) / 1000); } mvRaf = any ? requestAnimationFrame(f) : 0; }; mvRaf = requestAnimationFrame(f); }
 window.mvExportWebm = async function (id) {
-  const isDoc = id === 'doc', c = isDoc ? $mv('mvDocCv') : $mv('mvp_' + id);
-  if (!c || !c.captureStream || !window.MediaRecorder) { appendLog('⚠️ Export WEBM non supportato in questo browser.'); return; }
-  const dur = isDoc ? +$mv('mvDur').value : 12, stream = c.captureStream(30);
+  const isDoc = id === 'doc', srcCv = isDoc ? $mv('mvDocCv') : $mv('mvp_' + id);
+  if (!srcCv || !window.MediaRecorder) { appendLog('⚠️ MediaRecorder non supportato.'); return; }
+  const resVal = ($mv('mvExportRes')?.value || '1920x1080').split('x').map(Number);
+  const EW = resVal[0] || 1920, EH = resVal[1] || 1080;
+  const hdCv = document.createElement('canvas'); hdCv.width = EW; hdCv.height = EH;
+  const hdCtx = hdCv.getContext('2d');
+  const dur = isDoc ? +$mv('mvDur').value : 12;
+  const stream = hdCv.captureStream(30);
   const text = humanizeIT(isDoc ? mvDocScriptArr().join(' ') : (MV.players[id].text || ''));
   let src = null, actx = null, audioOk = false;
-  try { // voce neurale edge-tts dal bridge locale → traccia audio nel WEBM
+  try {
     const key = localStorage.getItem('xvideo_voice_key'), voice = (!key || key === 'auto') ? 'giuseppe' : key;
     const rate = parseFloat(localStorage.getItem('xvideo_voice_rate')) || 1, pitch = parseFloat(localStorage.getItem('xvideo_voice_pitch')) || 1;
     const q = new URLSearchParams({ text, voice, rate: ((rate - 1) * 100 >= 0 ? '+' : '') + Math.round((rate - 1) * 100) + '%', pitch: ((pitch - 1) * 100 >= 0 ? '+' : '') + Math.round((pitch - 1) * 100) + 'Hz' });
@@ -6373,12 +6379,17 @@ window.mvExportWebm = async function (id) {
     actx = new (window.AudioContext || window.webkitAudioContext)(); const buf = await actx.decodeAudioData(await r.arrayBuffer());
     const dest = actx.createMediaStreamDestination(); src = actx.createBufferSource(); src.buffer = buf; src.connect(dest);
     dest.stream.getAudioTracks().forEach(t => stream.addTrack(t)); audioOk = true;
-  } catch (e) { appendLog('ℹ️ Export senza audio: bridge TTS non raggiungibile (apri l\'app da http://localhost:8088). ' + (e.message || '')); }
-  const rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus') ? 'video/webm;codecs=vp9,opus' : 'video/webm' }), chunks = [];
+  } catch (e) { appendLog('ℹ️ Export senza audio: bridge TTS offline (' + (e.message || '') + ').'); }
+  const codecInfo = typeof VideoEncoder !== 'undefined' ? 'WebCodecs+MediaRecorder' : 'MediaRecorder';
+  const bps = EW >= 3840 ? 18000000 : 8000000;
+  const rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus') ? 'video/webm;codecs=vp9,opus' : 'video/webm', videoBitsPerSecond: bps }), chunks = [];
+  let pump = true;
+  const copyLoop = () => { if (!pump) return; hdCtx.drawImage(srcCv, 0, 0, EW, EH); requestAnimationFrame(copyLoop); };
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
-  rec.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); a.download = `CADBridge_video_${id}_${Date.now()}.webm`; a.click(); actx && actx.close(); appendLog(`⏺ Export .WEBM ${id} completato ${audioOk ? 'con voce neurale' : 'senza audio'}.`); };
+  rec.onstop = () => { pump = false; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); a.download = `CADBridge_${EW}x${EH}_${id}_${Date.now()}.webm`; a.click(); actx && actx.close(); appendLog(`⏺ Export .WEBM ${EW}×${EH} (${codecInfo}) ${audioOk ? 'con voce neurale' : 'solo video'} completato.`); };
   if (isDoc) mvPlayDoc(); else mvPlay(id);
-  rec.start(); if (src) src.start(); appendLog(`⏺ Registrazione ${id}: ${dur}s…`); setTimeout(() => rec.stop(), dur * 1000 + 300);
+  copyLoop(); rec.start(); if (src) src.start(); appendLog(`⏺ Registrazione ${EW}×${EH} (${dur}s)...`);
+  setTimeout(() => rec.stop(), dur * 1000 + 350);
 };
 
 /* --- documentario 6 atti --- */
@@ -6542,3 +6553,88 @@ window.atlasExportDevSpec = function () {
 };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dirRender); else dirRender();
+
+
+/* ===== v12: REAL-LUX WEBGL PBR SHADER ENGINE + QUANTITY SURVEYOR CSV/JSON ===== */
+const RealLuxPBR = {
+  _gl: null, _prog: null, _cv: null, _tex: null,
+  init(w, h) {
+    const cv = this._cv || (this._cv = document.createElement('canvas'));
+    cv.width = w; cv.height = h;
+    if (this._gl) return true;
+    const gl = cv.getContext('webgl', { preserveDrawingBuffer: true });
+    if (!gl) return false;
+    const vs = 'attribute vec2 p;varying vec2 v;void main(){v=p*0.5+0.5;v.y=1.0-v.y;gl_Position=vec4(p,0.0,1.0);}';
+    const fs = `precision mediump float;uniform sampler2D u_tex;uniform vec2 u_res;uniform float u_time;varying vec2 v;
+      void main(){
+        vec4 c=texture2D(u_tex,v);
+        vec2 px=1.0/u_res;
+        float l0=dot(c.rgb,vec3(0.299,0.587,0.114));
+        float lx=dot(texture2D(u_tex,v+vec2(px.x,0.0)).rgb,vec3(0.299,0.587,0.114));
+        float ly=dot(texture2D(u_tex,v+vec2(0.0,px.y)).rgb,vec3(0.299,0.587,0.114));
+        vec3 n=normalize(vec3((l0-lx)*4.0,(l0-ly)*4.0,1.0));
+        vec3 ld=normalize(vec3(sin(u_time*0.6)*0.6,cos(u_time*0.4)*0.5,1.0));
+        vec3 h=normalize(ld+vec3(0.0,0.0,1.0));
+        float spec=pow(max(dot(n,h),0.0),28.0)*0.32;
+        float ao=1.0-clamp((abs(l0-lx)+abs(l0-ly))*1.6,0.0,0.35);
+        float vig=1.0-dot(v-0.5,v-0.5)*0.35;
+        gl_FragColor=vec4(c.rgb*ao*vig+vec3(spec),c.a);
+      }`;
+    const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; };
+    const p = gl.createProgram();
+    gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(p); gl.useProgram(p);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(p, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    this._tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this._tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    this._gl = gl; this._prog = p; return true;
+  },
+  apply(targetCanvas) {
+    if (!targetCanvas || !this.init(targetCanvas.width, targetCanvas.height)) return;
+    const gl = this._gl, p = this._prog;
+    gl.viewport(0, 0, targetCanvas.width, targetCanvas.height);
+    gl.bindTexture(gl.TEXTURE_2D, this._tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, targetCanvas);
+    gl.uniform2f(gl.getUniformLocation(p, 'u_res'), targetCanvas.width, targetCanvas.height);
+    gl.uniform1f(gl.getUniformLocation(p, 'u_time'), performance.now() / 1000);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    const ctx = targetCanvas.getContext('2d');
+    ctx.drawImage(this._cv, 0, 0);
+  }
+};
+window.RealLuxPBR = RealLuxPBR;
+
+window.quantitySurveyFromVolume = function () {
+  if (typeof mvGeom !== 'function') return;
+  const g = mvGeom();
+  const mq = Math.max(1, Math.round(g.area));
+  if (document.getElementById('computoMq')) document.getElementById('computoMq').value = mq;
+  const d = window.generaComputo();
+  let perim = 0;
+  g.pts.forEach((p, i) => { const q = g.pts[(i + 1) % g.pts.length]; perim += Math.hypot(q[0] - p[0], q[1] - p[1]) / 100; });
+  appendLog(`📐 Quantity Surveyor: perimetro=${perim.toFixed(2)}m, sup.=${g.area.toFixed(2)}mq, pareti=${(perim * MV.vol.H / 100).toFixed(2)}mq → Computo aggiornato (${_eur(d.totale)}).`);
+  return d;
+};
+
+window.exportComputoCSV = function () {
+  const d = window.computoData || window.generaComputo();
+  const lines = ['Categoria;Descrizione;UM;Quantita;PrezzoUnitarioEUR;TotaleEUR;Fonte'];
+  d.righe.forEach(r => lines.push(`"${r.cat}";"${r.desc}";${r.um};${r.qta};${r.pu.toFixed(2)};${r.tot.toFixed(2)};"${r.fonte}"`));
+  lines.push(`"RIEPILOGO";"COSTO PRESUNTO OPERA (IVA inc.)";"";1;;${d.totale.toFixed(2)};"Quadro Economico"`);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' }));
+  a.download = `Computo_Metrico_${Date.now()}.csv`; a.click();
+  appendLog('📥 Esportato Computo Metrico strutturato (.CSV).');
+};
+
+window.exportComputoJSON = function () {
+  const d = window.computoData || window.generaComputo();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }));
+  a.download = `Computo_Metrico_${Date.now()}.json`; a.click();
+  appendLog('📥 Esportato Computo Metrico strutturato (.JSON).');
+};
