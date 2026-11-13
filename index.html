@@ -1981,6 +1981,8 @@
             <option value="marmo">Marmo Policromo &amp; Velluto</option><option value="resina">Resina</option></select></label>
           <label><input type="checkbox" id="mvFx" checked onchange="mvRefresh()"> Applica Enhancer ai video</label>
           <label><input type="checkbox" id="mvWebglPbr" checked onchange="mvRefresh()"> ✨ RealLux WebGL PBR (Speculare + AO)</label>
+          <label><input type="checkbox" id="mvControlNet" onchange="mvRefresh()"> 🧠 ControlNet Canny/Depth</label>
+          <button type="button" class="btn" onclick="exportControlNetMaps()">📥 Export ControlNet Maps</button>
           <label>Export Video <select id="mvExportRes"><option value="1280x720">720p HD</option><option value="1920x1080" selected>1080p FullHD</option><option value="3840x2160">4K UHD</option></select></label>
           <label>LUT <select id="mvLut" onchange="mvFxChange()"><option value="warm_ad">AD Warm Gold</option><option value="deco_onyx">Art Deco Pastel</option><option value="nordic">Lago Clean</option><option value="blue_hour">Blue Hour</option></select></label>
         </div>

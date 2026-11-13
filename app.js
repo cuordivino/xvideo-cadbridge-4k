@@ -6075,6 +6075,7 @@ window.mvRefresh = function () {
   mvParseQuotes(); const c = $mv('mvVolCv'); if (!c) return; const x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height);
   mvDrawVolume(x, c.width, c.height, { scene: MV.scene }); if ($mv('mvFx')?.checked) applyEnhancerPostFx(x, c.width, c.height);
   if ($mv('mvWebglPbr')?.checked && typeof RealLuxPBR !== 'undefined') RealLuxPBR.apply(c);
+  if ($mv('mvControlNet')?.checked && typeof ControlNetBridge !== 'undefined') ControlNetBridge.overlayEdges(c);
   x.fillStyle = '#e2e8f0'; x.font = 'bold 11px sans-serif'; x.fillText(['', '1. Pianta dall\'alto', '2. Assonometria con Tetto', '3. Assonometria Tetto Nascosto', '4. Solo Pareti, Aperture & Reti', '5. Modello Completo con Arredi'][MV.scene], 10, 16);
   const g = mvGeom(), rai = g.area > 0 ? MV.vol.win / g.area : 0;
   $mv('mvVolInfo').textContent = `Σdx=${g.ex.toFixed(1)} cm  Σdy=${g.ey.toFixed(1)} cm  scarto di chiusura=${g.err.toFixed(1)} cm\nSup.=${g.area.toFixed(2)} mq  H=${MV.vol.H} cm  RAI=${rai.toFixed(3)} (${rai >= .125 ? 'OK ≥ 1/8' : 'INSUFFICIENTE: servono ' + (g.area / 8).toFixed(2) + ' mq finestrati'})`;
@@ -6637,4 +6638,55 @@ window.exportComputoJSON = function () {
   a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }));
   a.download = `Computo_Metrico_${Date.now()}.json`; a.click();
   appendLog('📥 Esportato Computo Metrico strutturato (.JSON).');
+};
+
+
+/* ===== v8.0: GITHUB RENDER PLUGIN BRIDGE — CONTROLNET CANNY + DEPTH MAP ===== */
+const ControlNetBridge = {
+  computeMaps(srcCanvas) {
+    const W = srcCanvas.width, H = srcCanvas.height;
+    const sCtx = srcCanvas.getContext('2d');
+    const src = sCtx.getImageData(0, 0, W, H).data;
+    const edgeCv = document.createElement('canvas'); edgeCv.width = W; edgeCv.height = H;
+    const depthCv = document.createElement('canvas'); depthCv.width = W; depthCv.height = H;
+    const eCtx = edgeCv.getContext('2d'), dCtx = depthCv.getContext('2d');
+    const eImg = eCtx.createImageData(W, H), dImg = dCtx.createImageData(W, H);
+    const ed = eImg.data, dd = dImg.data;
+    const lum = (i) => 0.299 * src[i] + 0.587 * src[i + 1] + 0.114 * src[i + 2];
+    for (let y = 1; y < H - 1; y++) {
+      for (let x = 1; x < W - 1; x++) {
+        const idx = (y * W + x) * 4;
+        const gx = -lum(((y-1)*W+(x-1))*4) + lum(((y-1)*W+(x+1))*4) - 2*lum((y*W+(x-1))*4) + 2*lum((y*W+(x+1))*4) - lum(((y+1)*W+(x-1))*4) + lum(((y+1)*W+(x+1))*4);
+        const gy = -lum(((y-1)*W+(x-1))*4) - 2*lum(((y-1)*W+x)*4) - lum(((y-1)*W+(x+1))*4) + lum(((y+1)*W+(x-1))*4) + 2*lum(((y+1)*W+x)*4) + lum(((y+1)*W+(x+1))*4);
+        const mag = Math.min(255, Math.hypot(gx, gy) > 55 ? 255 : 0);
+        ed[idx] = ed[idx+1] = ed[idx+2] = mag; ed[idx+3] = 255;
+        const depth = Math.max(0, Math.min(255, Math.round((y / H) * 140 + lum(idx) * 0.45)));
+        dd[idx] = dd[idx+1] = dd[idx+2] = depth; dd[idx+3] = 255;
+      }
+    }
+    eCtx.putImageData(eImg, 0, 0); dCtx.putImageData(dImg, 0, 0);
+    return { edgeCv, depthCv };
+  },
+  overlayEdges(targetCanvas) {
+    if (!targetCanvas) return;
+    const { edgeCv } = this.computeMaps(targetCanvas);
+    const ctx = targetCanvas.getContext('2d');
+    ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.55;
+    ctx.drawImage(edgeCv, 0, 0);
+    ctx.globalAlpha = 1; ctx.fillStyle = '#22d3ee'; ctx.font = 'bold 9px monospace';
+    ctx.fillText('🧠 CONTROLNET CANNY + DEPTH LOCK', 10, targetCanvas.height - 8);
+    ctx.restore();
+  }
+};
+window.ControlNetBridge = ControlNetBridge;
+
+window.exportControlNetMaps = function () {
+  const c = $mv('mvResCv') || $mv('mvVolCv');
+  if (!c) { appendLog('⚠️ Nessun canvas attivo per ControlNet.'); return; }
+  const { edgeCv, depthCv } = ControlNetBridge.computeMaps(c);
+  const dl = (cv, name) => { const a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = name; a.click(); };
+  const ts = Date.now();
+  dl(edgeCv, `ControlNet_Canny_Edge_${ts}.png`);
+  setTimeout(() => dl(depthCv, `ControlNet_Depth_Map_${ts}.png`), 250);
+  appendLog('🧠 Esportate mappe ControlNet (Canny Edge + Depth Map .PNG) pronte per GitHub Render Bridge.');
 };
