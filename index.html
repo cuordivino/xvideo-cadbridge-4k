@@ -239,6 +239,9 @@
       <button class="tab-btn" data-tab="tab-multivideo" id="multiVideoTabBtn">
         🎬 Multi-Video, Restyling &amp; Cataloghi
       </button>
+      <button class="tab-btn" data-tab="tab-direzione">
+        🏢 Direzione &amp; Agenti
+      </button>
     </nav>
 
     <!-- ====================================================================
@@ -2005,6 +2008,7 @@
         </div>
         <div id="mvCatList" class="mvg"></div>
         <div class="mvbox" id="mvInjected" style="margin-top:6px"></div>
+        <div class="mvr"><label class="btn" style="cursor:pointer">📥 Importa CSV prodotti (nome;fonte;url)<input type="file" accept=".csv,.txt" class="hidden" onchange="mvImportCsv(event)"></label></div>
         <div style="font-size:.6rem;color:#94a3b8">I portali non offrono API pubbliche accessibili dal browser: il catalogo qui è un elenco locale di categorie di prodotto di esempio; per prodotti/brand reali usa i pulsanti di ricerca e incolla nome e link.</div>
       </div>
 
@@ -2057,6 +2061,38 @@
     </section>
 
 
+      <section id="tab-direzione" class="tab-panel">
+      <style>
+        #tab-direzione .dc{background:#0f172a;border:1px solid rgba(168,85,247,.35);border-radius:12px;padding:10px;margin-bottom:10px}
+        #tab-direzione h3{margin:0 0 6px;font-size:.82rem;color:#c4b5fd}
+        #tab-direzione .dr{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0}
+        #tab-direzione .btn{font-size:10px;padding:5px 8px;white-space:nowrap}
+        #tab-direzione input,#tab-direzione select{background:#020617;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:4px 6px;font-size:.72rem}
+        #tab-direzione .org{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+        #tab-direzione .node{background:#020617;border:1px solid #1e293b;border-radius:8px;padding:6px;font-size:.68rem;color:#cbd5e1}
+        #tab-direzione .node b{color:#f8fafc}
+        #tab-direzione .bl{font-size:.7rem;color:#e2e8f0;background:#020617;border:1px solid #1e293b;border-radius:6px;padding:5px;margin:3px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+      </style>
+      <div class="dc">
+        <h3>🏢 Direzione &amp; Agenti — organigramma operativo</h3>
+        <div class="node" style="margin-bottom:8px"><b>👑 CEO (tu)</b> — decisioni finali, approvazione del rilascio.<br><b>🧭 Vice CEO "Atlas"</b> — coordina direttori e agenti, legge la roadmap, propone e (nel workspace di sviluppo) implementa migliorie; il rilascio su <code>main</code> resta approvato da te.</div>
+        <div id="dirOrg" class="org"></div>
+      </div>
+      <div class="dc">
+        <h3>📋 Roadmap &amp; Backlog autonomo</h3>
+        <div class="dr">
+          <input id="dirTitle" type="text" placeholder="Nuova miglioria / ticket" style="flex:1;min-width:180px">
+          <select id="dirAgent"></select>
+          <select id="dirPrio"><option>Alta</option><option selected>Media</option><option>Bassa</option></select>
+          <button class="btn btn-cyan" onclick="dirAdd()">➕ Aggiungi</button>
+          <button class="btn" onclick="dirDiagnose()">🔍 Auto-diagnosi Vice CEO</button>
+          <button class="btn" onclick="dirExport()">⬇️ Esporta ROADMAP.md</button>
+        </div>
+        <div id="dirBacklog"></div>
+      </div>
+    </section>
+
+
   <nav class="mobile-dock" aria-label="Menu Mobile">
     <button class="dock-item active" data-tab="tab-mobile-ai">
       <span>🤖📸</span>
@@ -2089,6 +2125,10 @@
     <button class="dock-item" data-tab="tab-multivideo">
       <span>🎬</span>
       <span>Multi-Video</span>
+    </button>
+    <button class="dock-item" data-tab="tab-direzione">
+      <span>🏢</span>
+      <span>Direzione</span>
     </button>
   </nav>
 

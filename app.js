@@ -6254,3 +6254,53 @@ function mvInit() {
   document.querySelectorAll('[data-tab="tab-multivideo"]').forEach(b => b.addEventListener('click', () => setTimeout(mvRefresh, 60)));
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mvInit); else mvInit();
+
+/* ===== v13: DIREZIONE — VICE CEO, 3 DIRETTORI, 12 AGENTI, BACKLOG, IMPORT CSV ===== */
+const DIR_ORG = [
+  { id: 'D1', name: '🛠️ Direttore Tecnologia & Qualità', agents: [['A1', 'Frontend/UI', 'Interfaccia, responsive, accessibilità'], ['A2', 'CAD & SketchUp Ruby', 'Parametrico, .rb, quote'], ['A3', 'QA & Test', 'Smoke test, node --check, regressioni'], ['A4', 'DevOps & Deploy', 'deploy_v3.py, Service Worker, versioning'], ['A5', 'Sicurezza & Privacy', 'Chiavi API, permessi, dati locali']] },
+  { id: 'D2', name: '🎬 Direttore Contenuti, Media & Voce', agents: [['A6', 'Regia Video', '13 archetipi, 4 capitoli, documentario'], ['A7', 'Voce & Narrazione', '10 voci neurali, humanizeIT, mix audio'], ['A8', 'Render & Immagini IA', 'Gemini/Imagen/Veo (con chiave API)']] },
+  { id: 'D3', name: '📈 Direttore Business, Mercato & Dati', agents: [['A9', 'Cataloghi & Prodotti', 'Import CSV, schede, iniezione modello'], ['A10', 'Computo & Capitolato', 'Prezzi, voci, PDF dossier'], ['A11', 'Marketing & Social', 'Spot, copy annunci, calendario 6h'], ['A12', 'Customer Success & Docs', 'Guide, onboarding, FAQ']] }
+];
+const DIR_AGENTS = DIR_ORG.flatMap(d => d.agents.map(a => ({ id: a[0], name: a[1], desc: a[2], dir: d.id })));
+const DIR_STATE = { backlog: JSON.parse(localStorage.getItem('xv_backlog') || 'null') || [
+  { id: 1, title: 'Verificare in browser il tab Multi-Video (player, export WEBM)', agent: 'A3', prio: 'Alta', st: 'todo' },
+  { id: 2, title: 'Integrare Gemini/Imagen/Veo lato bridge con chiave API', agent: 'A8', prio: 'Alta', st: 'todo' },
+  { id: 3, title: 'Import CSV prodotti dai portali (file scaricati dall\'utente)', agent: 'A9', prio: 'Media', st: 'done' }] };
+const dirSave = () => localStorage.setItem('xv_backlog', JSON.stringify(DIR_STATE.backlog));
+function dirRender() {
+  const $ = id => document.getElementById(id); if (!$('dirOrg')) return;
+  const cnt = a => DIR_STATE.backlog.filter(b => b.agent === a && b.st !== 'done').length;
+  $('dirOrg').innerHTML = DIR_ORG.map(d => `<div class="node"><b>${d.name}</b>${d.agents.map(a => `<div style="margin-top:3px">• <b>${a[0]} ${a[1]}</b> <span style="color:#a78bfa">[${cnt(a[0])} aperti]</span><br><span style="color:#94a3b8">${a[2]}</span></div>`).join('')}</div>`).join('');
+  $('dirAgent').innerHTML = DIR_AGENTS.map(a => `<option value="${a.id}">${a.id} ${a.name}</option>`).join('');
+  const L = { todo: '⬜ da fare', doing: '🔵 in corso', done: '✅ fatto' };
+  $('dirBacklog').innerHTML = DIR_STATE.backlog.map(b => `<div class="bl"><span>#${b.id}</span><b style="flex:1">${b.title}</b><span>${b.agent} ${(DIR_AGENTS.find(a => a.id === b.agent) || {}).name || ''}</span><span>${b.prio}</span><button class="btn" onclick="dirAdvance(${b.id})">${L[b.st]}</button><button class="btn" onclick="dirDel(${b.id})">✕</button></div>`).join('') || '<div class="bl">Backlog vuoto.</div>';
+}
+window.dirAdd = function (title, agent, prio) {
+  const t = title || document.getElementById('dirTitle').value.trim(); if (!t) return;
+  DIR_STATE.backlog.push({ id: Date.now() % 1e7, title: t, agent: agent || document.getElementById('dirAgent').value, prio: prio || document.getElementById('dirPrio').value, st: 'todo' });
+  if (!title) document.getElementById('dirTitle').value = ''; dirSave(); dirRender();
+};
+window.dirAdvance = id => { const b = DIR_STATE.backlog.find(x => x.id === id); if (b) { b.st = { todo: 'doing', doing: 'done', done: 'todo' }[b.st]; dirSave(); dirRender(); } };
+window.dirDel = id => { DIR_STATE.backlog = DIR_STATE.backlog.filter(x => x.id !== id); dirSave(); dirRender(); };
+window.dirDiagnose = async function () {
+  const found = [], add = (t, a, p) => { if (!DIR_STATE.backlog.some(b => b.title === t && b.st !== 'done')) { dirAdd(t, a, p); found.push(t); } };
+  try { const r = await fetch('/api/tts?text=ok&voice=giuseppe'); if (!r.ok) throw 0; } catch (e) { add('Bridge TTS non raggiungibile: avviare bridge_server.py e aprire da localhost:8088', 'A4', 'Alta'); }
+  if (typeof MV !== 'undefined' && !MV.master) add('Nessuna immagine master caricata: i video usano la facciata segnaposto', 'A6', 'Media');
+  if (typeof MV !== 'undefined' && !MV.products.length) add('Nessun prodotto iniettato: importare un CSV o inserire prodotti dai portali', 'A9', 'Media');
+  if (!localStorage.getItem('xv_gemini_ready')) add('Generazione IA reale non attiva: configurare chiave Gemini lato bridge', 'A8', 'Alta');
+  if (typeof MV !== 'undefined') { const g = mvGeom(); if (g.err > 2) add(`Catena quote non chiusa (scarto ${g.err.toFixed(1)} cm)`, 'A2', 'Alta'); }
+  try { const k = await caches.keys(); add('Verificare versione cache SW attiva: ' + (k.join(', ') || 'nessuna'), 'A4', 'Bassa'); } catch (e) { }
+  appendLog(`🧭 Vice CEO Atlas: auto-diagnosi completata, ${found.length} nuovi ticket.`); dirRender();
+};
+window.dirExport = function () {
+  const md = '# ROADMAP — Vice CEO Atlas\n\n' + ['todo', 'doing', 'done'].map(s => `## ${s}\n` + DIR_STATE.backlog.filter(b => b.st === s).map(b => `- [${b.agent}] (${b.prio}) ${b.title}`).join('\n')).join('\n\n') + '\n';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' })); a.download = 'ROADMAP.md'; a.click();
+};
+/* import CSV prodotti (nome;fonte;url) */
+window.mvImportCsv = async function (ev) {
+  const f = ev.target.files[0]; if (!f) return; const rows = (await f.text()).split(/\r?\n/).map(l => l.split(/[;,\t]/).map(s => s.trim().replace(/^"|"$/g, ''))).filter(r => r[0]);
+  if (/^nome|^name|^prodotto/i.test(rows[0][0])) rows.shift(); let n = 0;
+  rows.forEach(r => { $mv('mvPName').value = r[0]; $mv('mvPUrl').value = r[2] || ''; $mv('mvPSrc').value = /archi/i.test(r[1] || '') ? 'Archiproducts' : 'Edilportale'; mvCatManual(); n++; });
+  ev.target.value = ''; appendLog(`📥 Import CSV: ${n} prodotti iniettati dal file ${f.name}.`);
+};
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dirRender); else dirRender();
