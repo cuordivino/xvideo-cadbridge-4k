@@ -2237,6 +2237,200 @@ function drawCadPreview() {
     ctx.fillText(`Rot: ${arch.angle}° | Luce: ${arch.lighting}`, 18, 42);
     ctx.fillText(`Director: ${arch.agents.Motion_Director.substring(0, 38)}`, 18, 54);
   }
+
+  // ANELLO 1: APOLLO PROMPT VAULT & 3D CAMERA CUBE OVERLAY
+  if (typeof APOLLO_VAULT_STATE !== 'undefined' && APOLLO_VAULT_STATE.activeMode) {
+    const mode = APOLLO_VAULT_STATE.activeMode;
+    if (mode === '/board') {
+      // Tavola Esecutiva A3 (1 Plan -> 6 Drawings)
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.fillRect(20, 20, W - 40, H - 40);
+      ctx.strokeStyle = '#a855f7';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(20, 20, W - 40, H - 40);
+
+      ctx.fillStyle = '#c084fc';
+      ctx.font = 'bold 12px Inter, sans-serif';
+      ctx.fillText('📋 TAVOLA ESECUTIVA A3 — ONE PLAN &rarr; SIX DRAWINGS (@architect.apollo)', 35, 42);
+
+      const halfW = (W - 60) / 2;
+      const halfH = (H - 80) / 2;
+
+      // Quadrante 1: Assonometria Esplosa (/axo)
+      ctx.strokeStyle = 'rgba(192, 132, 252, 0.4)';
+      ctx.strokeRect(30, 55, halfW, halfH);
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 10px Inter, sans-serif';
+      ctx.fillText('1. ASSONOMETRIA ESPLOSA (/axo)', 40, 72);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.moveTo(60, 150); ctx.lineTo(140, 110); ctx.lineTo(220, 150); ctx.lineTo(140, 190); ctx.closePath(); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(60, 110); ctx.lineTo(140, 70); ctx.lineTo(220, 110); ctx.lineTo(140, 150); ctx.closePath(); ctx.stroke();
+
+      // Quadrante 2: Sezione Longitudinale A-A (/section)
+      ctx.strokeStyle = 'rgba(192, 132, 252, 0.4)';
+      ctx.strokeRect(40 + halfW, 55, halfW, halfH);
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'bold 10px Inter, sans-serif';
+      ctx.fillText('2. SEZIONE A-A QUOTATA (/section)', 50 + halfW, 72);
+      ctx.strokeStyle = '#34d399';
+      ctx.beginPath();
+      ctx.moveTo(60 + halfW, 170); ctx.lineTo(W - 60, 170); ctx.stroke();
+      ctx.strokeRect(80 + halfW, 100, halfW - 80, 70);
+      ctx.fillText('+2.70m Estradosso', 85 + halfW, 95);
+      ctx.fillText('±0.00m Quota Pavimento', 85 + halfW, 185);
+
+      // Quadrante 3: Zoning Cromatico mq/% (/zoning)
+      ctx.strokeStyle = 'rgba(192, 132, 252, 0.4)';
+      ctx.strokeRect(30, 65 + halfH, halfW, halfH);
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 10px Inter, sans-serif';
+      ctx.fillText('3. ZONING CROMATICO mq / % (/zoning)', 40, 82 + halfH);
+      ctx.fillStyle = '#06b6d4'; ctx.fillRect(45, 100 + halfH, 60, 20); ctx.fillText('Giorno: 42% (58mq)', 115, 114 + halfH);
+      ctx.fillStyle = '#a855f7'; ctx.fillRect(45, 126 + halfH, 50, 20); ctx.fillText('Notte: 35% (48mq)', 115, 140 + halfH);
+      ctx.fillStyle = '#10b981'; ctx.fillRect(45, 152 + halfH, 25, 20); ctx.fillText('Servizi: 15% (21mq)', 115, 166 + halfH);
+      ctx.fillStyle = '#f59e0b'; ctx.fillRect(45, 178 + halfH, 15, 20); ctx.fillText('Percorsi: 8% (11mq)', 115, 192 + halfH);
+
+      // Quadrante 4: 6-Step Massing Evolution
+      ctx.strokeStyle = 'rgba(192, 132, 252, 0.4)';
+      ctx.strokeRect(40 + halfW, 65 + halfH, halfW, halfH);
+      ctx.fillStyle = '#f472b6';
+      ctx.font = 'bold 10px Inter, sans-serif';
+      ctx.fillText('4. 6-STEP MASSING EVOLUTION DIAGRAM', 50 + halfW, 82 + halfH);
+      const steps = ['1. Site', '2. Base', '3. Sculpt', '4. Struct', '5. Circ', '6. Prog'];
+      const stpW = (halfW - 30) / 6;
+      steps.forEach((s, idx) => {
+        ctx.fillStyle = 'rgba(244, 114, 182, 0.15)';
+        ctx.fillRect(45 + halfW + idx * stpW, 115 + halfH, stpW - 4, 60);
+        ctx.strokeStyle = '#f472b6';
+        ctx.strokeRect(45 + halfW + idx * stpW, 115 + halfH, stpW - 4, 60);
+        ctx.fillStyle = '#fff';
+        ctx.font = '8px Inter, sans-serif';
+        ctx.fillText(s, 47 + halfW + idx * stpW, 148 + halfH);
+      });
+    } else if (mode === '/cube3x3' || APOLLO_VAULT_STATE.cubeGridVisible) {
+      // 3D Camera Cube Contact Sheet Matrix 3x3
+      ctx.fillStyle = 'rgba(10, 15, 30, 0.90)';
+      ctx.fillRect(15, 15, W - 30, H - 30);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(15, 15, W - 30, H - 30);
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 12px Inter, sans-serif';
+      ctx.fillText(`🎲 3D CAMERA CUBE CONTROLLER — 3x3 CONTACT SHEET [100% SPATIAL CONSISTENCY]`, 28, 36);
+
+      const cellW = (W - 50) / 3;
+      const cellH = (H - 75) / 3;
+      const angles = [
+        [-45, 10, '24mm Wide'], [0, 15, `${APOLLO_VAULT_STATE.zoom}mm Master`], [45, 10, '35mm Eye'],
+        [-90, 0, '50mm Flank L'], [0, 0, '50mm Frontal'], [90, 0, '50mm Flank R'],
+        [-135, -15, '85mm Macro 1'], [180, -20, '85mm Rear Elevation'], [135, -15, '85mm Macro 2']
+      ];
+
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const idx = r * 3 + c;
+          const x = 25 + c * cellW;
+          const y = 50 + r * cellH;
+          ctx.strokeStyle = idx === 1 ? '#00e5ff' : 'rgba(56, 189, 248, 0.35)';
+          ctx.lineWidth = idx === 1 ? 1.5 : 1;
+          ctx.strokeRect(x, y, cellW - 6, cellH - 6);
+
+          ctx.fillStyle = idx === 1 ? 'rgba(0, 229, 255, 0.12)' : 'rgba(15, 23, 42, 0.6)';
+          ctx.fillRect(x, y, cellW - 6, cellH - 6);
+
+          // Mini wireframe
+          ctx.strokeStyle = idx === 1 ? '#00e5ff' : '#94a3b8';
+          ctx.beginPath();
+          ctx.arc(x + (cellW - 6) / 2, y + (cellH - 6) / 2, 22, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = '#fff';
+          ctx.font = '9px JetBrains Mono, monospace';
+          ctx.fillText(`Cam ${idx + 1}: ${angles[idx][2]}`, x + 6, y + 15);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(`R: ${angles[idx][0] + APOLLO_VAULT_STATE.rotation}° | T: ${angles[idx][1] + APOLLO_VAULT_STATE.tilt}°`, x + 6, y + cellH - 12);
+        }
+      }
+    } else if (mode === '/overlay') {
+      // Renovation Wireframe Overlay (Linee Bianche CAD + Quote mm)
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = '#00e5ff';
+      ctx.shadowBlur = 8;
+
+      // Custom Cabinetry wireframe lines
+      ctx.strokeRect(80, 100, 260, 180);
+      ctx.strokeRect(360, 140, 220, 140);
+
+      // Leader lines e callouts
+      ctx.beginPath(); ctx.moveTo(80, 100); ctx.lineTo(40, 60); ctx.lineTo(20, 60); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(340, 280); ctx.lineTo(390, 320); ctx.lineTo(430, 320); ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      ctx.fillText('2400 mm [Boiserie Noce Canaletto]', 20, 52);
+      ctx.fillText('900 mm [Isola Travertino]', 435, 324);
+      ctx.fillStyle = '#00e5ff';
+      ctx.fillText('✏️ RENOVATION WIREFRAME OVERLAY — QUOTE CAD IN MM', 85, 90);
+    } else if (mode === '/exploded') {
+      // Exploded Furniture Axonometry + Material Swatches
+      ctx.fillStyle = '#c084fc';
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillText('🛋️ ESPLOSO TECNICO ARREDO + SWATCHES MATERIALI (/exploded)', 25, H - 90);
+
+      // Assembly dashed lines
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.beginPath(); ctx.moveTo(250, 140); ctx.lineTo(250, 280); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Material Swatches
+      const swatches = [
+        { name: 'Travertino Romano', color: '#e2d5c3' },
+        { name: 'Noce Canaletto', color: '#5c3a21' },
+        { name: 'Bouclé Avorio', color: '#f5f5dc' },
+        { name: 'Ottone Spazzolato', color: '#d4af37' }
+      ];
+      swatches.forEach((sw, idx) => {
+        const sx = 25 + idx * 130;
+        const sy = H - 55;
+        ctx.beginPath(); ctx.arc(sx + 12, sy + 12, 12, 0, Math.PI * 2);
+        ctx.fillStyle = sw.color; ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.fillStyle = '#cbd5e1';
+        ctx.font = '9px Inter, sans-serif';
+        ctx.fillText(sw.name, sx + 30, sy + 15);
+      });
+    } else if (mode === '/gravity') {
+      // Gravity Build Animation
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillText('🛸 GRAVITY BUILD & FPV DRONE CONTINUOUS FLY-THROUGH', 25, H - 35);
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(W / 2 - 30, H / 2 - 30, 60, 60);
+      ctx.beginPath(); ctx.moveTo(W / 2, H / 2 - 40); ctx.lineTo(W / 2, H / 2 + 40); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W / 2 - 40, H / 2); ctx.lineTo(W / 2 + 40, H / 2); ctx.stroke();
+    }
+  }
+
+  // POST-FX: AI IMAGE & VIDEO ENHANCER 4K TINT & VIGNETTE
+  if (typeof ENHANCER_POST_FX !== 'undefined') {
+    if (ENHANCER_POST_FX.lut === 'warm_ad') {
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.05)';
+      ctx.fillRect(0, 0, W, H);
+    } else if (ENHANCER_POST_FX.lut === 'art_deco') {
+      ctx.fillStyle = 'rgba(236, 72, 153, 0.05)';
+      ctx.fillRect(0, 0, W, H);
+    } else if (ENHANCER_POST_FX.lut === 'blue_hour') {
+      ctx.fillStyle = 'rgba(14, 165, 233, 0.07)';
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
 }
 
 /* ============================================================================
@@ -3637,11 +3831,11 @@ window.selectPromoDemoSector = function (secId) {
 };
 
 /* ============================================================================
-   2. LUXURY 4K RENDER ENGINE (7 ARCHETIPI 2D -> 3D)
+   2. LUXURY 4K RENDER ENGINE (13 ARCHETIPI 2D -> 3D — VIDEO 3 @renderdilusso)
    ============================================================================ */
 const LUXURY_4K_ARCHETYPES = {
   ISO_CUTAWAY: {
-    name: 'Spaccato Assonometrico 35.264°',
+    name: 'Spaccato Isometrico 35.264°',
     desc: 'Spaccato 3D isolato, illuminazione Golden Hour / Night 2700K',
     angle: 35.264,
     lighting: '2700K Warm LED',
@@ -3664,16 +3858,88 @@ const LUXURY_4K_ARCHETYPES = {
       Motion_Director: 'Pan lineare lungo asse distributivo'
     }
   },
-  BUILD_TIMELAPSE: {
-    name: 'Costruzione Cantiere + Scansione Laser',
-    desc: 'Dalle fondazioni in C.A. alla finitura luxury con fascio laser',
+  MICRO_BUILDERS: {
+    name: 'Mini-Costruttori/Puffi 3D su CAD',
+    desc: 'Micro-personaggi 3D animati che montano solai e infissi direttamente sul disegno CAD',
     angle: 45,
-    lighting: 'Illuminazione Dinamica Cantiere -> Smart Home',
+    lighting: 'Micro Spotlight 4000K',
     agents: {
-      CAD_Vector_Parser: 'Sequenza strutturale pilastri -> solai -> pareti',
-      Spatial_3D_Extruder: 'Crescita volumetrica progressiva da quota 0.00',
-      PBR_Luxury_Shader: 'Transizione calcestruzzo grezzo -> facciata ventilata',
-      Motion_Director: 'Rotazione continua con scansione sweep laser ciano'
+      CAD_Vector_Parser: 'Tracciamento snap e punti inserimento armature',
+      Spatial_3D_Extruder: 'Generazione procedural micro-bridge impalcature',
+      PBR_Luxury_Shader: 'Miniature shader PBR balsa e cianfrusaglie da cantiere',
+      Motion_Director: 'Animazione cinematografica tilt-shift micro builders'
+    }
+  },
+  CLIFF_SECTION: {
+    name: 'Spaccato Scogliera Multipiano',
+    desc: 'Sezione verticale multipiano aggrappata alla roccia con piscine sospese a sfioro',
+    angle: -20,
+    lighting: 'Ocean Twilight 3200K',
+    agents: {
+      CAD_Vector_Parser: 'Sezione topografica scogliera da quote terreno',
+      Spatial_3D_Extruder: 'Estrusione solai aggettanti e vasche a sfioro',
+      PBR_Luxury_Shader: 'Acqua caustica PBR + roccia vulcanica a spacco',
+      Motion_Director: 'Crane shot verticale dal mare alla terrazza master'
+    }
+  },
+  COMMERCIAL_FLOW: {
+    name: 'Layout Commerciale / Salon Flow',
+    desc: 'Planimetria retail/salon vivente con flussi clienti e postazioni specchio quotate',
+    angle: -90,
+    lighting: 'High-CRI Studio Neutral 4500K',
+    agents: {
+      CAD_Vector_Parser: 'Rilevamento postazioni lavoro e distanze ergonomiche',
+      Spatial_3D_Extruder: 'Banchi cassa e specchi retroilluminati a LED 3D',
+      PBR_Luxury_Shader: 'Vetro fumé, metallo canna di fucile e marmo nero',
+      Motion_Director: 'Tracking sequenziale percorso cliente reception -> styling'
+    }
+  },
+  PARACHUTE_DROP: {
+    name: 'Paracadutisti nello Spaccato 3D',
+    desc: 'Lancio dal cielo con discesa in slow-motion direttamente nel patio centrale',
+    angle: 60,
+    lighting: 'Sky Daylight 6500K',
+    agents: {
+      CAD_Vector_Parser: 'Perimetro atrio scoperto e coordinate landing zone',
+      Spatial_3D_Extruder: 'Estrusione volumetrica con apertura aerea zenitale',
+      PBR_Luxury_Shader: 'Tessuti paracadute iridescenti e foliage giardino',
+      Motion_Director: 'Camera drop in caduta libera con stabilizzazione al suolo'
+    }
+  },
+  QUOTED_LIVE_PLAN: {
+    name: 'Pianta Quotata Bilingue Live',
+    desc: 'Disegno esecutivo animato con quote millimetriche dinamiche ITA/ENG',
+    angle: 0,
+    lighting: 'Technical Drafting Blue-White',
+    agents: {
+      CAD_Vector_Parser: 'Parsing stringhe quote DIM e frecce leader lines',
+      Spatial_3D_Extruder: 'Sollevamento quote su piani Z sfalsati',
+      PBR_Luxury_Shader: 'Linee laser luminescenti e callout tipografici',
+      Motion_Director: 'Zoom progressivo sui vani con comparsa quote in sequenza'
+    }
+  },
+  DAY_NIGHT_ARCH: {
+    name: 'Split Giorno/Notte Archi & Luna',
+    desc: 'Doppia luce cinematografica: sole radente a sinistra, notte 2700K e luna a destra',
+    angle: 30,
+    lighting: 'Bifasico Day/Night 2700K/6000K',
+    agents: {
+      CAD_Vector_Parser: 'Geometrie archi a tutto sesto e colonnati',
+      Spatial_3D_Extruder: 'Profondità gallerie con ombre proiettate lunghe',
+      PBR_Luxury_Shader: 'Shader termico duale (dorato solare vs blu cobalto)',
+      Motion_Director: 'Wipe circolare sincronizzato con orbita lunare'
+    }
+  },
+  REBAR_TO_LUXURY: {
+    name: 'Da Armature Ferro a Villa Finita',
+    desc: 'Transizione time-lapse dal tondino d\'armatura grezzo alle finiture luxury',
+    angle: 40,
+    lighting: 'Industrial -> Warm Architectural',
+    agents: {
+      CAD_Vector_Parser: 'Distinte ferri d\'armatura e gabbie strutturali',
+      Spatial_3D_Extruder: 'Colata virtuale cemento armato e posa cappotto termico',
+      PBR_Luxury_Shader: 'Ruggine/ferro grezzo -> boiserie noce e facciate continue',
+      Motion_Director: 'Time-lapse accelerato 120x con transizione materica continua'
     }
   },
   MINIATURE_UNBOX: {
@@ -3727,6 +3993,124 @@ const LUXURY_4K_ARCHETYPES = {
 };
 
 let currentLuxuryArchetype = 'ISO_CUTAWAY';
+
+/* ============================================================================
+   APOLLO VAULT & 3D CAMERA CUBE CONTROLLER STATE (VIDEO 1 & 2)
+   ============================================================================ */
+const APOLLO_VAULT_STATE = {
+  activeMode: null, // '/board', '/cube3x3', '/overlay', '/exploded', '/gravity'
+  rotation: 0,
+  tilt: 15,
+  zoom: 50, // 24mm to 85mm
+  cubeGridVisible: false,
+  gravityAnimationId: null,
+  gravityStep: 0
+};
+
+const ENHANCER_POST_FX = {
+  lut: 'warm_ad',
+  sharpness: 80,
+  bloom: 45,
+  hdr: 65,
+  lock60fps: true
+};
+
+window.executeApolloSlashCommand = function(cmd) {
+  APOLLO_VAULT_STATE.activeMode = cmd;
+  const telem = document.getElementById('apolloVaultTelemetry');
+
+  if (cmd === '/board') {
+    if (telem) telem.textContent = '⚡ /board: Tavola A3 (1 Plan -> 6 Drawings) [RENDERED]';
+    appendLog('📐 Apollo Vault: generata Tavola Esecutiva A3 (/axo + /section + /zoning + 6-Step Massing).');
+  } else if (cmd === '/cube3x3') {
+    APOLLO_VAULT_STATE.cubeGridVisible = true;
+    if (telem) telem.textContent = `⚡ /cube3x3: Griglia 3x3 (Rot: ${APOLLO_VAULT_STATE.rotation}°, Tilt: ${APOLLO_VAULT_STATE.tilt}°, Lens: ${APOLLO_VAULT_STATE.zoom}mm) [ACTIVE]`;
+    appendLog('🎲 Apollo Vault: attivato 3D Camera Cube Controller (Contact sheet 3x3 coerente).');
+  } else if (cmd === '/overlay') {
+    if (telem) telem.textContent = '⚡ /overlay: Renovation Wireframe Overlay (Linee Bianche CAD) [ACTIVE]';
+    appendLog('✏️ Apollo Vault: sovrapposte linee tecniche bianche CAD + quote in mm su foto cantiere.');
+  } else if (cmd === '/exploded') {
+    if (telem) telem.textContent = '⚡ /exploded: Esploso Tecnico Arredo + Swatches Materiali [ACTIVE]';
+    appendLog('🛋️ Apollo Vault: generato esploso assonometrico con quote e swatches materiali.');
+  } else if (cmd === '/gravity') {
+    if (telem) telem.textContent = '⚡ /gravity: Gravity Build & FPV Drone One-Take [RUNNING]';
+    appendLog('🛸 Apollo Vault: avviata animazione fisica Gravity Build e traiettoria FPV drone.');
+    APOLLO_VAULT_STATE.gravityStep = 0;
+  }
+
+  // Aggiorna bottoni slash
+  const btns = document.querySelectorAll('#apolloSlashBar button');
+  btns.forEach(b => {
+    const isAct = b.textContent.includes(cmd);
+    b.classList.toggle('btn-cyan', isAct);
+    b.classList.toggle('active', isAct);
+  });
+
+  if (typeof drawCadPreview === 'function') drawCadPreview();
+};
+
+window.updateCubeController = function(prop, val) {
+  if (prop === 'rot') {
+    APOLLO_VAULT_STATE.rotation = parseInt(val, 10);
+    const el = document.getElementById('cubeRotVal');
+    if (el) el.textContent = `${val}°`;
+  } else if (prop === 'tilt') {
+    APOLLO_VAULT_STATE.tilt = parseInt(val, 10);
+    const el = document.getElementById('cubeTiltVal');
+    if (el) el.textContent = `${val}°`;
+  } else if (prop === 'zoom') {
+    APOLLO_VAULT_STATE.zoom = parseInt(val, 10);
+    const el = document.getElementById('cubeZoomVal');
+    if (el) el.textContent = `${val}mm`;
+  }
+
+  const telem = document.getElementById('apolloVaultTelemetry');
+  if (telem) {
+    telem.textContent = `⚡ 3D Cube: Rot ${APOLLO_VAULT_STATE.rotation}° | Tilt ${APOLLO_VAULT_STATE.tilt}° | ${APOLLO_VAULT_STATE.zoom}mm [100% SYNC]`;
+  }
+
+  if (typeof drawCadPreview === 'function') drawCadPreview();
+};
+
+window.renderCube3x3Grid = function() {
+  APOLLO_VAULT_STATE.activeMode = '/cube3x3';
+  APOLLO_VAULT_STATE.cubeGridVisible = true;
+  appendLog(`🎲 3D Camera Cube: generata matrice 3x3 cinematografica a ${APOLLO_VAULT_STATE.zoom}mm (Rot: ${APOLLO_VAULT_STATE.rotation}°, Tilt: ${APOLLO_VAULT_STATE.tilt}°).`);
+  if (typeof drawCadPreview === 'function') drawCadPreview();
+};
+
+window.updateEnhancerPostFx = function() {
+  const lutEl = document.getElementById('enhancerLutSelect');
+  const sharpEl = document.getElementById('enhancerSharpSlider');
+  const bloomEl = document.getElementById('enhancerBloomSlider');
+  const hdrEl = document.getElementById('enhancerHdrSlider');
+  const lock60fpsEl = document.getElementById('enhancer60fpsLock');
+
+  if (lutEl) ENHANCER_POST_FX.lut = lutEl.value;
+  if (sharpEl) {
+    ENHANCER_POST_FX.sharpness = parseInt(sharpEl.value, 10);
+    const valEl = document.getElementById('enhancerSharpVal');
+    if (valEl) valEl.textContent = `${sharpEl.value}%`;
+  }
+  if (bloomEl) {
+    ENHANCER_POST_FX.bloom = parseInt(bloomEl.value, 10);
+    const valEl = document.getElementById('enhancerBloomVal');
+    if (valEl) valEl.textContent = `${bloomEl.value}%`;
+  }
+  if (hdrEl) {
+    ENHANCER_POST_FX.hdr = parseInt(hdrEl.value, 10);
+    const valEl = document.getElementById('enhancerHdrVal');
+    if (valEl) valEl.textContent = `${hdrEl.value}%`;
+  }
+  if (lock60fpsEl) ENHANCER_POST_FX.lock60fps = lock60fpsEl.checked;
+
+  const telem = document.getElementById('enhancerTelemetry');
+  if (telem) {
+    telem.textContent = `LUT: ${ENHANCER_POST_FX.lut.toUpperCase()} • Bloom ${ENHANCER_POST_FX.bloom}% • HDR ${ENHANCER_POST_FX.hdr}% • ${ENHANCER_POST_FX.lock60fps ? '60fps Lock' : 'Dynamic'}`;
+  }
+
+  if (typeof drawCadPreview === 'function') drawCadPreview();
+};
 
 window.selectLuxuryArchetype = function (archetypeKey) {
   const arch = LUXURY_4K_ARCHETYPES[archetypeKey] || LUXURY_4K_ARCHETYPES.ISO_CUTAWAY;
