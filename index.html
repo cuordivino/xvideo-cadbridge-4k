@@ -1922,7 +1922,7 @@
         #tab-multivideo .mvc{background:#0f172a;border:1px solid rgba(56,189,248,.3);border-radius:12px;padding:10px;margin-bottom:10px}
         #tab-multivideo h3{margin:0 0 6px;font-size:.82rem;color:#7dd3fc}
         #tab-multivideo .mvr{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0}
-        #tab-multivideo canvas{max-width:100%;border-radius:8px;background:#020617;border:1px solid #1e293b}
+        #tab-multivideo canvas{max-width:100%;border-radius:10px;background:radial-gradient(circle at 50% 42%,#0f1b33,#04070f);border:1px solid rgba(56,189,248,.4);box-shadow:0 0 20px rgba(0,229,255,.08)}
         #tab-multivideo textarea,#tab-multivideo input[type=text],#tab-multivideo input[type=number],#tab-multivideo select{background:#020617;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:4px 6px;font-size:.72rem}
         #tab-multivideo .btn{font-size:10px;padding:5px 8px;white-space:nowrap}
         #tab-multivideo label{font-size:.68rem;color:#cbd5e1}
@@ -1935,7 +1935,7 @@
         <div class="mvr">
           <button class="btn btn-cyan" onclick="mvUseStudio()">📥 Usa immagine dallo Studio 4K</button>
           <label class="btn" style="cursor:pointer">🖼️ Carica Foto/Pianta Master<input type="file" accept="image/*" class="hidden" onchange="mvLoadMaster(event)"></label>
-          <span id="mvMasterInfo" style="font-size:.68rem;color:#94a3b8">Nessuna immagine: uso facciata segnaposto.</span>
+          <span id="mvMasterInfo" style="font-size:.68rem;color:#38bdf8">💎 4K PBR Luxury Viewport Active — pronto per foto, PDF o DWG.</span>
         </div>
         <canvas id="mvMasterCv" width="320" height="180"></canvas>
         <div style="font-size:.62rem;color:#94a3b8">🔒 Seed &amp; Material Lock: tutti i video partono dalla stessa immagine/volume. I video sono animazioni procedurali sul canvas (non generazione IA).</div>
@@ -1954,6 +1954,7 @@
               <label>Sup. finestrata mq <input id="mvWin" type="number" value="3.2" step="0.1" style="width:70px" oninput="mvVolChanged()"></label></div>
             <div class="mvr" id="mvSceneBtns"></div>
             <div class="mvr">
+              <label class="btn" style="cursor:pointer">📄 Carica PDF Quotato (cm)<input type="file" accept=".pdf" class="hidden" onchange="mvParseQuotedPdf(event)"></label>
               <button class="btn btn-cyan" onclick="mvExportSketchup()">⬇️ Esporta pacchetto (.rb + .md + .png)</button>
               <button class="btn" onclick="mvCopyRuby()">📋 Copia stringa Console Ruby</button>
             </div>
@@ -2012,6 +2013,7 @@
           <label class="btn" style="cursor:pointer">📥 Importa CSV/XLSX/PDF Scheda<input type="file" accept=".csv,.txt,.json,.xlsx,.xls,.pdf" class="hidden" onchange="mvImportCatalogAny(event)"></label>
           <button class="btn" onclick="mvFetchOpenPbr()">🌐 Texture PBR Live (PolyHaven)</button>
           <button class="btn" onclick="mvSyncComputo()">📊 Sincronizza in Computo</button>
+          <button class="btn" onclick="exportDossierPDF()" style="background:#059669;color:#fff">📄 Esporta Dossier PDF</button>
         </div>
         <div id="mvPbrList" class="mvr"></div>
         <div id="mvCatList" class="mvg"></div>

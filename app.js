@@ -5960,10 +5960,50 @@ function mvDrawMaster(ctx, x, y, w, h, dim) {
     const r = Math.max(w / MV.master.width, h / MV.master.height), iw = MV.master.width * r, ih = MV.master.height * r;
     ctx.drawImage(MV.master, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
   } else {
-    const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#9ec5e8'); g.addColorStop(1, '#d9c8a6'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
-    ctx.fillStyle = '#b9a98a'; ctx.fillRect(x + w * .18, y + h * .28, w * .64, h * .6); ctx.fillStyle = '#8a7a5e'; ctx.fillRect(x + w * .14, y + h * .22, w * .72, h * .08);
-    ctx.fillStyle = '#7aa3c4'; for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) ctx.fillRect(x + w * (.24 + i * .2), y + h * (.38 + j * .24), w * .12, h * .14);
-    ctx.fillStyle = '#6b8f4e'; ctx.fillRect(x, y + h * .88, w, h * .12);
+    // Sfondo radiale profondo #04070f + griglie vettoriali ciano/oro + vetro acrilico (zero segnaposto grezzo)
+    const rg = ctx.createRadialGradient(x + w * 0.5, y + h * 0.42, 8, x + w * 0.5, y + h * 0.5, Math.max(w, h) * 0.72);
+    rg.addColorStop(0, '#0f1b33');
+    rg.addColorStop(0.55, '#070c18');
+    rg.addColorStop(1, '#04070f');
+    ctx.fillStyle = rg;
+    ctx.fillRect(x, y, w, h);
+
+    // Griglia prospettica ciano/oro
+    const step = Math.max(18, Math.round(w / 18));
+    ctx.lineWidth = 1;
+    for (let gx = x; gx <= x + w; gx += step) {
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.08)';
+      ctx.beginPath(); ctx.moveTo(gx, y); ctx.lineTo(gx, y + h); ctx.stroke();
+    }
+    for (let gy = y; gy <= y + h; gy += step) {
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.06)';
+      ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x + w, gy); ctx.stroke();
+    }
+
+    // Volume architettonico wireframe ciano/oro in vetro acrilico
+    const bx = x + w * 0.2, bw = w * 0.6, by = y + h * 0.26, bh = h * 0.56;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.52)';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.65)';
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(bx, by, bw, bh);
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.55)';
+    ctx.strokeRect(bx + bw * 0.14, by + bh * 0.22, bw * 0.28, bh * 0.56);
+    ctx.strokeRect(bx + bw * 0.54, by + bh * 0.22, bw * 0.32, bh * 0.56);
+
+    // Bordo vetro acrilico + badge 4K PBR
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + 4, y + 4, w - 8, h - 8);
+    if (w >= 240) {
+      ctx.fillStyle = 'rgba(4, 7, 15, 0.82)';
+      ctx.fillRect(x + 10, y + 10, 210, 20);
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.6)';
+      ctx.strokeRect(x + 10, y + 10, 210, 20);
+      ctx.fillStyle = '#00e5ff';
+      ctx.font = 'bold 9px JetBrains Mono, monospace';
+      ctx.fillText('💎 4K PBR LUXURY VIEWPORT ACTIVE', x + 16, y + 23);
+    }
   }
   if (dim) { ctx.fillStyle = `rgba(2,6,23,${dim})`; ctx.fillRect(x, y, w, h); }
   ctx.restore();
@@ -6215,6 +6255,33 @@ window.mvImportCatalogAny = async function (ev) {
 /* --- master --- */
 window.mvUseStudio = function () { const c = $mv('studio-canvas'); if (!c) return; const im = new Image(); im.onload = () => { MV.master = im; $mv('mvMasterInfo').textContent = 'Master dallo Studio 4K (bloccata).'; mvRefresh(); }; im.src = c.toDataURL('image/png'); };
 window.mvLoadMaster = function (ev) { const f = ev.target.files[0]; if (!f) return; const im = new Image(); im.onload = () => { MV.master = im; $mv('mvMasterInfo').textContent = `Master: ${f.name} (bloccata)`; mvRefresh(); }; im.src = URL.createObjectURL(f); };
+window.mvParseQuotedPdf = async function (ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  try {
+    await _loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf = await pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise;
+    const page = await pdf.getPage(1);
+    const tc = await page.getTextContent();
+    const txt = tc.items.map(x => x.str).join(' ');
+    const nums = (txt.match(/\b\d{2,4}(?:[.,]\d)?\b/g) || []).map(v => parseFloat(v.replace(',', '.'))).filter(n => n >= 80 && n <= 2500);
+    if (nums.length >= 2) {
+      const w = nums[0], h = nums[1];
+      $mv('mvQuotes').value = `${w},0\n0,${h}\n-${w},0\n0,-${h}`;
+      appendLog(`📐 PDF Quotato (${f.name}): estratte quote prioritarie ${w}×${h} cm (su ${nums.length} valori rilevati).`);
+    } else {
+      appendLog(`📐 PDF Quotato (${f.name}): nessuna coppia quote ≥80 cm trovata nel testo, mantengo catena attuale.`);
+    }
+    const vp = page.getViewport({ scale: 1.5 });
+    const cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
+    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    const im = new Image(); im.onload = () => { MV.master = im; $mv('mvMasterInfo').textContent = `PDF Quotato: ${f.name}`; mvVolChanged(); };
+    im.src = cv.toDataURL('image/png');
+  } catch (e) {
+    appendLog(`⚠️ Impossibile leggere PDF quotato (${e.message || 'errore'}).`);
+  }
+  ev.target.value = '';
+};
 function mvDrawMasterCv() { const c = $mv('mvMasterCv'); if (c) mvDrawMaster(c.getContext('2d'), 0, 0, c.width, c.height, 0); }
 
 /* --- fx & voice --- */
