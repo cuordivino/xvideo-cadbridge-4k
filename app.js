@@ -514,10 +514,340 @@ function initStudio4KAnd5Agents() {
 /* ============================================================================
    DIRECT CAMERA PHOTO, VIDEO & SKETCH UPLOAD HANDLER
    ============================================================================ */
-window.handleDirectMediaUpload = function (event, mediaKind) {
-  const file = event.target.files?.[0];
-  if (!file) return;
+const _loadScriptOnce = (src) => new Promise((res, rej) => {
+  if (document.querySelector(`script[src="${src}"]`)) return res();
+  const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+});
+const _fmtSize = (b) => b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB';
+const _extOf = (n) => (n.split('.').pop() || '').toLowerCase();
+const _isImageLike = (f) => f.type.startsWith('image/') && !/heic|heif|tiff?/i.test(f.type + _extOf(f.name));
 
+function getFileCategory(ext, mime = '') {
+  ext = (ext || '').toLowerCase();
+  if (ext === 'pdf' || mime.includes('pdf')) return { icon: '📕', label: 'PDF Dossier', color: '#ef4444', cat: 'pdf' };
+  if (['ppt', 'pptx', 'key', 'odp'].includes(ext) || mime.includes('presentation') || mime.includes('powerpoint')) return { icon: '📽️', label: 'Slide / Pitch', color: '#f97316', cat: 'presentation' };
+  if (['xls', 'xlsx', 'xlsm', 'csv', 'tsv', 'ods', 'numbers'].includes(ext) || mime.includes('sheet') || mime.includes('excel') || mime.includes('csv')) return { icon: '📊', label: 'Foglio / Computo', color: '#10b981', cat: 'sheet' };
+  if (['doc', 'docx', 'rtf', 'txt', 'pages', 'odt', 'md'].includes(ext) || mime.includes('word') || mime.includes('document') || mime.includes('text/')) return { icon: '📑', label: 'Doc / Capitolato', color: '#3b82f6', cat: 'word' };
+  if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext) || mime.includes('zip') || mime.includes('compressed') || mime.includes('tar')) return { icon: '🗜️', label: 'Archivio ZIP/RAR', color: '#a855f7', cat: 'archive' };
+  if (['dwg', 'dxf', 'skp', 'ifc', 'rvt', 'obj', 'fbx', 'gltf', 'glb', 'step', 'stp', 'iges', 'igs', '3ds', 'stl', 'dae'].includes(ext)) return { icon: '📐', label: 'CAD & 3D BIM', color: '#06b6d4', cat: 'cad' };
+  if (['png', 'jpg', 'jpeg', 'webp', 'heic', 'heif', 'tiff', 'tif', 'bmp', 'svg', 'ai', 'psd'].includes(ext) || mime.startsWith('image/')) return { icon: '🖼️', label: 'Immagine / Render', color: '#ec4899', cat: 'image' };
+  if (['mp4', 'mov', 'webm', 'avi', 'mkv'].includes(ext) || mime.startsWith('video/')) return { icon: '🎬', label: 'Video Ripresa', color: '#f59e0b', cat: 'video' };
+  if (['mp3', 'wav', 'm4a', 'aac', 'ogg'].includes(ext) || mime.startsWith('audio/')) return { icon: '🎵', label: 'Audio / Memo', color: '#eab308', cat: 'audio' };
+  return { icon: '📦', label: `File .${ext.toUpperCase() || 'DATA'}`, color: '#94a3b8', cat: 'generic' };
+}
+
+function registerStudioDocument(file, summary, preview, thumbnailBlob = null) {
+  const st = APP_STATE.studio;
+  st.documents = st.documents || [];
+  const ext = _extOf(file.name);
+  const info = getFileCategory(ext, file.type);
+  st.documents.push({
+    id: 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    name: file.name,
+    size: file.size,
+    type: file.type || ext,
+    ext,
+    info,
+    summary,
+    preview: (preview || '').slice(0, 30000),
+    thumbnailBlob,
+    addedAt: new Date().toLocaleTimeString('it-IT')
+  });
+
+  renderStudioDocsList();
+  appendLog(`${info.icon} Allegato file "${file.name}" (${_fmtSize(file.size)} • ${summary}) sincronizzato con i 12 Agenti IA.`);
+}
+
+window.renderStudioDocsList = function() {
+  const container = document.getElementById('studioDocsContainer');
+  const countEl = document.getElementById('studioDocsCount');
+  const box = document.getElementById('studioDocsList');
+  const docs = APP_STATE.studio.documents || [];
+
+  if (countEl) countEl.textContent = docs.length;
+  if (!container || !box) return;
+
+  if (!docs.length) {
+    container.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+
+  container.style.display = 'block';
+  box.innerHTML = docs.map((doc, idx) => `
+    <div class="studio-doc-card">
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
+        <span style="font-size:1.15rem;">${doc.info.icon}</span>
+        <div style="min-width:0;overflow:hidden;text-overflow:ellipsis;">
+          <div style="font-weight:700;color:#f8fafc;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px;">${doc.name}</span>
+            <span style="font-size:0.60rem;padding:1px 5px;border-radius:4px;background:${doc.info.color}22;color:${doc.info.color};border:1px solid ${doc.info.color}55;">${doc.info.label}</span>
+            <span style="font-size:0.62rem;color:#94a3b8;">${_fmtSize(doc.size)}</span>
+          </div>
+          <div style="font-size:0.65rem;color:#cbd5e1;margin-top:1px;">${doc.summary}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        ${doc.preview ? `<button type="button" class="btn" onclick="showDocPreview(${idx})" style="padding:3px 7px;font-size:0.65rem;" title="Mostra Anteprima Testo/Dati">👁️ Anteprima</button>` : ''}
+        ${doc.thumbnailBlob ? `<button type="button" class="btn btn-cyan" onclick="setDocAsCanvasBase(${idx})" style="padding:3px 7px;font-size:0.65rem;" title="Imposta come base per Render 4K">🖼️ Su Canvas 4K</button>` : ''}
+        <button type="button" class="btn" onclick="removeStudioDoc(${idx})" style="padding:3px 7px;font-size:0.65rem;color:#f87171;" title="Rimuovi file">✕</button>
+      </div>
+    </div>
+  `).join('');
+};
+
+window.removeStudioDoc = function(index) {
+  const docs = APP_STATE.studio.documents || [];
+  if (index >= 0 && index < docs.length) {
+    const removed = docs.splice(index, 1)[0];
+    appendLog(`🗑️ Rimosso documento: "${removed.name}".`);
+    renderStudioDocsList();
+    runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || '', false);
+  }
+};
+
+window.clearAllStudioDocs = function() {
+  APP_STATE.studio.documents = [];
+  appendLog('🗑️ Svuotato elenco documenti allegati.');
+  renderStudioDocsList();
+  runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || '', false);
+};
+
+window.setDocAsCanvasBase = function(index) {
+  const doc = (APP_STATE.studio.documents || [])[index];
+  if (doc && doc.thumbnailBlob) {
+    loadBlobIntoStudioImage(doc.thumbnailBlob, `${doc.info.icon} ${doc.name}`);
+    appendLog(`🖼️ Documento "${doc.name}" caricato come base attiva nella Viewport 4K.`);
+  }
+};
+
+window.showDocPreview = function(index) {
+  const doc = (APP_STATE.studio.documents || [])[index];
+  if (!doc) return;
+  const snippet = doc.preview ? doc.preview.slice(0, 3000) : 'Nessuna anteprima testuale disponibile.';
+  const win = window.open('', '_blank', 'width=700,height=550,scrollbars=yes');
+  if (win) {
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Anteprima: ${doc.name}</title>
+        <style>
+          body { background:#0f172a; color:#f8fafc; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif; padding:16px; margin:0; }
+          header { border-bottom:1px solid #334155; padding-bottom:10px; margin-bottom:12px; }
+          h2 { margin:0 0 4px; font-size:1rem; color:#38bdf8; }
+          pre { background:#1e293b; padding:12px; border-radius:8px; font-size:0.75rem; white-space:pre-wrap; word-break:break-word; max-height:400px; overflow-y:auto; color:#cbd5e1; }
+        </style>
+      </head>
+      <body>
+        <header>
+          <h2>${doc.info.icon} ${doc.name}</h2>
+          <div style="font-size:0.72rem;color:#94a3b8;">${doc.info.label} &bull; ${_fmtSize(doc.size)} &bull; ${doc.summary}</div>
+        </header>
+        <pre>${snippet.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  } else {
+    alert(`Anteprima per ${doc.name}:\n\n${snippet.slice(0, 400)}...`);
+  }
+};
+
+window.sendDocsToAiSupervisor = function() {
+  const docs = APP_STATE.studio.documents || [];
+  if (!docs.length) {
+    appendLog('⚠️ Nessun documento caricato da inviare.');
+    return;
+  }
+  appendLog(`🎯 Invio di ${docs.length} documenti & dossier alla squadra dei 12 Agenti IA in corso...`);
+  runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || '', true);
+};
+
+async function processDocumentFile(file) {
+  const ext = _extOf(file.name);
+  try {
+    // 1. FORMATI TESTUALI / VETTORIALI CAD / DATI STRUTTURATI
+    if (['txt', 'md', 'csv', 'tsv', 'json', 'xml', 'yaml', 'yml', 'dxf', 'svg', 'rtf', 'ifc', 'obj', 'stl'].includes(ext)) {
+      const txt = await file.text();
+      const lines = txt.split('\n').length;
+      return registerStudioDocument(file, `Formato ${ext.toUpperCase()}, ${lines} righe`, txt);
+    }
+
+    // 2. DOSSIER & TAVOLE PDF (Render Pagina 1 su Canvas + OCR Testo)
+    if (ext === 'pdf') {
+      let pageBlob = null;
+      let text = '';
+      let numPages = 1;
+      try {
+        await _loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+        if (window.pdfjsLib) {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+          numPages = pdf.numPages;
+          for (let i = 1; i <= Math.min(numPages, 10); i++) {
+            const pageData = await (await pdf.getPage(i)).getTextContent();
+            text += `[Pagina ${i}]\n` + pageData.items.map(x => x.str).join(' ') + '\n\n';
+          }
+          const p1 = await pdf.getPage(1);
+          const vp = p1.getViewport({ scale: 1.5 });
+          const cv = document.createElement('canvas');
+          cv.width = vp.width; cv.height = vp.height;
+          await p1.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+          pageBlob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.88));
+          if (pageBlob) loadBlobIntoStudioImage(pageBlob, `📕 PDF Tavola p.1: ${file.name}`);
+        }
+      } catch (err) {
+        text = `PDF Caricato (${_fmtSize(file.size)}). Parsing grafico rimandato all'agente Supervisore.`;
+      }
+      return registerStudioDocument(file, `PDF Architettonico, ${numPages} pag.`, text, pageBlob);
+    }
+
+    // 3. FOGLI DI CALCOLO EXCEL, COMPUTI METRICI, TABELLE (XLS, XLSX, XLSM, ODS)
+    if (['xls', 'xlsx', 'xlsm', 'ods'].includes(ext)) {
+      let previewText = '';
+      let sheetCount = 1;
+      try {
+        await _loadScriptOnce('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+        if (window.XLSX) {
+          const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+          sheetCount = wb.SheetNames.length;
+          previewText = wb.SheetNames.map(n => `### Foglio: ${n}\n` + XLSX.utils.sheet_to_csv(wb.Sheets[n])).join('\n\n');
+        }
+      } catch (err) {
+        previewText = `Foglio ${ext.toUpperCase()} (${sheetCount} schede) allegato.`;
+      }
+      return registerStudioDocument(file, `Foglio di Calcolo/Computo, ${sheetCount} schede`, previewText);
+    }
+
+    // 4. DOCUMENTI WORD & CAPITOLATI (DOCX & DOC)
+    if (ext === 'docx') {
+      let wordText = '';
+      try {
+        await _loadScriptOnce('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js');
+        if (window.mammoth) {
+          const r = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+          wordText = r.value;
+        }
+      } catch (err) {
+        wordText = `Documento Word DOCX caricato (${_fmtSize(file.size)}).`;
+      }
+      return registerStudioDocument(file, 'Documento Word DOCX (Capitolato/Relazione)', wordText);
+    }
+
+    if (ext === 'doc') {
+      // Estrazione stringhe binarie per vecchi .doc
+      const buf = await file.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      let ascii = '';
+      for (let i = 0; i < bytes.length && ascii.length < 15000; i++) {
+        const b = bytes[i];
+        if ((b >= 32 && b <= 126) || b === 10 || b === 13) ascii += String.fromCharCode(b);
+      }
+      return registerStudioDocument(file, 'Documento Word Legacy (.DOC)', ascii || 'Documento binario Word allegato.');
+    }
+
+    // 5. PRESENTAZIONI & SLIDE (PPTX, PPT, KEYNOTE, ODP) E ARCHIVI (ZIP, RAR, 7Z)
+    if (['zip', 'pptx', 'ppt', 'key', 'odp', 'odt'].includes(ext)) {
+      let zipText = '';
+      let extractedImg = null;
+      try {
+        await _loadScriptOnce('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+        if (window.JSZip) {
+          const zip = await JSZip.loadAsync(file);
+          const fileNames = Object.keys(zip.files).filter(n => !zip.files[n].dir);
+
+          if (['pptx', 'odp'].includes(ext)) {
+            const slides = fileNames.filter(n => /slide\d+\.xml$/i.test(n));
+            zipText = `Presentazione Slide (${slides.length} slide rilevate):\n`;
+            for (const s of slides.slice(0, 15)) {
+              const xml = await zip.file(s).async('string');
+              zipText += `\n[Slide ${s.replace(/\D/g, '')}]: ` + xml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+            }
+            return registerStudioDocument(file, `Presentazione Slide (${slides.length || fileNames.length} slide)`, zipText);
+          }
+
+          if (ext === 'zip') {
+            const imgName = fileNames.find(n => /\.(png|jpe?g|webp)$/i.test(n));
+            if (imgName) {
+              extractedImg = await zip.file(imgName).async('blob');
+              loadBlobIntoStudioImage(extractedImg, `🗜️ ZIP › ${imgName}`);
+            }
+            zipText = `Contenuto Archivio ZIP (${fileNames.length} elementi):\n` + fileNames.slice(0, 40).join('\n');
+            return registerStudioDocument(file, `Archivio Compresso (${fileNames.length} file)`, zipText, extractedImg);
+          }
+        }
+      } catch (err) {
+        zipText = `Archivio/Presentazione .${ext.toUpperCase()} allegato.`;
+      }
+      return registerStudioDocument(file, `Pacchetto .${ext.toUpperCase()}`, zipText, extractedImg);
+    }
+
+    // 6. MODELLI CAD/BIM BINARI O SPECIALI (DWG, SKP, RVT)
+    if (['dwg', 'skp', 'rvt', 'fbx', 'gltf', 'glb', 'step', 'stp'].includes(ext)) {
+      return registerStudioDocument(file, `Modello Progettuale ${ext.toUpperCase()}`, `File modello 3D/CAD nativo "${file.name}" registrato per esportazione ed esecuzione.`);
+    }
+
+  } catch (e) {
+    appendLog(`⚠️ Parsing automatico parziale per "${file.name}" (${e.message || 'offline'}): registrato nei documenti.`);
+  }
+
+  registerStudioDocument(file, `File .${ext.toUpperCase() || 'DATA'} allegato`, `File ${file.name} (${_fmtSize(file.size)}) caricato e disponibile.`);
+}
+
+window.handleDirectMediaUpload = async function (event, mediaKind) {
+  const files = Array.from(event.target?.files || event.dataTransfer?.files || []);
+  if (!files.length) return;
+  const handled = [];
+  for (const f of files) {
+    if (f.type.startsWith('video/') || _isImageLike(f)) {
+      handled.push(f);
+    } else {
+      await processDocumentFile(f);
+    }
+  }
+  if (event.target) event.target.value = '';
+  if (!handled.length) {
+    runMultiAgentPipeline(document.getElementById('agentDirectiveInput')?.value || '', false);
+    return;
+  }
+  return _handleVisualMedia(handled[0], mediaKind);
+};
+
+// Drag & Drop universale
+window.handleDragOver = function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const dropZone = document.getElementById('universalDropZone');
+  if (dropZone) dropZone.classList.add('drag-active');
+};
+
+window.handleDragLeave = function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const dropZone = document.getElementById('universalDropZone');
+  if (dropZone) dropZone.classList.remove('drag-active');
+};
+
+window.handleDropFile = function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const dropZone = document.getElementById('universalDropZone');
+  if (dropZone) dropZone.classList.remove('drag-active');
+  window.handleDirectMediaUpload(e, 'drop');
+};
+
+// Auto-attacca Drag & Drop al box
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('universalDropZone');
+  if (dz) {
+    dz.addEventListener('dragover', window.handleDragOver);
+    dz.addEventListener('dragleave', window.handleDragLeave);
+    dz.addEventListener('drop', window.handleDropFile);
+  }
+});
+
+function _handleVisualMedia(file, mediaKind) {
   const badge = document.getElementById('activeMediaBadge');
 
   if (file.type.startsWith('video/')) {
@@ -528,7 +858,7 @@ window.handleDirectMediaUpload = function (event, mediaKind) {
     APP_STATE.studio.activeVideoEl = videoEl;
     APP_STATE.studio.isVideoSource = true;
     if (badge) badge.textContent = `🎥 Video Attivo: ${file.name}`;
-    appendLog(`🎥 Video acquisito dal cellulare ("${file.name}") e caricato nei 5 Agenti IA per Video Render.`);
+    appendLog(`🎥 Video acquisito ("${file.name}") e caricato nei 12 Agenti IA per Video Render.`);
     startVideoSourceLoop();
     runMultiAgentPipeline(document.getElementById('agentDirectiveInput').value, true);
   } else {
@@ -696,13 +1026,19 @@ function runMultiAgentPipeline(directive, broadcast = false) {
     if (el) el.textContent = '✅ Attivo';
   });
 
+  const docsList = APP_STATE.studio.documents || [];
+  const docsReport = docsList.length
+    ? `\n\n📁 [DOCUMENTI, DOSSIER & FILE ALLEGATI ALLA SESSIONE (${docsList.length})]:\n` +
+      docsList.map((d, i) => `   ${i + 1}. ${d.info.icon} [${d.info.label}] ${d.name} (${_fmtSize(d.size)}) — ${d.summary}`).join('\n')
+    : '\n\n📁 [DOCUMENTI ALLEGATI]: Nessun file esterno caricato. Trascina PDF, ZIP, XLS, DOC o Presentazioni nella DropZone per includerli.';
+
   const report = `🧬 [MANTRA FONDAMENTALE CEO IA, DIRETTORI & 20 AGENTI]:
    «Ogni tipologia di prodotto può assimilare innovazione da tipologie di prodotti diversi: basta sempre saper cogliere le sfumature che altre ricerche in campi diversi hanno portato come vantaggio.»
 
 👑 [1. SUPERVISORE — ARCH-DIRECTOR IA | Profilo: ${personaTitles[persona] || personaTitles.architetto}]:
    • Direttiva Sul Campo: "${directive}"
    • Sorgente Mobile/Portatile: ${mediaStatus} | Stile: ${style.name}
-   • Contaminazione Attiva: Sicurezza FinTech (Spettatore Blindato + Face ID) + Cinema VFX (Temporal Lock Video-2-Video) + LiDAR Automotive (Ottica 2-Point Campo).
+   • Contaminazione Attiva: Sicurezza FinTech (Spettatore Blindato + Face ID) + Cinema VFX (Temporal Lock Video-2-Video) + LiDAR Automotive (Ottica 2-Point Campo).${docsReport}
 
 📐 [2. CAD & BIM ENGINEER IA]:
    • Script AutoCAD 2013+ (.LSP/.DXF) + Modello 3D SketchUp 2021+ (.RB) allineati con verifica RAI >= 1/8.

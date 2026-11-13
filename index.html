@@ -257,7 +257,7 @@
               <span class="badge badge-guest" id="activeMediaBadge">Pronto</span>
             </div>
 
-            <!-- 4 Ergonomic Mobile Capture Buttons -->
+            <!-- 5 Ergonomic Mobile Capture & Universal Upload Buttons -->
             <div class="cam-capture-grid">
               <label class="cam-action-btn">
                 <span style="font-size:1.3rem;">📸</span>
@@ -274,10 +274,17 @@
               </label>
 
               <label class="cam-action-btn" style="border-color:rgba(245,158,11,0.4);">
-                <span style="font-size:1.3rem;">✏️</span>
-                <span>Carica Schizzo</span>
-                <span style="font-size:0.62rem;color:#94a3b8;font-weight:500;">Galleria / CAD</span>
-                <input type="file" accept="image/*,video/*" onchange="handleDirectMediaUpload(event, 'sketch')" class="hidden" />
+                <span style="font-size:1.3rem;">✏️📐</span>
+                <span>Carica Schizzo / CAD</span>
+                <span style="font-size:0.62rem;color:#94a3b8;font-weight:500;">Foto, DWG, DXF, SKP, IFC</span>
+                <input type="file" multiple accept="image/*,video/*,.dxf,.dwg,.skp,.ifc,.rvt,.obj,.fbx,.gltf,.glb,.step,.stp,.iges,.svg" onchange="handleDirectMediaUpload(event, 'sketch')" class="hidden" />
+              </label>
+
+              <label class="cam-action-btn" style="border-color:rgba(168,85,247,0.4);">
+                <span style="font-size:1.3rem;">📁📑</span>
+                <span>Carica File &amp; Doc</span>
+                <span style="font-size:0.62rem;color:#c084fc;font-weight:600;">PDF, ZIP, PPT, XLS, DOC</span>
+                <input type="file" multiple accept=".pdf,.zip,.rar,.7z,.tar,.gz,.doc,.docx,.odt,.rtf,.txt,.md,.pages,.xls,.xlsx,.xlsm,.ods,.csv,.numbers,.ppt,.pptx,.odp,.key,.json,.xml,.yaml,.yml,*/*" onchange="handleDirectMediaUpload(event, 'document')" class="hidden" />
               </label>
 
               <button type="button" id="pasteOrDrawSketchBtn" class="cam-action-btn" style="border-color:rgba(255,107,0,0.4);">
@@ -285,6 +292,34 @@
                 <span>Disegna Schizzo</span>
                 <span style="font-size:0.62rem;color:#94a3b8;font-weight:500;">Mano Libera</span>
               </button>
+            </div>
+
+            <!-- UNIVERSAL DRAG & DROP ZONE -->
+            <label id="universalDropZone" class="universal-dropzone">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.5rem;">📥</span>
+                <div style="text-align:left;">
+                  <div style="font-weight:800;font-size:0.75rem;color:#38bdf8;">
+                    Trascina qui qualsiasi file o tocca per sfogliare (PDF, ZIP, Presentazioni, Excel, Word, CAD...)
+                  </div>
+                  <div style="font-size:0.65rem;color:#94a3b8;margin-top:2px;">
+                    Supporta: 📕 <b>PDF</b> &bull; 🗜️ <b>ZIP / RAR / 7Z</b> &bull; 📽️ <b>Presentazioni PPTX / Keynote</b> &bull; 📊 <b>Excel XLS / CSV</b> &bull; 📑 <b>Word DOC / DOCX</b> &bull; 📐 <b>CAD &amp; BIM (DWG, DXF, IFC, 3D)</b>
+                  </div>
+                </div>
+              </div>
+              <input type="file" id="universalFileInput" multiple accept=".pdf,.zip,.rar,.7z,.tar,.gz,.doc,.docx,.odt,.rtf,.txt,.md,.pages,.xls,.xlsx,.xlsm,.ods,.csv,.numbers,.ppt,.pptx,.odp,.key,.json,.xml,.yaml,.yml,.dxf,.dwg,.skp,.ifc,.rvt,.obj,.fbx,.gltf,.glb,.step,.stp,.iges,.svg,.ai,.psd,.eps,image/*,video/*,audio/*,*/*" onchange="handleDirectMediaUpload(event, 'universal')" class="hidden" />
+            </label>
+
+            <!-- CONTENITORE FILE & DOCUMENTI ALLEGATI (LISTA INTERATTIVA) -->
+            <div id="studioDocsContainer" class="studio-docs-container" style="display:none;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+                <span style="font-size:0.73rem;font-weight:800;color:#38bdf8;">📂 File &amp; Documenti Allegati (<span id="studioDocsCount">0</span>):</span>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" class="btn btn-cyan" onclick="sendDocsToAiSupervisor()" style="padding:2px 8px;font-size:0.65rem;">🎯 Analizza con 12 Agenti IA</button>
+                  <button type="button" class="btn" onclick="clearAllStudioDocs()" style="padding:2px 8px;font-size:0.65rem;color:#f87171;">🗑️ Svuota</button>
+                </div>
+              </div>
+              <div id="studioDocsList" style="display:flex;flex-direction:column;gap:5px;"></div>
             </div>
 
             <!-- Quick Paste Coordinates from Google Maps Bar -->
