@@ -5835,3 +5835,111 @@ window.broadcastLatestVaultSpotToClients = function () {
 };
 
 
+
+
+/* ============================================================================
+   v10: COMPUTO METRICO ESTIMATIVO + CAPITOLATO SPECIALE + RELAZIONE TECNICA (PDF)
+   ============================================================================ */
+const COMPUTO_VOCI = [
+  // [categoria, descrizione, um, qtà per mq, prezzo unitario €, fonte riferimento, capitolato]
+  ['Opere Edili', 'Demolizioni, rimozioni e smaltimento', 'mq', 1.0, 38, 'Prezzario regionale', 'Demolizioni selettive con recupero macerie a norma D.Lgs 152/06; smaltimento in discarica autorizzata.'],
+  ['Opere Edili', 'Cappotto termico EPS grafitato 12 cm', 'mq', 1.1, 62, 'Edilportale (sistemi ETICS)', 'Sistema ETICS con marcatura CE, ETA, posa secondo UNI 11716; rasatura armata e finitura silossanica.'],
+  ['Serramenti', 'Infissi PVC/alluminio taglio termico Uw ≤ 1,1', 'mq', 0.18, 780, 'Edilportale (serramenti)', 'Triplo vetro basso-emissivo, posa qualificata UNI 10818, controtelaio e sigillatura certificata.'],
+  ['Pavimenti e rivestimenti', 'Pavimento gres porcellanato / parquet rovere', 'mq', 1.0, 92, 'Archiproducts (superfici)', 'Posa su massetto planare ±2 mm/2 m, fughe ≤ 2 mm, adesivi C2TE S1.'],
+  ['Pavimenti e rivestimenti', 'Intonaci, tinteggiature e controsoffitti', 'mq', 2.6, 24, 'Prezzario regionale', 'Finitura liscia classe Q3, due mani di idropittura traspirante a basso VOC.'],
+  ['Impianti MEP', 'Impianto elettrico, illuminazione e domotica', 'mq', 1.0, 115, 'Listino impianti', 'Conforme CEI 64-8 e DM 37/08; dichiarazione di conformità; quadro con differenziali.'],
+  ['Impianti MEP', 'Impianto idrico-sanitario e scarichi', 'mq', 1.0, 85, 'Listino impianti', 'Tubazioni multistrato coibentate, prova di tenuta, conformità UNI 9182.'],
+  ['Impianti MEP', 'Pompa di calore + radiante + VMC', 'mq', 1.0, 180, 'Listino impianti', 'Dimensionamento UNI/TS 11300; COP ≥ 4; installazione F-gas certificata.'],
+  ['Arredi e design', 'Arredi su misura, cucina, bagni, corpi illuminanti', 'mq', 1.0, 140, 'Archiproducts (design)', 'Prodotti con scheda tecnica, garanzia 2 anni, classe emissioni E1.']
+];
+
+function _eur(n) { return n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }); }
+
+window.computoData = null;
+
+window.generaComputo = function () {
+  const mq = parseFloat(document.getElementById('computoMq')?.value) || 0;
+  const piani = parseInt(document.getElementById('computoPiani')?.value, 10) || 1;
+  const tipo = document.getElementById('computoTipo')?.value || 'ristrutturazione';
+  const classe = document.getElementById('computoClasse')?.value || 'G → A4';
+  const k = tipo === 'nuova' ? 1.25 : tipo === 'restyling' ? 0.55 : 1;
+  const righe = COMPUTO_VOCI.filter(v => !(tipo === 'restyling' && ['Impianti MEP', 'Serramenti'].includes(v[0]) && v[1].startsWith('Pompa'))).map(v => {
+    const qta = +(mq * v[3] * (v[0] === 'Opere Edili' ? piani : 1)).toFixed(2);
+    return { cat: v[0], desc: v[1], um: v[2], qta, pu: v[4] * k, tot: qta * v[4] * k, fonte: v[5], capitolato: v[6] };
+  });
+  const netto = righe.reduce((s, r) => s + r.tot, 0);
+  const sicurezza = netto * 0.03, spese = netto * 0.12, utile = netto * 0.10;
+  const imponibile = netto + sicurezza + spese + utile, iva = imponibile * 0.10;
+  window.computoData = { mq, piani, tipo, classe, righe, netto, sicurezza, spese, utile, imponibile, iva, totale: imponibile + iva };
+  const d = window.computoData;
+  const cats = {};
+  righe.forEach(r => cats[r.cat] = (cats[r.cat] || 0) + r.tot);
+  document.getElementById('computoOut').innerHTML =
+    '<table style="width:100%;border-collapse:collapse;">' +
+    righe.map(r => `<tr><td>${r.desc}</td><td style="text-align:right">${r.qta} ${r.um}</td><td style="text-align:right">${_eur(r.pu)}</td><td style="text-align:right">${_eur(r.tot)}</td></tr>`).join('') +
+    `<tr style="border-top:1px solid #475569"><td colspan="3">Lavori netti</td><td style="text-align:right">${_eur(netto)}</td></tr>` +
+    `<tr><td colspan="3">Sicurezza 3% + Spese gen. 12% + Utile 10%</td><td style="text-align:right">${_eur(sicurezza + spese + utile)}</td></tr>` +
+    `<tr><td colspan="3">IVA 10%</td><td style="text-align:right">${_eur(iva)}</td></tr>` +
+    `<tr style="font-weight:800;color:#34d399"><td colspan="3">COSTO PRESUNTO DELL'OPERA</td><td style="text-align:right">${_eur(d.totale)}</td></tr></table>`;
+  appendLog(`📊 Computo generato: ${mq} mq, ${tipo} → costo presunto ${_eur(d.totale)}.`);
+  return d;
+};
+
+function _relazioneTesto(d) {
+  const docs = (APP_STATE.studio.documents || []).map(x => x.name).join(', ') || 'nessuno';
+  const geo = APP_STATE.geo || {};
+  return [
+    `RELAZIONE TECNICA ILLUSTRATIVA`,
+    `1. Stato di fatto. Immobile di ${d.mq} mq su ${d.piani} piano/i, coordinate ${geo.lat?.toFixed ? geo.lat.toFixed(4) : 'n.d.'}, ${geo.lng?.toFixed ? geo.lng.toFixed(4) : 'n.d.'}. Documenti acquisiti: ${docs}.`,
+    `2. Stato di progetto. Intervento di tipo "${d.tipo}" comprendente opere edili, serramenti, finiture, impianti MEP e arredi, come da computo.`,
+    `3. Rispondenza normativa. Verifica requisiti aeroilluminanti (RAI ≥ 1/8), DM 37/08 per impianti, D.Lgs 192/05 e DM requisiti minimi per prestazione energetica, CEI 64-8. La conformità urbanistica (titolo edilizio, CILA/SCIA/PdC) va asseverata da tecnico abilitato.`,
+    `4. Miglioramento energetico previsto: ${d.classe} (stima preliminare; il valore ufficiale richiede APE redatto da certificatore).`,
+    `5. Quadro economico: costo presunto dell'opera ${_eur(d.totale)} (IVA inclusa), indicativo e non vincolante.`
+  ].join('\n\n');
+}
+
+window.exportDossierPDF = async function () {
+  const d = window.computoData || window.generaComputo();
+  const load = async () => {
+    if (window.jspdf) return;
+    await _loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  };
+  try {
+    await load();
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+    let y = 15;
+    const W = 180;
+    const line = (txt, size = 9, bold = false) => {
+      pdf.setFont('helvetica', bold ? 'bold' : 'normal'); pdf.setFontSize(size);
+      pdf.splitTextToSize(String(txt), W).forEach(l => { if (y > 280) { pdf.addPage(); y = 15; } pdf.text(l, 15, y); y += size * 0.45 + 1.2; });
+    };
+    const eur = n => 'EUR ' + n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    line('DOSSIER PROGETTUALE - CADBridge Pro', 16, true);
+    line(new Date().toLocaleDateString('it-IT') + ' | ' + d.mq + ' mq | ' + d.tipo, 9); y += 3;
+    line('1. COMPUTO METRICO ESTIMATIVO', 13, true);
+    d.righe.forEach((r, i) => line(`${i + 1}. [${r.cat}] ${r.desc} - ${r.qta} ${r.um} x ${eur(r.pu)} = ${eur(r.tot)}  (rif. ${r.fonte})`));
+    line(`Lavori netti: ${eur(d.netto)}`, 9, true);
+    line(`Sicurezza 3%: ${eur(d.sicurezza)} | Spese generali 12%: ${eur(d.spese)} | Utile 10%: ${eur(d.utile)}`);
+    line(`IVA 10%: ${eur(d.iva)}`);
+    line(`COSTO PRESUNTO DELL'OPERA: ${eur(d.totale)}`, 11, true); y += 3;
+    line('2. CAPITOLATO SPECIALE D\'APPALTO', 13, true);
+    d.righe.forEach((r, i) => line(`Art. ${i + 1} - ${r.desc}: ${r.capitolato}`));
+    y += 3;
+    _relazioneTesto(d).split('\n\n').forEach((p, i) => line(p, i === 0 ? 13 : 9, i === 0));
+    y += 3;
+    line('Nota: prezzi indicativi; il pacchetto va coordinato con lo script SketchUp (_3D.rb) e verificato da un tecnico abilitato.', 8);
+    pdf.save(`Dossier_Computo_Capitolato_Relazione_${Date.now()}.pdf`);
+    appendLog('📄 Dossier PDF esportato (Computo + Capitolato + Relazione).');
+  } catch (e) {
+    // Fallback offline: finestra di stampa → "Salva come PDF"
+    const w = window.open('', '_blank');
+    if (!w) { appendLog('⚠️ Popup bloccato: impossibile esportare PDF.'); return; }
+    const esc = s => String(s).replace(/</g, '&lt;');
+    w.document.write('<html><body style="font-family:sans-serif;font-size:12px"><h1>Dossier Progettuale</h1><h2>Computo</h2><ul>' +
+      d.righe.map(r => `<li>${esc(r.desc)}: ${r.qta} ${r.um} = ${_eur(r.tot)}</li>`).join('') + `</ul><b>Costo presunto: ${_eur(d.totale)}</b><h2>Capitolato</h2><ul>` +
+      d.righe.map(r => `<li>${esc(r.desc)}: ${esc(r.capitolato)}</li>`).join('') + '</ul><pre style="white-space:pre-wrap">' + esc(_relazioneTesto(d)) + '</pre></body></html>');
+    w.document.close(); w.print();
+    appendLog('📄 Libreria PDF non raggiungibile: aperta stampa (scegli "Salva come PDF").');
+  }
+};

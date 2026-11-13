@@ -322,6 +322,28 @@
               <div id="studioDocsList" style="display:flex;flex-direction:column;gap:5px;"></div>
             </div>
 
+            <!-- v10: COMPUTO METRICO, CAPITOLATO & RELAZIONE TECNICA -->
+            <div id="computoHub" style="margin-bottom:10px;padding:10px;border-radius:10px;background:linear-gradient(145deg,#090d16,#064e3b);border:1px solid rgba(52,211,153,0.45);width:100%;">
+              <div style="font-size:0.75rem;font-weight:800;color:#a7f3d0;margin-bottom:6px;">📊 Computo Metrico Estimativo, Capitolato &amp; Relazione Tecnica</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px;margin-bottom:6px;font-size:0.65rem;color:#cbd5e1;">
+                <label>Superficie mq<input id="computoMq" type="number" value="85" min="1" class="cmd-input" style="width:100%;padding:4px;" /></label>
+                <label>Piani<input id="computoPiani" type="number" value="1" min="1" class="cmd-input" style="width:100%;padding:4px;" /></label>
+                <label>Intervento
+                  <select id="computoTipo" class="cmd-input" style="width:100%;padding:4px;">
+                    <option value="ristrutturazione">Ristrutturazione</option>
+                    <option value="nuova">Nuova costruzione</option>
+                    <option value="restyling">Restyling interni</option>
+                  </select></label>
+                <label>Classe energetica<select id="computoClasse" class="cmd-input" style="width:100%;padding:4px;"><option>G → A4</option><option>F → A2</option><option>E → B</option><option>D → A1</option></select></label>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-cyan" onclick="generaComputo()" style="font-size:10px;padding:5px 9px;">📊 Genera Computo</button>
+                <button type="button" class="btn" onclick="exportDossierPDF()" style="font-size:10px;padding:5px 9px;background:#059669;color:#fff;">📄 Esporta Dossier PDF</button>
+              </div>
+              <div id="computoOut" style="margin-top:6px;font-size:0.68rem;color:#e2e8f0;overflow-x:auto;"></div>
+              <div style="margin-top:4px;font-size:0.6rem;color:#94a3b8;">Prezzi indicativi di riferimento (listini tipo Edilportale/Archiproducts): da verificare con preventivi reali.</div>
+            </div>
+
             <!-- Quick Paste Coordinates from Google Maps Bar -->
             <div style="background:var(--bg-primary);padding:10px;border-radius:10px;border:1px solid var(--border-subtle);width:100%;">
               <label style="display:block;font-size:0.71rem;color:#22d3ee;font-weight:700;margin-bottom:5px;">
