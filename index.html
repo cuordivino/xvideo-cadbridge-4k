@@ -2002,14 +2002,21 @@
         </div>
         <div class="mvr">
           <input type="text" id="mvPName" placeholder="Prodotto dal portale (nome)" style="min-width:160px">
-          <input type="text" id="mvPUrl" placeholder="Link scheda prodotto" style="min-width:160px">
+          <input type="text" id="mvPUrl" placeholder="Link scheda prodotto" style="min-width:150px">
+          <input type="number" id="mvPPrice" placeholder="€ unit." style="width:72px" min="0" step="1">
           <select id="mvPSrc"><option value="Edilportale">Edilportale</option><option value="Archiproducts">Archiproducts</option></select>
-          <button class="btn btn-cyan" onclick="mvCatManual()">➕ Inietta prodotto da link</button>
+          <button class="btn btn-cyan" onclick="mvCatManual()">➕ Inietta</button>
+          <button class="btn" onclick="mvPastePortalCard()" title="Incolla testo/link copiato da Edilportale o Archiproducts">📋 Incolla Scheda</button>
         </div>
+        <div class="mvr">
+          <label class="btn" style="cursor:pointer">📥 Importa CSV/XLSX/PDF Scheda<input type="file" accept=".csv,.txt,.json,.xlsx,.xls,.pdf" class="hidden" onchange="mvImportCatalogAny(event)"></label>
+          <button class="btn" onclick="mvFetchOpenPbr()">🌐 Texture PBR Live (PolyHaven)</button>
+          <button class="btn" onclick="mvSyncComputo()">📊 Sincronizza in Computo</button>
+        </div>
+        <div id="mvPbrList" class="mvr"></div>
         <div id="mvCatList" class="mvg"></div>
         <div class="mvbox" id="mvInjected" style="margin-top:6px"></div>
-        <div class="mvr"><label class="btn" style="cursor:pointer">📥 Importa CSV prodotti (nome;fonte;url)<input type="file" accept=".csv,.txt" class="hidden" onchange="mvImportCsv(event)"></label></div>
-        <div style="font-size:.6rem;color:#94a3b8">I portali non offrono API pubbliche accessibili dal browser: il catalogo qui è un elenco locale di categorie di prodotto di esempio; per prodotti/brand reali usa i pulsanti di ricerca e incolla nome e link.</div>
+        <div style="font-size:.6rem;color:#94a3b8">Accesso multi-canale: catalogo tecnico locale (32+ voci), estrazione da appunti/link Edilportale-Archiproducts, import schede PDF/CSV/Excel e texture PBR aperte (PolyHaven CC0).</div>
       </div>
 
       <div class="mvc" id="mvChaptersBox">
@@ -2074,8 +2081,19 @@
         #tab-direzione .bl{font-size:.7rem;color:#e2e8f0;background:#020617;border:1px solid #1e293b;border-radius:6px;padding:5px;margin:3px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
       </style>
       <div class="dc">
-        <h3>🏢 Direzione &amp; Agenti — organigramma operativo</h3>
-        <div class="node" style="margin-bottom:8px"><b>👑 CEO (tu)</b> — decisioni finali, approvazione del rilascio.<br><b>🧭 Vice CEO "Atlas"</b> — coordina direttori e agenti, legge la roadmap, propone e (nel workspace di sviluppo) implementa migliorie; il rilascio su <code>main</code> resta approvato da te.</div>
+        <h3>🏢 Direzione &amp; Agenti — Organigramma Operativo (Vice CEO + 3 Direttori + 12 Agenti)</h3>
+        <div class="node" style="margin-bottom:8px">
+          <b>👑 CEO (tu)</b> — decisioni finali, strategia e rilascio su <code>main</code>.<br>
+          <b>🧭 Vice CEO "Atlas"</b> — comando autonomo operativo: orchestra i 3 Direttori (Tecnologia, Contenuti/Media, Business/Dati) e i 12 Agenti, esegue modifiche parametriche live nell'app, diagnostica anomalie e genera specifiche tecniche di sviluppo.
+        </div>
+        <div class="dr" style="margin-bottom:8px">
+          <input id="atlasCmdInput" type="text" placeholder="Ordine al Vice CEO Atlas (es: 'imposta villa 140mq travertino con led e reti mep, poi genera computo')..." style="flex:1;min-width:220px">
+          <button class="btn btn-cyan" onclick="atlasExecuteCommand()">🚀 Esegui Ordine Vice CEO</button>
+          <button class="btn" onclick="atlasQuickPreset('villa')">🏛️ Preset Villa 140mq</button>
+          <button class="btn" onclick="atlasQuickPreset('audit')">🛡️ Audit Completo</button>
+          <button class="btn" onclick="atlasExportDevSpec()">📝 Esporta Specifica Dev (.MD)</button>
+        </div>
+        <div id="atlasExecLog" class="bl" style="display:none;flex-direction:column;align-items:flex-start;margin-bottom:8px;white-space:pre-wrap;color:#a7f3d0;"></div>
         <div id="dirOrg" class="org"></div>
       </div>
       <div class="dc">

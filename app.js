@@ -5917,13 +5917,31 @@ const MV_MOTIV = {
   cappotto: ['Estetica: superfici planari, nuova finitura uniforme.', 'Tecnica/Energia: cappotto EPS/lana di roccia, correzione ponti termici, detrazioni se applicabili.', 'Valore/ROI: riduzione bollette e salto di classe energetica.']
 };
 const MV_CAT = [
-  ['Edilportale', 'Cappotto termico EPS grafitato 12 cm', 'cappotto', 'cappotto'], ['Edilportale', 'Isolante in lana di roccia', 'cappotto', 'cappotto'],
-  ['Edilportale', 'Serramento taglio termico Uw 1.0 triplo vetro', 'vetrate', 'vetrate'], ['Edilportale', 'Tegole in laterizio / copertura ventilata', 'facciata', 'facciata'],
-  ['Edilportale', 'Rivestimento facciata ventilata gres effetto travertino', 'facciata', 'facciata'], ['Edilportale', 'Pompa di calore + VMC (MEP)', 'hvac', 'hvac'],
-  ['Archiproducts', 'Strip LED architetturale 2700K', 'led', 'led'], ['Archiproducts', 'Lampadario in vetro soffiato', 'led', 'led'],
-  ['Archiproducts', 'Boiserie in noce cannettato', 'noce', 'noce'], ['Archiproducts', 'Pavimento parquet a spina', 'parquet', 'parquet'],
-  ['Archiproducts', 'Frangisole in alluminio effetto legno', 'frangisole', 'frangisole'], ['Archiproducts', 'Pergola bioclimatica a lamelle', 'pergola', 'pergola'],
-  ['Archiproducts', 'Sanitari sospesi e rubinetteria', 'resina', 'resina'], ['Archiproducts', 'Tessuto bouclé e velluto per arredi', 'marmo', 'marmo']
+  ['Edilportale', 'Cappotto termico EPS grafitato 12 cm (λ 0.031)', 'cappotto', 62],
+  ['Edilportale', 'Pannello isolante lana di roccia alta densità 14 cm', 'cappotto', 74],
+  ['Edilportale', 'Serramento alluminio-legno taglio termico Uw 1.0 triplo vetro', 'vetrate', 780],
+  ['Edilportale', 'Vetrata scorrevole panoramica minimal Low-E Uw 1.1', 'vetrate', 920],
+  ['Edilportale', 'Facciata ventilata gres porcellanato effetto Travertino Romano', 'facciata', 135],
+  ['Edilportale', 'Copertura ventilata in tegole piane antracite + pacchetto isolante', 'facciata', 110],
+  ['Edilportale', 'Pompa di calore aria-acqua inverter COP 4.5 + accumulo', 'hvac', 8500],
+  ['Edilportale', 'Sistema VMC canalizzata con recupero calore 92%', 'hvac', 3400],
+  ['Edilportale', 'Impianto radiante a pavimento ribassato', 'hvac', 78],
+  ['Edilportale', 'Impianto fotovoltaico integrato 6 kWp + accumulo 10 kWh', 'led', 9800],
+  ['Edilportale', 'Quadro elettrico domotico KNX + moduli dimmer 2700K', 'led', 2600],
+  ['Edilportale', 'Pannello fonoassorbente acustico parete 52 dB', 'cappotto', 55],
+  ['Archiproducts', 'Strip LED architetturale incasso gesso 2700K CRI>92', 'led', 48],
+  ['Archiproducts', 'Lampadario sospensione vetro soffiato Murano / ottone', 'led', 1450],
+  ['Archiproducts', 'Faretti trimless dark-light antiabbagliamento 2700K', 'led', 115],
+  ['Archiproducts', 'Boiserie dogata in Noce Canaletto massello fonoassorbente', 'noce', 240],
+  ['Archiproducts', 'Parquet Rovere Europeo spina ungherese spazzolato', 'parquet', 118],
+  ['Archiproducts', 'Lastre grande formato Marmo Calacatta Gold / Policromo', 'marmo', 195],
+  ['Archiproducts', 'Resina spatolata continua effetto cemento seta (pavimento/parete)', 'resina', 95],
+  ['Archiproducts', 'Frangisole orientabile motorizzato alluminio effetto noce', 'frangisole', 310],
+  ['Archiproducts', 'Pergola bioclimatica a lamelle orientabili + LED perimetrale', 'pergola', 680],
+  ['Archiproducts', 'Divano modulare rivestito in Bouclé avorio ignifugo', 'marmo', 4200],
+  ['Archiproducts', 'Letto imbottito testiera oversize Velluto Rosa Antico', 'marmo', 2800],
+  ['Archiproducts', 'Sanitari sospesi Rimless ceramica satinata + miscelatore PVD ottone', 'resina', 1350],
+  ['Archiproducts', 'Isola cucina monoblocco Travertino + colonne Noce', 'travertino', 14500]
 ];
 const $mv = id => document.getElementById(id);
 const mvShade = (hex, f) => { const n = parseInt(hex.slice(1), 16); const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.max(0, Math.min(255, Math.round(v * f)))); return `rgb(${c})`; };
@@ -6103,20 +6121,96 @@ function mvInitDraw() {
   c.addEventListener('pointerup', () => { if (cur) { cur = null; mvAddInput('schizzo', `tratto ${MV.strokes.length}`); } });
 }
 
-/* --- catalogo --- */
+/* --- catalogo multi-canale --- */
 window.mvCatSearch = function () {
   const q = ($mv('mvQ').value || '').toLowerCase(), list = MV_CAT.filter(p => !q || p[1].toLowerCase().includes(q) || p[0].toLowerCase().includes(q));
-  $mv('mvCatList').innerHTML = list.map((p, i) => `<div class="mvbox"><b>${p[0]}</b> — ${p[1]}<br><button class="btn btn-cyan" onclick="mvInject(${MV_CAT.indexOf(p)})">💉 Inietta nel modello</button></div>`).join('') || '<div class="mvbox">Nessun risultato locale: usa i pulsanti di ricerca sul portale.</div>';
+  $mv('mvCatList').innerHTML = list.map(p => `<div class="mvbox"><b>${p[0]}</b> — ${p[1]} <span style="color:#34d399">(~€${p[3]})</span><br><button class="btn btn-cyan" onclick="mvInject(${MV_CAT.indexOf(p)})">💉 Inietta</button></div>`).join('') || '<div class="mvbox">Nessun risultato locale: cerca su Edilportale/Archiproducts e clicca "📋 Incolla Scheda".</div>';
 };
 function mvInjectProduct(p) {
   MV.products.push(p); const k = p.key;
   if (k in MV.intv) MV.intv[k] = true; if (k in MV_MATS) MV.mat = k;
   if (k === 'hvac') MV.mep.hvac = true; if (k === 'led') MV.mep.el = true;
-  mvIntvUI(); mvVolChanged(); appendLog(`💉 Prodotto iniettato: [${p.src}] ${p.name}`);
+  mvIntvUI(); mvVolChanged(); appendLog(`💉 Prodotto iniettato: [${p.src}] ${p.name}${p.price ? ` (€${p.price})` : ''}`);
 }
-window.mvInject = function (i) { const p = MV_CAT[i]; mvInjectProduct({ src: p[0], name: p[1], key: p[2], url: '' }); };
-window.mvCatManual = function () { const n = $mv('mvPName').value.trim(); if (!n) return; const s = n.toLowerCase(); const key = ['cappotto', 'vetrate', 'facciata', 'led', 'noce', 'parquet', 'frangisole', 'pergola', 'resina', 'marmo', 'travertino'].find(k => s.includes(k.replace('vetrate', 'infiss'))) || 'facciata'; mvInjectProduct({ src: $mv('mvPSrc').value, name: n, key, url: $mv('mvPUrl').value.trim() }); $mv('mvPName').value = ''; $mv('mvPUrl').value = ''; };
+window.mvInject = function (i) { const p = MV_CAT[i]; mvInjectProduct({ src: p[0], name: p[1], key: p[2], price: p[3] || 0, url: '' }); };
+window.mvCatManual = function () {
+  const n = $mv('mvPName').value.trim(); if (!n) return;
+  const s = n.toLowerCase(), pr = parseFloat($mv('mvPPrice')?.value) || 0;
+  const key = ['cappotto', 'vetrate', 'facciata', 'led', 'noce', 'parquet', 'frangisole', 'pergola', 'resina', 'marmo', 'travertino', 'hvac'].find(k => s.includes(k.replace('vetrate', 'infiss'))) || 'facciata';
+  mvInjectProduct({ src: $mv('mvPSrc').value, name: n, key, price: pr, url: $mv('mvPUrl').value.trim() });
+  $mv('mvPName').value = ''; $mv('mvPUrl').value = ''; if ($mv('mvPPrice')) $mv('mvPPrice').value = '';
+};
 window.mvOpenPortal = function (p) { const q = encodeURIComponent($mv('mvQ').value || ''); window.open(p === 'edilportale' ? `https://www.edilportale.com/prodotti?q=${q}` : `https://www.archiproducts.com/it/search?q=${q}`, '_blank', 'noopener'); };
+window.mvPastePortalCard = async function () {
+  let raw = '';
+  try { raw = await navigator.clipboard.readText(); } catch (e) { raw = prompt('Incolla qui testo o URL copiato da Edilportale / Archiproducts:') || ''; }
+  if (!raw.trim()) { appendLog('⚠️ Appunti vuoti: copia un link o il testo della scheda prodotto dal portale.'); return; }
+  const urlMatch = raw.match(/https?:\/\/\S+/i);
+  const url = urlMatch ? urlMatch[0] : '';
+  const src = /archiproducts/i.test(raw) ? 'Archiproducts' : 'Edilportale';
+  const priceMatch = raw.match(/(?:€|EUR)\s*([\d.,]+)/i);
+  const price = priceMatch ? parseFloat(priceMatch[1].replace(/\./g, '').replace(',', '.')) || 0 : 0;
+  const lines = raw.replace(/https?:\/\/\S+/g, '').split(/\r?\n/).map(x => x.trim()).filter(x => x.length > 3);
+  const name = (lines[0] || url.split('/').pop() || 'Prodotto Portale').slice(0, 90);
+  $mv('mvPName').value = name; $mv('mvPUrl').value = url; $mv('mvPSrc').value = src;
+  if ($mv('mvPPrice') && price) $mv('mvPPrice').value = price;
+  mvCatManual();
+};
+window.mvFetchOpenPbr = async function () {
+  const box = $mv('mvPbrList'); if (!box) return;
+  box.innerHTML = '<span style="font-size:.68rem;color:#38bdf8;">⏳ Connessione API PolyHaven CC0...</span>';
+  try {
+    const res = await fetch('https://api.polyhaven.com/assets?t=textures');
+    const data = await res.json();
+    const q = ($mv('mvQ').value || '').toLowerCase();
+    const entries = Object.entries(data).filter(([id, v]) => !q || id.includes(q) || (v.name || '').toLowerCase().includes(q) || (v.tags || []).some(t => t.includes(q))).slice(0, 8);
+    box.innerHTML = entries.map(([id, v]) => `<button type="button" class="btn" onclick="mvInjectProduct({src:'PolyHaven PBR',name:'${(v.name || id).replace(/'/g, '')} (Texture 4K CC0)',key:'travertino',price:0,url:'https://polyhaven.com/a/${id}'})">🧱 ${v.name || id}</button>`).join('') || '<span style="font-size:.68rem;color:#94a3b8;">Nessuna texture trovata per questo filtro.</span>';
+    appendLog(`🌐 PolyHaven API: caricate ${entries.length} texture PBR 4K reali.`);
+  } catch (e) {
+    box.innerHTML = '<span style="font-size:.68rem;color:#f87171;">⚠️ Offline o CORS bloccato per PolyHaven.</span>';
+  }
+};
+window.mvSyncComputo = function () {
+  if (typeof window.generaComputo !== 'function') return;
+  const d = window.generaComputo();
+  const extra = MV.products.filter(p => p.price > 0);
+  if (extra.length && document.getElementById('computoOut')) {
+    const extraTot = extra.reduce((s, p) => s + p.price, 0);
+    const tbl = document.getElementById('computoOut').querySelector('table');
+    if (tbl) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="3" style="color:#38bdf8">+ Prodotti iniettati da Catalogo (${extra.length})</td><td style="text-align:right;color:#38bdf8">${_eur(extraTot)}</td>`;
+      tbl.appendChild(tr);
+    }
+    appendLog(`📊 Sincronizzati ${extra.length} prodotti iniettati nel Computo Metrico (+${_eur(extraTot)}).`);
+  }
+};
+window.mvImportCatalogAny = async function (ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const ext = _extOf(f.name);
+  let count = 0;
+  if (ext === 'json') {
+    try {
+      const arr = JSON.parse(await f.text());
+      (Array.isArray(arr) ? arr : [arr]).forEach(o => { if (o.name || o.prodotto) { $mv('mvPName').value = o.name || o.prodotto; $mv('mvPUrl').value = o.url || ''; $mv('mvPSrc').value = o.src || 'Edilportale'; if ($mv('mvPPrice')) $mv('mvPPrice').value = o.price || 0; mvCatManual(); count++; } });
+    } catch (e) {}
+  } else if (['xlsx', 'xls'].includes(ext)) {
+    await _loadScriptOnce('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+    const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 }).filter(r => r[0]);
+    if (rows.length && /nome|name|prodotto/i.test(String(rows[0][0]))) rows.shift();
+    rows.forEach(r => { $mv('mvPName').value = String(r[0]); $mv('mvPSrc').value = /archi/i.test(String(r[1] || '')) ? 'Archiproducts' : 'Edilportale'; $mv('mvPUrl').value = String(r[2] || ''); if ($mv('mvPPrice') && r[3]) $mv('mvPPrice').value = parseFloat(r[3]) || 0; mvCatManual(); count++; });
+  } else if (ext === 'pdf') {
+    await processDocumentFile(f);
+    $mv('mvPName').value = `Scheda Tecnica PDF: ${f.name.replace(/\.pdf$/i, '')}`; $mv('mvPSrc').value = 'Edilportale'; mvCatManual(); count = 1;
+  } else {
+    const rows = (await f.text()).split(/\r?\n/).map(l => l.split(/[;,\t]/).map(s => s.trim().replace(/^"|"$/g, ''))).filter(r => r[0]);
+    if (rows.length && /^nome|^name|^prodotto/i.test(rows[0][0])) rows.shift();
+    rows.forEach(r => { $mv('mvPName').value = r[0]; $mv('mvPSrc').value = /archi/i.test(r[1] || '') ? 'Archiproducts' : 'Edilportale'; $mv('mvPUrl').value = r[2] || ''; if ($mv('mvPPrice') && r[3]) $mv('mvPPrice').value = parseFloat(r[3]) || 0; mvCatManual(); count++; });
+  }
+  ev.target.value = '';
+  appendLog(`📥 Import Catalogo (${ext.toUpperCase()}): ${count} prodotti iniettati.`);
+};
 
 /* --- master --- */
 window.mvUseStudio = function () { const c = $mv('studio-canvas'); if (!c) return; const im = new Image(); im.onload = () => { MV.master = im; $mv('mvMasterInfo').textContent = 'Master dallo Studio 4K (bloccata).'; mvRefresh(); }; im.src = c.toDataURL('image/png'); };
@@ -6303,4 +6397,81 @@ window.mvImportCsv = async function (ev) {
   rows.forEach(r => { $mv('mvPName').value = r[0]; $mv('mvPUrl').value = r[2] || ''; $mv('mvPSrc').value = /archi/i.test(r[1] || '') ? 'Archiproducts' : 'Edilportale'; mvCatManual(); n++; });
   ev.target.value = ''; appendLog(`📥 Import CSV: ${n} prodotti iniettati dal file ${f.name}.`);
 };
+window.atlasExecuteCommand = async function (customCmd) {
+  const inp = document.getElementById('atlasCmdInput');
+  const cmd = (customCmd || inp?.value || '').trim();
+  if (!cmd) return;
+  const s = cmd.toLowerCase();
+  const log = [];
+  log.push(`🧭 [VICE CEO ATLAS] Ricevuto ordine CEO: "${cmd}"`);
+
+  // D1 Tecnologia & A2 CAD / Parametrico
+  const mqM = s.match(/(\d{2,4})\s*mq/);
+  if (mqM && document.getElementById('computoMq')) {
+    document.getElementById('computoMq').value = mqM[1];
+    log.push(`  ├─ [D1 • A2 CAD]: Superficie impostata a ${mqM[1]} mq.`);
+  }
+  const hM = s.match(/altezza\s*(\d{3})/);
+  if (hM && $mv('mvH')) { $mv('mvH').value = hM[1]; log.push(`  ├─ [D1 • A2 CAD]: Altezza parametrica H = ${hM[1]} cm.`); }
+  if (/mep|ret[ei]|impiant/.test(s) && typeof MV !== 'undefined') {
+    MV.mep = { el: true, idr: true, hvac: true, gas: true };
+    log.push('  ├─ [D1 • A2 MEP]: Attivate tutte le 4 reti MEP (Elettrico, Idrico, HVAC, Gas/Fibra).');
+  }
+
+  // D2 Contenuti & A6/A7 Media/Voce
+  if (typeof MV !== 'undefined') {
+    [['travertino', 'travertino'], ['noce', 'noce'], ['parquet', 'parquet'], ['marmo', 'marmo'], ['resina', 'resina']].forEach(([k, m]) => {
+      if (s.includes(k)) { MV.mat = m; log.push(`  ├─ [D2 • A6 Regia]: Materiale master → ${m}.`); }
+    });
+    if (/led|luce|2700/.test(s)) { MV.intv.led = true; MV.mep.el = true; log.push('  ├─ [D2 • A6 Regia]: Illuminazione architetturale LED 2700K attivata.'); }
+    if (/pergola/.test(s)) { MV.intv.pergola = true; log.push('  ├─ [D2 • A6 Regia]: Pergola bioclimatica attivata.'); }
+    if (typeof mvRefresh === 'function') mvRefresh();
+  }
+
+  // D3 Business & A10 Computo
+  if (/computo|cost[oi]|preventiv|villa|ottimizza/.test(s) && typeof window.generaComputo === 'function') {
+    const d = window.generaComputo();
+    if (typeof window.mvSyncComputo === 'function') window.mvSyncComputo();
+    log.push(`  ├─ [D3 • A10 Computo]: Rigenerato computo (${d.mq} mq → ${_eur(d.totale)}).`);
+  }
+
+  if (/audit|diagnosi|controlla/.test(s)) {
+    await window.dirDiagnose();
+    log.push('  ├─ [D1 • A3 QA]: Eseguita auto-diagnosi di sistema e aggiornato backlog.');
+  }
+
+  // Registra come task completato nel backlog
+  DIR_STATE.backlog.unshift({ id: Date.now() % 1e7, title: `Eseguito: ${cmd.slice(0, 70)}`, agent: 'A1', prio: 'Alta', st: 'done' });
+  dirSave(); dirRender();
+  if (!customCmd && inp) inp.value = '';
+
+  const box = document.getElementById('atlasExecLog');
+  if (box) { box.style.display = 'flex'; box.textContent = log.join('\n') + '\n  └─ ✅ Tutti i 3 Direttori e 12 Agenti sincronizzati.'; }
+  appendLog(`🧭 Vice CEO Atlas ha eseguito: "${cmd}"`);
+};
+
+window.atlasQuickPreset = function (kind) {
+  if (kind === 'villa') window.atlasExecuteCommand('imposta villa 140mq travertino con led 2700k, pergola e reti mep, genera computo');
+  else if (kind === 'audit') window.atlasExecuteCommand('esegui audit completo sistema, bridge e quote');
+};
+
+window.atlasExportDevSpec = function () {
+  const md = [
+    '# SPECIFICA TECNICA AUTONOMA — VICE CEO ATLAS',
+    `Data: ${new Date().toLocaleString('it-IT')}`,
+    '\n## Stato Direzione (3 Direttori + 12 Agenti)',
+    ...DIR_ORG.map(d => `### ${d.name}\n` + d.agents.map(a => `- **${a[0]} ${a[1]}**: ${a[2]}`).join('\n')),
+    '\n## Backlog Operativo Aperto',
+    ...DIR_STATE.backlog.filter(b => b.st !== 'done').map(b => `- [${b.agent} • ${b.prio}] ${b.title}`),
+    '\n## Prodotti & Configurazione Attiva',
+    `- Materiale: ${typeof MV !== 'undefined' ? MV.mat : 'n.d.'}`,
+    `- Prodotti iniettati: ${typeof MV !== 'undefined' ? MV.products.map(p => p.name).join(', ') || 'nessuno' : 'n.d.'}`
+  ].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
+  a.download = `ATLAS_DEV_SPEC_${Date.now()}.md`;
+  a.click();
+  appendLog('📝 Specifica tecnica autonoma esportata (ATLAS_DEV_SPEC.md).');
+};
+
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dirRender); else dirRender();
