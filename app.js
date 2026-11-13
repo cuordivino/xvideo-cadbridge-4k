@@ -2574,6 +2574,7 @@ function drawCadPreview() {
     ctx.fillText(`Director: ${arch.agents.Motion_Director.substring(0, 38)}`, 18, 54);
   }
 
+  if (window.luxurySceneActive && typeof drawLuxuryScene === 'function') drawLuxuryScene(ctx, W, H, currentLuxuryArchetype);
   // ANELLO 1: APOLLO PROMPT VAULT & 3D CAMERA CUBE OVERLAY
   if (typeof APOLLO_VAULT_STATE !== 'undefined' && APOLLO_VAULT_STATE.activeMode) {
     const mode = APOLLO_VAULT_STATE.activeMode;
@@ -2754,19 +2755,7 @@ function drawCadPreview() {
     }
   }
 
-  // POST-FX: AI IMAGE & VIDEO ENHANCER 4K TINT & VIGNETTE
-  if (typeof ENHANCER_POST_FX !== 'undefined') {
-    if (ENHANCER_POST_FX.lut === 'warm_ad') {
-      ctx.fillStyle = 'rgba(245, 158, 11, 0.05)';
-      ctx.fillRect(0, 0, W, H);
-    } else if (ENHANCER_POST_FX.lut === 'art_deco') {
-      ctx.fillStyle = 'rgba(236, 72, 153, 0.05)';
-      ctx.fillRect(0, 0, W, H);
-    } else if (ENHANCER_POST_FX.lut === 'blue_hour') {
-      ctx.fillStyle = 'rgba(14, 165, 233, 0.07)';
-      ctx.fillRect(0, 0, W, H);
-    }
-  }
+  if (typeof applyEnhancerPostFx === 'function') applyEnhancerPostFx(ctx, W, H);
 }
 
 /* ============================================================================
@@ -4169,163 +4158,36 @@ window.selectPromoDemoSector = function (secId) {
 /* ============================================================================
    2. LUXURY 4K RENDER ENGINE (13 ARCHETIPI 2D -> 3D — VIDEO 3 @renderdilusso)
    ============================================================================ */
+function mk(name, desc, angle, lighting, a, b, c, d) {
+  return { name, desc, angle, lighting, agents: { CAD_Vector_Parser: a, Spatial_3D_Extruder: b, PBR_Luxury_Shader: c, Motion_Director: d } };
+}
 const LUXURY_4K_ARCHETYPES = {
-  ISO_CUTAWAY: {
-    name: 'Spaccato Isometrico 35.264°',
-    desc: 'Spaccato 3D isolato, illuminazione Golden Hour / Night 2700K',
-    angle: 35.264,
-    lighting: '2700K Warm LED',
-    agents: {
-      CAD_Vector_Parser: 'Polilinee vano estrapolate da DWG/DXF',
-      Spatial_3D_Extruder: 'Estrusione muri 2.70m con taglio a 1.20m',
-      PBR_Luxury_Shader: 'Parquet rovere spazzolato + intonaco materico',
-      Motion_Director: 'Orbita assonometrica statica 35.264°'
-    }
-  },
-  TOPDOWN_WALK: {
-    name: 'Planivolumetrico Zenitale Nadir -90°',
-    desc: 'Vista zenitale ortogonale con percorso walkthrough tratteggiato',
-    angle: -90,
-    lighting: 'Luce Diffusa Daylight 5000K',
-    agents: {
-      CAD_Vector_Parser: 'Calcolo ingombri netti e layout arredi',
-      Spatial_3D_Extruder: 'Appiattimento ortogonale Z=0 con ombre di contatto',
-      PBR_Luxury_Shader: 'Mappatura materiali pavimento Calacatta e resina',
-      Motion_Director: 'Pan lineare lungo asse distributivo'
-    }
-  },
-  MICRO_BUILDERS: {
-    name: 'Mini-Costruttori/Puffi 3D su CAD',
-    desc: 'Micro-personaggi 3D animati che montano solai e infissi direttamente sul disegno CAD',
-    angle: 45,
-    lighting: 'Micro Spotlight 4000K',
-    agents: {
-      CAD_Vector_Parser: 'Tracciamento snap e punti inserimento armature',
-      Spatial_3D_Extruder: 'Generazione procedural micro-bridge impalcature',
-      PBR_Luxury_Shader: 'Miniature shader PBR balsa e cianfrusaglie da cantiere',
-      Motion_Director: 'Animazione cinematografica tilt-shift micro builders'
-    }
-  },
-  CLIFF_SECTION: {
-    name: 'Spaccato Scogliera Multipiano',
-    desc: 'Sezione verticale multipiano aggrappata alla roccia con piscine sospese a sfioro',
-    angle: -20,
-    lighting: 'Ocean Twilight 3200K',
-    agents: {
-      CAD_Vector_Parser: 'Sezione topografica scogliera da quote terreno',
-      Spatial_3D_Extruder: 'Estrusione solai aggettanti e vasche a sfioro',
-      PBR_Luxury_Shader: 'Acqua caustica PBR + roccia vulcanica a spacco',
-      Motion_Director: 'Crane shot verticale dal mare alla terrazza master'
-    }
-  },
-  COMMERCIAL_FLOW: {
-    name: 'Layout Commerciale / Salon Flow',
-    desc: 'Planimetria retail/salon vivente con flussi clienti e postazioni specchio quotate',
-    angle: -90,
-    lighting: 'High-CRI Studio Neutral 4500K',
-    agents: {
-      CAD_Vector_Parser: 'Rilevamento postazioni lavoro e distanze ergonomiche',
-      Spatial_3D_Extruder: 'Banchi cassa e specchi retroilluminati a LED 3D',
-      PBR_Luxury_Shader: 'Vetro fumé, metallo canna di fucile e marmo nero',
-      Motion_Director: 'Tracking sequenziale percorso cliente reception -> styling'
-    }
-  },
-  PARACHUTE_DROP: {
-    name: 'Paracadutisti nello Spaccato 3D',
-    desc: 'Lancio dal cielo con discesa in slow-motion direttamente nel patio centrale',
-    angle: 60,
-    lighting: 'Sky Daylight 6500K',
-    agents: {
-      CAD_Vector_Parser: 'Perimetro atrio scoperto e coordinate landing zone',
-      Spatial_3D_Extruder: 'Estrusione volumetrica con apertura aerea zenitale',
-      PBR_Luxury_Shader: 'Tessuti paracadute iridescenti e foliage giardino',
-      Motion_Director: 'Camera drop in caduta libera con stabilizzazione al suolo'
-    }
-  },
-  QUOTED_LIVE_PLAN: {
-    name: 'Pianta Quotata Bilingue Live',
-    desc: 'Disegno esecutivo animato con quote millimetriche dinamiche ITA/ENG',
-    angle: 0,
-    lighting: 'Technical Drafting Blue-White',
-    agents: {
-      CAD_Vector_Parser: 'Parsing stringhe quote DIM e frecce leader lines',
-      Spatial_3D_Extruder: 'Sollevamento quote su piani Z sfalsati',
-      PBR_Luxury_Shader: 'Linee laser luminescenti e callout tipografici',
-      Motion_Director: 'Zoom progressivo sui vani con comparsa quote in sequenza'
-    }
-  },
-  DAY_NIGHT_ARCH: {
-    name: 'Split Giorno/Notte Archi & Luna',
-    desc: 'Doppia luce cinematografica: sole radente a sinistra, notte 2700K e luna a destra',
-    angle: 30,
-    lighting: 'Bifasico Day/Night 2700K/6000K',
-    agents: {
-      CAD_Vector_Parser: 'Geometrie archi a tutto sesto e colonnati',
-      Spatial_3D_Extruder: 'Profondità gallerie con ombre proiettate lunghe',
-      PBR_Luxury_Shader: 'Shader termico duale (dorato solare vs blu cobalto)',
-      Motion_Director: 'Wipe circolare sincronizzato con orbita lunare'
-    }
-  },
-  REBAR_TO_LUXURY: {
-    name: 'Da Armature Ferro a Villa Finita',
-    desc: 'Transizione time-lapse dal tondino d\'armatura grezzo alle finiture luxury',
-    angle: 40,
-    lighting: 'Industrial -> Warm Architectural',
-    agents: {
-      CAD_Vector_Parser: 'Distinte ferri d\'armatura e gabbie strutturali',
-      Spatial_3D_Extruder: 'Colata virtuale cemento armato e posa cappotto termico',
-      PBR_Luxury_Shader: 'Ruggine/ferro grezzo -> boiserie noce e facciate continue',
-      Motion_Director: 'Time-lapse accelerato 120x con transizione materica continua'
-    }
-  },
-  MINIATURE_UNBOX: {
-    name: 'Cofanetto Modello Diorama 1:50',
-    desc: 'Modello architettonico in scala su basamento espositivo illuminato',
-    angle: 30,
-    lighting: 'Faretto Spot Pin-Spot 3000K',
-    agents: {
-      CAD_Vector_Parser: 'Semplificazione volumetrica scala 1:50',
-      Spatial_3D_Extruder: 'Basamento in noce scuro con teca in cristallo',
-      PBR_Luxury_Shader: 'Materiale alabastro traslucido e finiture ottone',
-      Motion_Director: 'Apertura teca e sollevamento tetto in unboxing'
-    }
-  },
-  SKETCH_EXTRUDE: {
-    name: 'Evoluzione Schizzo a Mano -> Render 4K',
-    desc: 'Il tratto a matita si solleva e prende materia fotorealistica',
-    angle: 35,
-    lighting: 'Luce Solare Diretta Esterno',
-    agents: {
-      CAD_Vector_Parser: 'Vettorizzazione contorni a mano libera',
-      Spatial_3D_Extruder: 'Estrusione verticale dai tratti vettoriali',
-      PBR_Luxury_Shader: 'Dissolvenza grafite -> finitura travertino romano',
-      Motion_Director: 'Wipe diagonale tra schizzo 2D e render 3D'
-    }
-  },
-  MATERIAL_MORPH: {
-    name: 'Morphing Finiture & Moodboard PBR',
-    desc: 'Sostituzione istantanea di marmi, legni e tessuti in tempo reale',
-    angle: 40,
-    lighting: 'Studio Lighting Fotolaboratorio',
-    agents: {
-      CAD_Vector_Parser: 'Segmentazione semantica superfici per id layer',
-      Spatial_3D_Extruder: 'Mesh 3D suddivisa per pacchetti applicativi',
-      PBR_Luxury_Shader: 'Swap PBR: Calacatta -> Marquinia -> Rovere Termotrattato',
-      Motion_Director: 'Transizione fluida a onde concentriche'
-    }
-  },
-  MACRO_SIX_SHOT: {
-    name: '6 Dettagli Macro 4K Close-Up',
-    desc: 'Sequenza di 6 dettagli sartoriali di nodi architettonici e materiali',
-    angle: 50,
-    lighting: 'Macro Softbox 3200K',
-    agents: {
-      CAD_Vector_Parser: 'Individuazione nodi costruttivi e raccordi',
-      Spatial_3D_Extruder: 'Dettagliature micro-geometriche smussi e fughe',
-      PBR_Luxury_Shader: 'Micro-rugosità PBR e profondità di campo bokeh f/1.8',
-      Motion_Director: 'Sequenza 6 close-up cinematografici a stacco rapido'
-    }
-  }
+  ISO_CUTAWAY: mk('Spaccato Isometrico 35.264° + Day/Night 2700K', '00:16 Spaccato isometrico con switch luci Day/Night', 35.264, '2700K Warm LED',
+    'Parsing vettori/quote per ISO_CUTAWAY', 'Estrusione 3D ISO_CUTAWAY', 'PBR luxury shader 2700K Warm LED', 'Motion director ISO_CUTAWAY'),
+  TOPDOWN_WALK: mk('Nadir -90° parquet a spina con persone', '00:50 Vista zenitale con persone in movimento', -90, 'Daylight 5000K',
+    'Parsing vettori/quote per TOPDOWN_WALK', 'Estrusione 3D TOPDOWN_WALK', 'PBR luxury shader Daylight 5000K', 'Motion director TOPDOWN_WALK'),
+  MICRO_BUILDERS: mk('Mini-costruttori sul foglio CAD', '01:40 Squadra 3D che edifica muri e piscina sul foglio CAD', 45, 'Micro Spot 4000K',
+    'Parsing vettori/quote per MICRO_BUILDERS', 'Estrusione 3D MICRO_BUILDERS', 'PBR luxury shader Micro Spot 4000K', 'Motion director MICRO_BUILDERS'),
+  VERTICAL_SECTION: mk('Sezione verticale multipiano', '02:46 Sezione con scala centrale illuminata', 0, 'Interno 3000K',
+    'Parsing vettori/quote per VERTICAL_SECTION', 'Estrusione 3D VERTICAL_SECTION', 'PBR luxury shader Interno 3000K', 'Motion director VERTICAL_SECTION'),
+  COMMERCIAL_FLOW: mk('Planimetria retail/salone quotata con flussi', '03:03 Flussi clienti e postazioni attive', -90, 'CRI 4500K',
+    'Parsing vettori/quote per COMMERCIAL_FLOW', 'Estrusione 3D COMMERCIAL_FLOW', 'PBR luxury shader CRI 4500K', 'Motion director COMMERCIAL_FLOW'),
+  LIFESTYLE_GARAGE: mk('Villa al crepuscolo + garage con SUV', '03:20/03:36 Esterno crepuscolare e garage di lusso', 20, 'Blue Hour',
+    'Parsing vettori/quote per LIFESTYLE_GARAGE', 'Estrusione 3D LIFESTYLE_GARAGE', 'PBR luxury shader Blue Hour', 'Motion director LIFESTYLE_GARAGE'),
+  QUOTED_LIVE_PLAN: mk('Pianta 3D con quote nei vani', '03:53 Quote 5400x5500 e auto nel box', 35, 'Technical Blue-White',
+    'Parsing vettori/quote per QUOTED_LIVE_PLAN', 'Estrusione 3D QUOTED_LIVE_PLAN', 'PBR luxury shader Technical Blue-White', 'Motion director QUOTED_LIVE_PLAN'),
+  CAD_POPUP_3D: mk('Arredi che emergono dal disegno CAD', '04:26 Arredi fotorealistici che salgono dalla carta', 40, 'Studio 4000K',
+    'Parsing vettori/quote per CAD_POPUP_3D', 'Estrusione 3D CAD_POPUP_3D', 'PBR luxury shader Studio 4000K', 'Motion director CAD_POPUP_3D'),
+  BALSA_HANDS: mk('Plastico in balsa su cutting mat', '05:16 Guanti neri e pinzette assemblano il plastico', 30, 'Macro 3200K',
+    'Parsing vettori/quote per BALSA_HANDS', 'Estrusione 3D BALSA_HANDS', 'PBR luxury shader Macro 3200K', 'Motion director BALSA_HANDS'),
+  WAVE_MATERIAL: mk('Onda che trasforma blocchi in travertino e noce', '05:33 Onda geometrica materica', 40, 'Studio Soft',
+    'Parsing vettori/quote per WAVE_MATERIAL', 'Estrusione 3D WAVE_MATERIAL', 'PBR luxury shader Studio Soft', 'Motion director WAVE_MATERIAL'),
+  CEILING_LASER: mk('Controsoffitti, impianti e livella laser', '05:50 Operai con caschetto rosso e laser', 25, 'Cantiere 5000K',
+    'Parsing vettori/quote per CEILING_LASER', 'Estrusione 3D CEILING_LASER', 'PBR luxury shader Cantiere 5000K', 'Motion director CEILING_LASER'),
+  NEON_WIREFRAME: mk('Linee dorate disegnano letto e lampadari', '06:06 Wireframe luminoso dorato su nero', 35, 'Neon Gold',
+    'Parsing vettori/quote per NEON_WIREFRAME', 'Estrusione 3D NEON_WIREFRAME', 'PBR luxury shader Neon Gold', 'Motion director NEON_WIREFRAME'),
+  MACRO_SIX_SHOT: mk('1 render → 6 close-up push-in', '06:33/06:56 Murano, marmo, bouclé, tende, testiera, reveal', 50, 'Softbox 3200K',
+    'Parsing vettori/quote per MACRO_SIX_SHOT', 'Estrusione 3D MACRO_SIX_SHOT', 'PBR luxury shader Softbox 3200K', 'Motion director MACRO_SIX_SHOT'),
 };
 
 let currentLuxuryArchetype = 'ISO_CUTAWAY';
@@ -4450,7 +4312,11 @@ window.updateEnhancerPostFx = function() {
 
 window.selectLuxuryArchetype = function (archetypeKey) {
   const arch = LUXURY_4K_ARCHETYPES[archetypeKey] || LUXURY_4K_ARCHETYPES.ISO_CUTAWAY;
+  const wasOn = window.luxurySceneActive && currentLuxuryArchetype === archetypeKey;
   currentLuxuryArchetype = archetypeKey;
+  window.luxurySceneActive = !wasOn;
+  clearInterval(window._luxTimer);
+  if (window.luxurySceneActive) window._luxTimer = setInterval(() => typeof drawCadPreview === 'function' && drawCadPreview(), 70);
 
   const buttons = document.querySelectorAll('#luxuryArchetypeSelector button');
   buttons.forEach(btn => {
@@ -5943,3 +5809,96 @@ window.exportDossierPDF = async function () {
     appendLog('📄 Libreria PDF non raggiungibile: aperta stampa (scegli "Salva come PDF").');
   }
 };
+
+
+/* ===== v11: 13 ARCHETIPI — RENDERING DEDICATO SU cadCanvas + ENHANCER REALE ===== */
+function drawLuxuryScene(ctx, W, H, key) {
+  const t = Date.now() / 1000, x0 = 16, y0 = 70, w = W - 32, h = H - 86, cx = x0 + w / 2, cy = y0 + h / 2;
+  const R = (x, y, ww, hh, f, s) => { if (f) { ctx.fillStyle = f; ctx.fillRect(x, y, ww, hh); } if (s) { ctx.strokeStyle = s; ctx.strokeRect(x, y, ww, hh); } };
+  const D = (x, y, r, f) => { ctx.fillStyle = f; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); };
+  const L = (a, b, c, d, col, lw = 1) => { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); };
+  const T = (s, x, y, col = '#e2e8f0', f = '10px Inter, sans-serif') => { ctx.fillStyle = col; ctx.font = f; ctx.fillText(s, x, y); };
+  const lerp = (a, b, p) => a + (b - a) * p, saw = (p) => (t * p) % 1;
+  ctx.save();
+  R(x0, y0, w, h, 'rgba(8,12,24,0.94)', 'rgba(0,229,255,0.5)');
+  ctx.beginPath(); ctx.rect(x0, y0, w, h); ctx.clip();
+  const meta = LUXURY_4K_ARCHETYPES[key];
+  if (key === 'ISO_CUTAWAY') {
+    const night = Math.sin(t / 2) > 0;
+    R(x0, y0, w, h, night ? '#0b1030' : '#f1d9a8');
+    const bx = cx, by = cy + 30, s = Math.min(w, h) / 4;
+    [['#a8896a', [[0, 0], [s, s / 2], [0, s], [-s, s / 2]]], ['#7c6247', [[-s, s / 2], [0, s], [0, s * 1.7], [-s, s * 1.2]]], ['#947754', [[s, s / 2], [0, s], [0, s * 1.7], [s, s * 1.2]]]].forEach(([c, p]) => {
+      ctx.fillStyle = c; ctx.beginPath(); p.forEach(([a, b], i) => i ? ctx.lineTo(bx + a, by - s + b) : ctx.moveTo(bx + a, by - s + b)); ctx.fill(); });
+    if (night) { ctx.fillStyle = 'rgba(255,170,60,0.45)'; ctx.beginPath(); ctx.arc(bx, by - s / 2 + 20, s * 0.9, 0, 7); ctx.fill(); D(bx, by - s / 2 + 20, 8, '#ffcf7a'); }
+    T(night ? 'NIGHT 2700K' : 'DAY', x0 + 10, y0 + 18, night ? '#ffcf7a' : '#5a3d10');
+  } else if (key === 'TOPDOWN_WALK') {
+    R(x0, y0, w, h, '#b58a5a');
+    for (let i = -h; i < w; i += 18) { L(x0 + i, y0, x0 + i + h, y0 + h, 'rgba(70,40,15,0.5)'); L(x0 + i + 9, y0, x0 + i + 9 - h, y0 + h, 'rgba(70,40,15,0.35)'); }
+    R(x0 + 20, y0 + 20, w - 40, h - 40, null, '#1e293b'); ctx.setLineDash([5, 5]); L(x0 + 40, cy, x0 + w - 40, cy, '#0ea5e9', 2); ctx.setLineDash([]);
+    [0, 0.33, 0.66].forEach((o, i) => D(lerp(x0 + 40, x0 + w - 40, (saw(0.12) + o) % 1), cy + (i - 1) * 40 + Math.sin(t * 3 + i) * 6, 6, ['#ef4444', '#22c55e', '#f8fafc'][i]));
+  } else if (key === 'MICRO_BUILDERS') {
+    R(x0, y0, w, h, '#6b4a2b'); R(x0 + 40, y0 + 30, w - 80, h - 60, '#e8eef7', '#38bdf8');
+    const g = saw(0.1); L(x0 + 60, y0 + 70, lerp(x0 + 60, x0 + w - 60, g), y0 + 70, '#0f172a', 4); L(x0 + 60, y0 + h - 60, lerp(x0 + 60, x0 + w - 60, g), y0 + h - 60, '#0f172a', 4);
+    R(cx + 20, cy - 10, 90 * g, 50 * g, '#38bdf8', '#0369a1');
+    for (let i = 0; i < 6; i++) D(lerp(x0 + 60, x0 + w - 60, (g + i / 6) % 1), y0 + 70 + (i % 2) * (h - 130) + Math.sin(t * 6 + i) * 3, 4, '#2563eb');
+    T('SCALA CAD 1:50', x0 + 50, y0 + 22, '#fde68a');
+  } else if (key === 'VERTICAL_SECTION') {
+    const fw = w * 0.5, fx = cx - fw / 2, fh = h / 4.4;
+    for (let i = 0; i < 4; i++) { R(fx, y0 + 14 + i * fh, fw, fh - 4, '#1e293b', '#94a3b8'); R(fx + 10 + i * 6, y0 + 22 + i * fh, 30, fh - 20, 'rgba(255,210,120,0.3)'); }
+    for (let i = 0; i < 4; i++) { const sy = y0 + 14 + i * fh; ctx.strokeStyle = '#fde047'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx - 14, sy + fh - 6); ctx.lineTo(cx + 14, sy + 6); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(253,224,71,0.15)'; ctx.fillRect(cx - 20, y0 + 14, 40, h - 28);
+  } else if (key === 'COMMERCIAL_FLOW') {
+    R(x0 + 14, y0 + 14, w - 28, h - 28, '#0f172a', '#64748b');
+    for (let i = 0; i < 4; i++) { R(x0 + 40 + i * (w - 120) / 4, y0 + 30, 40, 22, '#a855f7'); R(x0 + 40 + i * (w - 120) / 4, y0 + h - 56, 40, 22, '#a855f7'); }
+    T('12.40 m', cx - 20, y0 + h - 18, '#facc15'); T('7.80 m', x0 + 18, cy, '#facc15');
+    for (let i = 0; i < 5; i++) D(lerp(x0 + 30, x0 + w - 30, (saw(0.15) + i / 5) % 1), cy + Math.sin(i * 2 + t) * 25, 5, '#f472b6');
+  } else if (key === 'LIFESTYLE_GARAGE') {
+    const g = ctx.createLinearGradient(0, y0, 0, y0 + h); g.addColorStop(0, '#1e3a8a'); g.addColorStop(1, '#f97316'); ctx.fillStyle = g; ctx.fillRect(x0, y0, w / 2, h);
+    R(x0 + 30, cy - 10, w / 2 - 60, h / 2 - 10, '#111827'); for (let i = 0; i < 4; i++) R(x0 + 44 + i * 40, cy + 8, 22, 26, '#fcd34d');
+    R(x0 + w / 2, y0, w / 2, h, '#1f2937'); R(cx + 24, cy + 22, w / 2 - 48, 36, '#0b0f19', '#94a3b8'); R(cx + 40, cy - 2, w / 2 - 80, 28, '#111827', '#64748b');
+    D(cx + 60, cy + 62, 9, '#000'); D(cx + w / 2 - 60, cy + 62, 9, '#000');
+  } else if (key === 'QUOTED_LIVE_PLAN') {
+    R(x0 + 30, y0 + 30, w - 60, h - 60, '#e2e8f0', '#0f172a'); L(cx, y0 + 30, cx, y0 + h - 30, '#0f172a', 2);
+    const q = (Math.floor(t * 2) % 2) ? '5400x5500' : '5400 × 5500';
+    T(q, x0 + 60, cy, '#0369a1', 'bold 13px JetBrains Mono, monospace'); T('4800x5500', cx + 30, cy, '#0369a1', 'bold 13px JetBrains Mono, monospace');
+    R(cx + 40, y0 + h - 90, 80, 38, '#334155'); D(cx + 52, y0 + h - 50, 6, '#000'); D(cx + 108, y0 + h - 50, 6, '#000');
+  } else if (key === 'CAD_POPUP_3D') {
+    R(x0 + 30, y0 + 30, w - 60, h - 60, '#f8fafc', '#94a3b8'); const p = (Math.sin(t * 1.5) + 1) / 2;
+    [[0.25, 0.4, 70, 38, '#c2410c'], [0.55, 0.55, 90, 30, '#be185d'], [0.4, 0.2, 50, 50, '#0f766e']].forEach(([a, b, ww, hh, c]) => { const x = x0 + w * a, y = y0 + h * b; R(x, y - hh * p, ww, hh * p, c); R(x, y - hh * p - 6, ww, 6, 'rgba(255,255,255,0.4)'); });
+  } else if (key === 'BALSA_HANDS') {
+    R(x0, y0, w, h, '#14532d'); for (let i = 0; i < w; i += 24) L(x0 + i, y0, x0 + i, y0 + h, 'rgba(255,255,255,0.12)');
+    R(cx - 80, cy - 20, 160, 60, '#e7c48d', '#92400e'); R(cx - 40, cy - 50, 80, 30, '#d9b072', '#92400e');
+    const hx = cx + Math.sin(t * 2) * 70; D(hx, cy - 70, 16, '#0a0a0a'); L(hx, cy - 60, hx - 10, cy - 24, '#cbd5e1', 2);
+  } else if (key === 'WAVE_MATERIAL') {
+    const n = 14, bw = w / n, ph = t * 6;
+    for (let i = 0; i < n; i++) for (let j = 0; j < 7; j++) { const v = Math.sin(i * 0.5 + j * 0.4 - ph); const c = v > 0.3 ? '#e8dcc3' : v > -0.3 ? '#6b4a2b' : '#1c1c1f'; R(x0 + i * bw + 2, y0 + 20 + j * (h - 30) / 7, bw - 4, (h - 30) / 7 - 4, c); }
+  } else if (key === 'CEILING_LASER') {
+    R(x0 + 20, y0 + 20, w - 40, 50, '#cbd5e1'); for (let i = 0; i < 10; i++) L(x0 + 20 + i * (w - 40) / 10, y0 + 20, x0 + 20 + i * (w - 40) / 10, y0 + 70, '#64748b');
+    const ly = lerp(y0 + 80, y0 + h - 20, saw(0.3)); L(x0 + 20, ly, x0 + w - 20, ly, '#ef4444', 2);
+    [0.25, 0.6, 0.8].forEach((a, i) => { D(x0 + w * a, y0 + h - 40 + Math.sin(t * 3 + i) * 4, 9, '#dc2626'); R(x0 + w * a - 6, y0 + h - 30, 12, 20, '#f59e0b'); });
+  } else if (key === 'NEON_WIREFRAME') {
+    const p = saw(0.2); ctx.shadowColor = '#facc15'; ctx.shadowBlur = 12; ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2;
+    const bx = cx - 80, by = cy + 20; const pts = [[0, 0], [160, 0], [160, 40], [0, 40], [0, 0], [0, -50], [160, -50], [160, 0]];
+    ctx.beginPath(); pts.slice(0, Math.max(2, Math.floor(pts.length * p))).forEach(([a, b], i) => i ? ctx.lineTo(bx + a, by + b) : ctx.moveTo(bx + a, by + b)); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, y0 + 50, 6 + 24 * Math.min(1, p * 1.5), 0, 7); ctx.stroke(); ctx.shadowBlur = 0;
+    T('VELLUTO ROSA', cx - 36, by + 64, '#f9a8d4');
+  } else if (key === 'MACRO_SIX_SHOT') {
+    const names = ['Murano', 'Marmo policromo', 'Bouclé', 'Tende controluce', 'Testiera', 'Reveal finale'], act = Math.floor(t / 1.2) % 6, cols = ['#fbbf24', '#7c3aed', '#f5f5dc', '#fde68a', '#be185d', '#0ea5e9'];
+    for (let i = 0; i < 6; i++) { const cw = (w - 40) / 3, ch = (h - 30) / 2, x = x0 + 10 + (i % 3) * (cw + 8), y = y0 + 10 + Math.floor(i / 3) * (ch + 6), z = i === act ? 6 * ((t * 0.83) % 1) : 0; R(x - z, y - z, cw + 2 * z, ch + 2 * z, cols[i], i === act ? '#fff' : '#334155'); T(`${i + 1}. ${names[i]}`, x + 6 - z, y + 14 - z, '#0f172a', 'bold 10px Inter'); }
+  }
+  T(`${meta ? meta.desc : key}`, x0 + 10, y0 + h - 8, '#94a3b8', '9px JetBrains Mono, monospace');
+  ctx.restore();
+}
+
+function applyEnhancerPostFx(ctx, W, H) {
+  const E = ENHANCER_POST_FX; if (!E) return;
+  const base = { warm_ad: 'sepia(0.15) saturate(1.15)', deco_onyx: 'contrast(1.2) saturate(0.8) brightness(0.9)', nordic: 'brightness(1.08) saturate(0.75)', blue_hour: 'contrast(1.2) saturate(1.1) brightness(0.92)' }[E.lut] || '';
+  const f = `${base} contrast(${(1 + E.sharpness / 400).toFixed(2)}) brightness(${(1 + E.hdr / 600).toFixed(2)})`;
+  const cv = ctx.canvas, tmp = applyEnhancerPostFx._t || (applyEnhancerPostFx._t = document.createElement('canvas'));
+  tmp.width = W; tmp.height = H; tmp.getContext('2d').drawImage(cv, 0, 0);
+  ctx.save(); ctx.clearRect(0, 0, W, H); ctx.filter = f; ctx.drawImage(tmp, 0, 0); ctx.filter = 'none';
+  const tint = { warm_ad: 'rgba(245,158,11,0.06)', deco_onyx: 'rgba(168,85,247,0.07)', nordic: 'rgba(186,230,253,0.05)', blue_hour: 'rgba(14,100,200,0.10)' }[E.lut];
+  if (tint) { ctx.fillStyle = tint; ctx.fillRect(0, 0, W, H); }
+  if (E.bloom > 0) { const g = ctx.createRadialGradient(W / 2, H / 2, 10, W / 2, H / 2, Math.max(W, H) / 1.6); g.addColorStop(0, `rgba(255,190,100,${(E.bloom / 400).toFixed(3)})`); g.addColorStop(1, 'rgba(255,190,100,0)'); ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+  ctx.restore();
+}
