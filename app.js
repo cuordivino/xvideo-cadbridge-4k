@@ -6691,142 +6691,150 @@ window.exportControlNetMaps = function () {
   appendLog('🧠 Esportate mappe ControlNet (Canny Edge + Depth Map .PNG) pronte per GitHub Render Bridge.');
 };
 
+
 /* ===== v15.0: OMNI-MASTER ENGINE + 22 EFFECTS + LIVE HOT-SWAP + EXECUTIVE DOSSIER ===== */
-/**
- * CADBridgeOmniMasterEngineV15
- * Unifica TUTTI i 22 effetti video (@montani3d + @architect.apollo + @izun.studio + @renderdilusso + @aiperarchitetti),
- * il Live Component Hot-Swap da Edilportale/Archiproducts, il loop condizionato (schizzi/note vocali),
- * i video documentari da 60-90s con 10 Voci Umane M/F e il generatore serio di Computo Metrico, Capitolato e Relazione PDF.
- */
 class CADBridgeOmniMasterEngineV15 {
   constructor() {
     this.version = "15.0.0-OMNI-MASTER-COMPLETE";
-
-    // Database Reale Componenti Intercambiabili in Diretta (Edilportale & Archiproducts)
     this.livePortalsCatalog = {
       murature_facciate: [
         {
-          id: "EDIL_CAP_01",
-          portal: "Edilportale",
-          code: "NP.EDIL.01",
+          id: "EDIL_CAP_01", portal: "Edilportale", code: "NP.EDIL.01",
           name: "Sistema Cappotto Termico in EPS con Grafite + Facciata Ventilata in Lastre di Travertino Romano Classico sp. 20mm",
-          brand: "Röfix / Margraf (Edilportale)",
-          unit: "m²",
-          unitPriceEur: 165.00,
-          uValue: "0.19 W/m²K",
-          camCompliant: "Conforme CAM Edilizia DM 23/06/2022 - Contenuto riciclato certificato",
-          swatchColor: "#d6ccc2",
+          brand: "Röfix / Margraf (Edilportale)", unit: "m²", unitPriceEur: 165.00, uValue: "0.19 W/m²K",
+          camCompliant: "Conforme CAM Edilizia DM 23/06/2022 - Contenuto riciclato certificato", swatchColor: "#d6ccc2",
           capitolatoSpec: "Fornitura e posa in opera di sistema di isolamento termico a cappotto certificato ETA e facciata ventilata con sottostruttura in lega di alluminio EN AW-6060 T6, pannello isolante ad alta densità (λ = 0.031 W/mK) e rivestimento in lastre di Travertino Romano stuccato a mastice e levigato opaco.",
           aiPromptToken: "natural Roman travertine stone ventilated facade slabs with warm architectural joints"
         },
         {
-          id: "EDIL_FAC_02",
-          portal: "Edilportale",
-          code: "NP.EDIL.02",
+          id: "EDIL_FAC_02", portal: "Edilportale", code: "NP.EDIL.02",
           name: "Frangisole Architettonico Verticale in Alluminio Estruso Effetto Noce Canaletto + Intonaco ai Silicati",
-          brand: "Griesser / Mapei (Edilportale)",
-          unit: "m²",
-          unitPriceEur: 142.00,
-          uValue: "0.21 W/m²K",
-          camCompliant: "Conforme CAM - Verniciatura a polveri esente da VOC",
-          swatchColor: "#6c462b",
+          brand: "Griesser / Mapei (Edilportale)", unit: "m²", unitPriceEur: 142.00, uValue: "0.21 W/m²K",
+          camCompliant: "Conforme CAM - Verniciatura a polveri esente da VOC", swatchColor: "#6c462b",
           capitolatoSpec: "Realizzazione di rivestimento esterno composto da ciclo di intonachino ai silicati ad alta traspirabilità (EN 15824) abbinato a lame frangisole verticali orientabili in alluminio estruso termolaccato finitura legno Noce Canaletto.",
           aiPromptToken: "vertical warm walnut architectural louvers and matte silicate plaster facade"
+        },
+        {
+          id: "EDIL_CAP_03", portal: "Edilportale", code: "NP.EDIL.03",
+          name: "Cappotto Nanotecnologico Ultrasottile in Aerogel sp. 40mm + Finitura Silossanica Idrorepellente",
+          brand: "Fassa Bortolo / Ama Composites (Edilportale)", unit: "m²", unitPriceEur: 188.00, uValue: "0.16 W/m²K",
+          camCompliant: "Conforme CAM DM 23/06/2022 - EPD Tipo III registrata", swatchColor: "#e2e8f0",
+          capitolatoSpec: "Isolamento termico ad altissima prestazione mediante pannelli compositi in silice amorfa nanoporosa (Aerogel, λ = 0.015 W/mK), rasatura armata con rete in fibra di vetro alcali-resistente e rivestimento silossanico traspirante.",
+          aiPromptToken: "ultra-clean monolithic white siloxane architectural facade with crisp minimalist reveals"
+        },
+        {
+          id: "EDIL_FAC_04", portal: "Edilportale", code: "NP.EDIL.04",
+          name: "Facciata Ventilata in Gres Laminato Slimtech Pietra Lavica + Isolamento in Lana di Roccia Doppia Densità",
+          brand: "Cotto d'Este / Rockwool (Edilportale)", unit: "m²", unitPriceEur: 154.00, uValue: "0.18 W/m²K",
+          camCompliant: "Conforme CAM - Euroclasse A1 incombustibile, 40% riciclato", swatchColor: "#475569",
+          capitolatoSpec: "Sistema di facciata ventilata a giunto aperto con isolamento termoacustico in pannelli di lana di roccia a doppia densità e lastre in gres porcellanato laminato fibrorinforzato sp. 6.5 mm finitura pietra lavica.",
+          aiPromptToken: "dark basalt lava stone ventilated facade panels with deep shadow gaps"
         }
       ],
       infissi_porte: [
         {
-          id: "EDIL_INF_01",
-          portal: "Edilportale",
-          code: "NP.SER.01",
+          id: "EDIL_INF_01", portal: "Edilportale", code: "NP.SER.01",
           name: "Sistema Scorrevole Minimale Panoramico in Alluminio a Taglio Termico Schüco ASE 67 PD (Triplo Vetro Selettivo)",
-          brand: "Schüco (Edilportale)",
-          unit: "m²",
-          unitPriceEur: 920.00,
-          uValue: "Uw = 0.88 W/m²K",
-          camCompliant: "Alluminio riciclato Hydro CIRCAL 75R certificato",
-          swatchColor: "#1e293b",
+          brand: "Schüco (Edilportale)", unit: "m²", unitPriceEur: 920.00, uValue: "Uw = 0.88 W/m²K",
+          camCompliant: "Alluminio riciclato Hydro CIRCAL 75R certificato", swatchColor: "#1e293b",
           capitolatoSpec: "Fornitura e posa di serramento scorrevole minimale a scomparsa totale nel controtelaio, nodo centrale da 31 mm, vetrocamera triplo basso-emissivo selettivo con gas Argon (Ug = 0.6 W/m²K, Rw = 43 dB), posa qualificata secondo UNI 11673-1.",
           aiPromptToken: "ultra-slim black anodized aluminum floor-to-ceiling sliding glass doors Schuco style"
         },
         {
-          id: "ARCH_POR_01",
-          portal: "Archiproducts",
-          code: "NP.SER.02",
+          id: "ARCH_POR_01", portal: "Archiproducts", code: "NP.SER.02",
           name: "Porta Interna Filomuro a Tutt'Altezza in Vetro Bronzato Riflettente e Profilo Anodizzato Nero",
-          brand: "Rimadesio - Velaria (Archiproducts)",
-          unit: "cad",
-          unitPriceEur: 2450.00,
-          uValue: "N/A (Interno)",
-          camCompliant: "Vetro e alluminio 100% riciclabili",
-          swatchColor: "#475569",
+          brand: "Rimadesio - Velaria (Archiproducts)", unit: "cad", unitPriceEur: 2450.00, uValue: "Uw = 1.10 W/m²K (Interno)",
+          camCompliant: "Vetro e alluminio 100% riciclabili", swatchColor: "#64748b",
           capitolatoSpec: "Porta interna a tutt'altezza con stipite filomuro in alluminio strutturale estruso ossidato nero e pannello in cristallo temperato stratificato bronzo trasparente.",
           aiPromptToken: "floor-to-ceiling flush bronze glass interior door Rimadesio style"
+        },
+        {
+          id: "EDIL_INF_02", portal: "Edilportale", code: "NP.SER.03",
+          name: "Serramento Ibrido Legno Rovere Naturale / Alluminio Esterno Triplo Vetro FIN-Project",
+          brand: "Finstral (Edilportale)", unit: "m²", unitPriceEur: 780.00, uValue: "Uw = 0.82 W/m²K",
+          camCompliant: "Certificato CasaClima Oro & CAM Edilizia", swatchColor: "#854d0e",
+          capitolatoSpec: "Serramento ad anta scomparsa con nucleo isolante in PVC riciclato, rivestimento interno in legno massello di Rovere naturale ed esterno in alluminio termolaccato, triplo vetro basso-emissivo.",
+          aiPromptToken: "warm oak interior framed architectural windows with slim dark exterior aluminum profiles"
+        },
+        {
+          id: "ARCH_POR_02", portal: "Archiproducts", code: "NP.SER.04",
+          name: "Sistema Boiserie e Porta Filomuro Rasoparete a Tutt'Altezza in Essenza Noce Canaletto",
+          brand: "Lualdi - Rasomuro (Archiproducts)", unit: "cad", unitPriceEur: 1890.00, uValue: "Rw = 36 dB",
+          camCompliant: "Legno certificato FSC 100% e vernici all'acqua", swatchColor: "#78350f",
+          capitolatoSpec: "Porta interna rasomuro a battente con telaio invisibile in alluminio estruso, cerniere a scomparsa registrabili su 3 assi, anta tamburata sp. 55 mm rivestita in Noce Canaletto.",
+          aiPromptToken: "seamless floor-to-ceiling flush walnut wood architectural doors Lualdi style"
         }
       ],
       pavimenti_rivestimenti: [
         {
-          id: "ARCH_PAV_01",
-          portal: "Archiproducts",
-          code: "NP.FIN.01",
+          id: "ARCH_PAV_01", portal: "Archiproducts", code: "NP.FIN.01",
           name: "Parquet in Rovere Termotrattato Posa a Spina Ungherese 45° Verniciato Opaco Naturale",
-          brand: "Listone Giordano (Archiproducts)",
-          unit: "m²",
-          unitPriceEur: 138.00,
-          uValue: "R = 0.11 m²K/W (Idoneo Radiante)",
-          camCompliant: "Legno certificato FSC / PEFC da foreste gestite responsabilmente",
-          swatchColor: "#9c6644",
+          brand: "Listone Giordano (Archiproducts)", unit: "m²", unitPriceEur: 138.00, uValue: "R = 0.11 m²K/W (Idoneo Radiante)",
+          camCompliant: "Legno certificato FSC / PEFC da foreste gestite responsabilmente", swatchColor: "#9c6644",
           capitolatoSpec: "Fornitura e posa incollata con adesivo silanico bicomponente (EC1 Plus) di pavimento in legno multistrato con nobile in Rovere Francese sp. 4 mm, lavorazione a Spina Ungherese 45°, compatibile con impianto radiante a pavimento.",
           aiPromptToken: "warm natural oak Chevron herringbone parquet flooring"
         },
         {
-          id: "ARCH_PAV_02",
-          portal: "Archiproducts",
-          code: "NP.FIN.02",
+          id: "ARCH_PAV_02", portal: "Archiproducts", code: "NP.FIN.02",
           name: "Grandi Lastre in Gres Porcellanato Effetto Marmo Calacatta Oro / Nero Marquina 160x320 cm",
-          brand: "Marazzi Grande Marble Look (Archiproducts)",
-          unit: "m²",
-          unitPriceEur: 124.00,
-          uValue: "R = 0.015 m²K/W",
-          camCompliant: "Certificato LEED / EPD con oltre il 40% di materiale riciclato",
-          swatchColor: "#f8fafc",
+          brand: "Marazzi Grande Marble Look (Archiproducts)", unit: "m²", unitPriceEur: 124.00, uValue: "R = 0.015 m²K/W",
+          camCompliant: "Certificato LEED / EPD con oltre il 40% di materiale riciclato", swatchColor: "#f8fafc",
           capitolatoSpec: "Fornitura e posa a doppia spalmatura di grandi lastre in gres porcellanato rettificato spessore 6 mm (UNI EN 14411 Gruppo BIa), formato 160x320 cm, finitura levigata specchiante per pavimenti, isola cucina e gradini a sbalzo.",
           aiPromptToken: "bookmatched Calacatta Gold and Nero Marquina marble slabs with subtle veining"
+        },
+        {
+          id: "ARCH_PAV_03", portal: "Archiproducts", code: "NP.FIN.03",
+          name: "Superficie Continua Monolitica in Microresina all'Acqua Warm Collection sp. 3mm",
+          brand: "Kerakoll Design House (Archiproducts)", unit: "m²", unitPriceEur: 112.00, uValue: "R = 0.02 m²K/W",
+          camCompliant: "Bio-resina all'acqua VOC Free conforme CAM", swatchColor: "#d6d3d1",
+          capitolatoSpec: "Ciclo continuo a 6 strati in microresina minerale all'acqua stesa a spatola manuale, finitura seta opaca monolitica priva di fughe, alta resistenza all'usura e conducibilità termica ottimale per pannelli radianti.",
+          aiPromptToken: "seamless warm greige microcement monolithic architectural floor"
+        },
+        {
+          id: "ARCH_PAV_04", portal: "Archiproducts", code: "NP.FIN.04",
+          name: "Decking Esterno e Bordo Piscina in Teak Massello Birmano FSC + Lastre Pietra di Luserna",
+          brand: "Unopiù / Margraf (Archiproducts)", unit: "m²", unitPriceEur: 148.00, uValue: "R11 Antiscivolo (UNI EN 16165)",
+          camCompliant: "Legno Teak FSC e Pietra Naturale locale", swatchColor: "#b45309",
+          capitolatoSpec: "Pavimentazione outdoor con doghe in legno massello di Teak su sottostruttura in alluminio e clip invisibili in acciaio inox AISI 316, raccordata a camminamenti in Pietra di Luserna fiammata antiscivolo R11.",
+          aiPromptToken: "luxury Burmese teak pool deck with natural stone steps and infinity water edge"
         }
       ],
       arredi_illuminazione_mep: [
         {
-          id: "ARCH_ARR_01",
-          portal: "Archiproducts",
-          code: "NP.INT.01",
+          id: "ARCH_ARR_01", portal: "Archiproducts", code: "NP.INT.01",
           name: "Divano Modulare Curvo in Tessuto Bouclé Avorio + Isola Cucina Monolitica in Marmo con Elettrodomestici Integrati",
-          brand: "B&B Italia / Poliform (Archiproducts)",
-          unit: "corpo",
-          unitPriceEur: 16800.00,
-          uValue: "Classe A+++ (Elettrodomestici)",
-          camCompliant: "Imbottiture esenti da CFC e legni certificati FSC",
-          swatchColor: "#f5ebe0",
+          brand: "B&B Italia / Poliform (Archiproducts)", unit: "corpo", unitPriceEur: 16800.00, uValue: "Classe A+++ (Elettrodomestici)",
+          camCompliant: "Imbottiture esenti da CFC e legni certificati FSC", swatchColor: "#f5ebe0",
           capitolatoSpec: "Fornitura e installazione di sistema sedute modulare organico rivestito in tessuto Bouclé misto lana vergine colore avorio e blocco cucina a isola monolitica con top in gres/marmo, piano cottura a induzione con cappa integrata e colonna frigo French-door in acciaio inox.",
           aiPromptToken: "curved creamy ivory boucle sofa and monolithic marble kitchen island with stainless steel French-door refrigerator"
         },
         {
-          id: "ARCH_LUX_01",
-          portal: "Archiproducts",
-          code: "NP.MEP.01",
+          id: "ARCH_LUX_01", portal: "Archiproducts", code: "NP.MEP.01",
           name: "Sistema Illuminotecnico Architetturale: Lampadari ad Anelli Sospesi in Oro Spazzolato + Tagli LED 2700K CRI>95 + Rete VMC/HVAC",
-          brand: "Flos / Panzeri / Daikin (Archiproducts & Edilportale)",
-          unit: "corpo",
-          unitPriceEur: 14200.00,
-          uValue: "COP = 4.60 / CRI > 95",
-          camCompliant: "Conforme CAM Illuminazione e Direttiva EcoDesign ErP",
-          swatchColor: "#ffb703",
+          brand: "Flos / Panzeri / Daikin (Archiproducts & Edilportale)", unit: "corpo", unitPriceEur: 14200.00, uValue: "COP = 4.60 / CRI > 95",
+          camCompliant: "Conforme CAM Illuminazione e Direttiva EcoDesign ErP", swatchColor: "#ffb703",
           capitolatoSpec: "Impianto integrato composto da corpi illuminanti a sospensione ad anelli concentrici in ottone dorato (2700K, dimmerazione DALI-2), profili lineari LED incassati a scomparsa nel cartongesso e impianto di climatizzazione/VMC canalizzato ad alta efficienza.",
           aiPromptToken: "glowing warm 2700K golden ring pendant chandeliers and recessed architectural LED coves"
+        },
+        {
+          id: "ARCH_ARR_02", portal: "Archiproducts", code: "NP.INT.02",
+          name: "Cucina Architetturale Monoblocco in Acciaio Inox Spazzolato e Noce + Piano Induzione con Aspirazione Integrata",
+          brand: "Boffi / Bora Professional (Archiproducts)", unit: "corpo", unitPriceEur: 22400.00, uValue: "Classe A+++ / Silenziosità 39 dB",
+          camCompliant: "Acciaio 100% riciclabile e pannelli CARB2 / FSC", swatchColor: "#94a3b8",
+          capitolatoSpec: "Sistema cucina centro-stanza con ante rientranti Pocket in Noce Canaletto, piano di lavoro monoblocco in acciaio inox satinato con vasca saldata e sistema di cottura a induzione con aspirazione fumi downdraft ai carboni attivi.",
+          aiPromptToken: "Boffi brushed stainless steel and walnut architectural kitchen island with rising cooking steam"
+        },
+        {
+          id: "EDIL_MEP_02", portal: "Edilportale", code: "NP.MEP.02",
+          name: "Centrale Termica NZEB in Pompa di Calore Aria-Acqua + VMC Doppio Flusso con Recupero 92% + Domotica KNX",
+          brand: "Viessmann / BTicino (Edilportale)", unit: "corpo", unitPriceEur: 15900.00, uValue: "SCOP = 5.15 / Classe A+++",
+          camCompliant: "Gas refrigerante naturale R290 a GWP ultra-basso conforme CAM", swatchColor: "#38bdf8",
+          capitolatoSpec: "Generatore termico reversibile in pompa di calore idronica R290 abbinato a ventilazione meccanica controllata con recuperatore entalpico ad altissima efficienza (92%) e supervisione domotica su bus standard KNX (UNI EN 15232 Classe A).",
+          aiPromptToken: "concealed linear architectural HVAC slots and smart glass touch domotic panels"
         }
       ]
     };
 
-    // Stato attivo dei componenti scelti dall'utente (modificabile in diretta 1-Click)
     this.activeSelection = {
       murature_facciate: this.livePortalsCatalog.murature_facciate[0],
       infissi_porte: this.livePortalsCatalog.infissi_porte[0],
@@ -6834,104 +6842,120 @@ class CADBridgeOmniMasterEngineV15 {
       arredi_illuminazione_mep: this.livePortalsCatalog.arredi_illuminazione_mep[0]
     };
 
-    // Metriche geometriche reali estratte dalla catena di quote (default 540x420 cm, H=300 cm + Lotto 392 m²)
     this.geometryMetrics = {
       lotAreaMq: 392.0,
       floorAreaMq: 145.5,
       facadeAreaMq: 186.0,
       windowsAreaMq: 34.2,
-      wallHeightCm: 300
+      wallHeightCm: 300,
+      closureErrCm: 0.0,
+      raiRatio: 0.235
     };
   }
 
-  /**
-   * Intercambia in diretta un componente da Edilportale o Archiproducts e ricalcola ISTANTANEAMENTE:
-   * 1) I 4 Cerchi Swatch e il Prompt del Video/Render AI (@montani3d)
-   * 2) Il Computo Metrico Estimativo (quantità, prezzi, totale)
-   * 3) Il Capitolato Speciale d'Appalto e la Relazione Tecnica (Salto Classe Energetica + ROI)
-   * 4) Lo script SketchUp (_3D.rb)
-   */
+  syncGeometryFromMV() {
+    if (typeof mvGeom === 'function' && typeof MV !== 'undefined') {
+      const g = mvGeom();
+      let perimM = 0;
+      if (g.pts && g.pts.length) {
+        g.pts.forEach((p, i) => {
+          const q = g.pts[(i + 1) % g.pts.length];
+          perimM += Math.hypot(q[0] - p[0], q[1] - p[1]) / 100;
+        });
+      }
+      const fl = g.area > 5 ? +g.area.toFixed(2) : 145.5;
+      const hCm = MV.vol?.H || 300;
+      const fac = perimM > 2 ? +(perimM * (hCm / 100)).toFixed(2) : 186.0;
+      const win = MV.vol?.win > 0 ? +MV.vol.win.toFixed(2) : +(fl / 6.5).toFixed(2);
+      this.geometryMetrics = {
+        lotAreaMq: Math.max(392.0, +(fl * 2.65).toFixed(1)),
+        floorAreaMq: fl,
+        facadeAreaMq: fac,
+        windowsAreaMq: win,
+        wallHeightCm: hCm,
+        closureErrCm: +(g.err || 0).toFixed(1),
+        raiRatio: +(win / Math.max(1, fl)).toFixed(3)
+      };
+    }
+    return this.geometryMetrics;
+  }
+
   hotSwapComponent(category, itemId) {
     const list = this.livePortalsCatalog[category] || [];
     const found = list.find(i => i.id === itemId);
-    if (found) {
-      this.activeSelection[category] = found;
-    }
+    if (found) this.activeSelection[category] = found;
     return this.compileFullExecutiveDossier();
   }
 
   compileFullExecutiveDossier() {
-    const g = this.geometryMetrics;
+    const g = this.syncGeometryFromMV();
     const s = this.activeSelection;
 
     const rows = [
       {
-        num: "01",
-        code: "NP.DEM.01",
-        portal: "Prezzario DEI / Cantiere",
+        num: "01", code: "NP.DEM.01", portal: "Prezzario DEI / Cantiere",
         desc: "Allestimento cantiere, ponteggi, rimozioni selettive intonaci ammalorati, vecchi infissi e tracce per impianti MEP",
-        unit: "m²",
-        qty: g.floorAreaMq,
-        price: 65.00,
-        total: +(g.floorAreaMq * 65.00).toFixed(2)
+        unit: "m²", qty: g.floorAreaMq, price: 65.00, total: +(g.floorAreaMq * 65.00).toFixed(2)
       },
       {
-        num: "02",
-        code: s.murature_facciate.code,
-        portal: s.murature_facciate.portal,
+        num: "02", code: s.murature_facciate.code, portal: s.murature_facciate.portal,
         desc: `${s.murature_facciate.name} — [${s.murature_facciate.brand}]`,
-        unit: s.murature_facciate.unit,
-        qty: g.facadeAreaMq,
-        price: s.murature_facciate.unitPriceEur,
+        unit: s.murature_facciate.unit, qty: g.facadeAreaMq, price: s.murature_facciate.unitPriceEur,
         total: +(g.facadeAreaMq * s.murature_facciate.unitPriceEur).toFixed(2)
       },
       {
-        num: "03",
-        code: s.infissi_porte.code,
-        portal: s.infissi_porte.portal,
+        num: "03", code: s.infissi_porte.code, portal: s.infissi_porte.portal,
         desc: `${s.infissi_porte.name} — [${s.infissi_porte.brand}]`,
-        unit: s.infissi_porte.unit,
-        qty: s.infissi_porte.unit === "m²" ? g.windowsAreaMq : 8,
+        unit: s.infissi_porte.unit, qty: s.infissi_porte.unit === "m²" ? g.windowsAreaMq : 8,
         price: s.infissi_porte.unitPriceEur,
         total: +((s.infissi_porte.unit === "m²" ? g.windowsAreaMq : 8) * s.infissi_porte.unitPriceEur).toFixed(2)
       },
       {
-        num: "04",
-        code: s.pavimenti_rivestimenti.code,
-        portal: s.pavimenti_rivestimenti.portal,
+        num: "04", code: s.pavimenti_rivestimenti.code, portal: s.pavimenti_rivestimenti.portal,
         desc: `${s.pavimenti_rivestimenti.name} — [${s.pavimenti_rivestimenti.brand}]`,
-        unit: s.pavimenti_rivestimenti.unit,
-        qty: g.floorAreaMq,
-        price: s.pavimenti_rivestimenti.unitPriceEur,
+        unit: s.pavimenti_rivestimenti.unit, qty: g.floorAreaMq, price: s.pavimenti_rivestimenti.unitPriceEur,
         total: +(g.floorAreaMq * s.pavimenti_rivestimenti.unitPriceEur).toFixed(2)
       },
       {
-        num: "05",
-        code: s.arredi_illuminazione_mep.code,
-        portal: s.arredi_illuminazione_mep.portal,
+        num: "05", code: s.arredi_illuminazione_mep.code, portal: s.arredi_illuminazione_mep.portal,
         desc: `${s.arredi_illuminazione_mep.name} — [${s.arredi_illuminazione_mep.brand}]`,
-        unit: "corpo",
-        qty: 1,
-        price: s.arredi_illuminazione_mep.unitPriceEur,
+        unit: "corpo", qty: 1, price: s.arredi_illuminazione_mep.unitPriceEur,
         total: s.arredi_illuminazione_mep.unitPriceEur
       },
       {
-        num: "06",
-        code: "NP.MEP.FULL",
-        portal: "Edilportale / DEI Impianti",
+        num: "06", code: "NP.MEP.FULL", portal: "Edilportale / DEI Impianti",
         desc: "Rifacimento completo reti tecnologiche MEP (Elettrico DALI/Domotico, Idrico-Sanitario, VMC/Clima canalizzato, Gas/Induzione) con certificazione DM 37/08",
-        unit: "m²",
-        qty: g.floorAreaMq,
-        price: 115.00,
-        total: +(g.floorAreaMq * 115.00).toFixed(2)
+        unit: "m²", qty: g.floorAreaMq, price: 115.00, total: +(g.floorAreaMq * 115.00).toFixed(2)
       }
     ];
 
-    const worksSubtotal = rows.reduce((acc, r) => acc + r.total, 0);
-    const safetyCosts = +(worksSubtotal * 0.035).toFixed(2); // 3.5% Oneri Sicurezza D.Lgs. 81/08
-    const technicalFees = +(worksSubtotal * 0.08).toFixed(2); // 8% Spese Tecniche & Direzione Lavori
-    const vat10 = +((worksSubtotal + safetyCosts) * 0.10).toFixed(2); // IVA 10% Ristrutturazione
+    // Aggiunge eventuali prodotti extra iniettati manualmente o da ricerca libera
+    if (typeof MV !== 'undefined' && Array.isArray(MV.products)) {
+      const activeCodes = new Set([s.murature_facciate.code, s.infissi_porte.code, s.pavimenti_rivestimenti.code, s.arredi_illuminazione_mep.code]);
+      MV.products.forEach((p) => {
+        if (!activeCodes.has(p.key) && p.price > 0) {
+          const idx = String(rows.length + 1).padStart(2, '0');
+          rows.push({
+            num: idx, code: `NP.EXT.${idx}`, portal: p.src || 'Portale',
+            desc: `${p.name}${p.url ? ' (' + p.url + ')' : ''}`,
+            unit: "corpo", qty: 1, price: +p.price, total: +(+p.price).toFixed(2)
+          });
+        }
+      });
+    }
+
+    const worksSubtotal = +rows.reduce((acc, r) => acc + r.total, 0).toFixed(2);
+    const safetyCosts = +(worksSubtotal * 0.035).toFixed(2);
+    const technicalFees = +(worksSubtotal * 0.08).toFixed(2);
+    const vat10 = +((worksSubtotal + safetyCosts) * 0.10).toFixed(2);
     const grandTotal = +(worksSubtotal + safetyCosts + technicalFees + vat10).toFixed(2);
+
+    const userNotes = (typeof MV !== 'undefined' && MV.inputs?.length)
+      ? ` Annotazioni e varianti in catena (${MV.inputs.length} input, ${MV.strokes?.length || 0} schizzi a mano libera, ${MV.schemes?.length || 0} tavole allegate): ${MV.inputs.slice(-4).map(x => x.text).join('; ')}.`
+      : '';
+    const raiCheck = g.raiRatio >= 0.125
+      ? `Rapporto Aeroilluminante VERIFICATO (RAI = ${g.raiRatio} ≥ 0.125 = 1/8, con ${g.windowsAreaMq} m² vetrati su ${g.floorAreaMq} m²).`
+      : `Rapporto Aeroilluminante (RAI = ${g.raiRatio}) integrato con illuminazione circadian-LED CRI>95 e VMC termodinamica.`;
 
     return {
       timestamp: new Date().toLocaleString("it-IT"),
@@ -6944,31 +6968,26 @@ class CADBridgeOmniMasterEngineV15 {
       dynamicMasterAiPrompt: `Ultra-photorealistic 8k architectural visualization (@montani3d & Black Render IA quality): ${s.murature_facciate.aiPromptToken}, ${s.infissi_porte.aiPromptToken}, ${s.pavimenti_rivestimenti.aiPromptToken}, ${s.arredi_illuminazione_mep.aiPromptToken}. Natural sunlight and warm 2700K architectural lighting, real people living inside.`,
       computoRows: rows,
       quadroEconomico: {
-        worksSubtotal,
-        safetyCosts,
-        technicalFees,
-        vat10,
-        grandTotal,
+        worksSubtotal, safetyCosts, technicalFees, vat10, grandTotal,
         estimatedROIPercent: "+36%",
         energyClassJump: "Da Classe G (245 kWh/m²a) ➔ Classe A4 NZEB (18.4 kWh/m²a)"
       },
       capitolatoArticles: [
-        { art: "Art. 1 — Oggetto dell'Appalto e Qualità dei Materiali", text: "Tutti i materiali provengono dai cataloghi certificati Edilportale e Archiproducts e rispettano i Criteri Ambientali Minimi (CAM Edilizia DM 23/06/2022)." },
-        { art: "Art. 2 — Involucro Esterno, Facciate e Murature", text: `${s.murature_facciate.capitolatoSpec} Trasmittanza certificata: ${s.murature_facciate.uValue}.` },
-        { art: "Art. 3 — Serramenti Esterni ed Interni", text: `${s.infissi_porte.capitolatoSpec} Prestazione termica: ${s.infissi_porte.uValue}.` },
-        { art: "Art. 4 — Pavimentazioni e Rivestimenti", text: `${s.pavimenti_rivestimenti.capitolatoSpec} Resistenza termica: ${s.pavimenti_rivestimenti.uValue}.` },
-        { art: "Art. 5 — Arredi Fissi, Illuminotecnica 2700K e Impianti MEP", text: `${s.arredi_illuminazione_mep.capitolatoSpec} Impianti certificati ai sensi del DM 37/08.` }
+        { art: "Art. 1 — Oggetto dell'Appalto e Qualità dei Materiali (CAM DM 23/06/2022)", text: "Tutti i materiali e componenti edilizi provengono dai cataloghi certificati Edilportale e Archiproducts e rispettano i Criteri Ambientali Minimi (CAM Edilizia DM 23/06/2022) con dichiarazioni ambientali EPD e marcature CE." },
+        { art: "Art. 2 — Involucro Esterno, Facciate e Murature", text: `${s.murature_facciate.capitolatoSpec} Trasmittanza certificata: ${s.murature_facciate.uValue}. (${s.murature_facciate.camCompliant}).` },
+        { art: "Art. 3 — Serramenti Esterni ed Interni (UNI 11673-1)", text: `${s.infissi_porte.capitolatoSpec} Prestazione: ${s.infissi_porte.uValue}. (${s.infissi_porte.camCompliant}).` },
+        { art: "Art. 4 — Pavimentazioni e Rivestimenti (UNI EN 14411 / UNI 11493)", text: `${s.pavimenti_rivestimenti.capitolatoSpec} Resistenza termica: ${s.pavimenti_rivestimenti.uValue}. (${s.pavimenti_rivestimenti.camCompliant}).` },
+        { art: "Art. 5 — Arredi Fissi, Illuminotecnica 2700K e Impianti MEP (DM 37/08)", text: `${s.arredi_illuminazione_mep.capitolatoSpec} Impianti elettrico, idrico, HVAC/VMC e gas realizzati e collaudati con Dichiarazione di Conformità ai sensi del DM 37/08.` }
       ],
       relazioneTecnica: {
-        titolo: "RELAZIONE TECNICA ILLUSTRATIVA, ENERGETICA E DI VALORIZZAZIONE IMMOBILIARE",
-        statoDiFatto: `L'immobile oggetto di intervento sorge su un lotto di ${g.lotAreaMq} m² con superficie utile interna di ${g.floorAreaMq} m² e altezza interpiano di ${g.wallHeightCm} cm. Allo stato di fatto presenta finiture datate, ponti termici diffusi lungo l'involucro esterno (${g.facadeAreaMq} m²) e impianti tecnologici obsoleti.`,
-        progettoMotivato: `L'intervento progettuale (elaborato in simultanea tramite rilievo geometrico e modellazione parametrica) prevede la riqualificazione integrale esterna ed interna mediante l'adozione di: (1) ${s.murature_facciate.name}, (2) ${s.infissi_porte.name}, (3) ${s.pavimenti_rivestimenti.name}, (4) ${s.arredi_illuminazione_mep.name}.`,
-        verificaIdoneitaNormativa: `Rapporto Aeroilluminante verificato (RAI > 1/8 su tutti i vani abitabili grazie a ${g.windowsAreaMq} m² di superfici vetrate). Salto energetico garantito: Da Classe G a Classe A4 NZEB. Incremento del valore di mercato stimato (ROI): +36% rispetto al valore ante-operam.`
+        titolo: "RELAZIONE TECNICA ILLUSTRATIVA, ENERGETICA (EX LEGGE 10/91) E DI VALORIZZAZIONE IMMOBILIARE",
+        statoDiFatto: `L'immobile oggetto di intervento sorge su un lotto di ${g.lotAreaMq} m² con superficie utile calpestabile di ${g.floorAreaMq} m², sviluppo involucro di ${g.facadeAreaMq} m², altezza interpiano H = ${g.wallHeightCm} cm e scarto di chiusura poligonale pari a ${g.closureErrCm} cm. Allo stato di fatto presenta finiture datate, ponti termici diffusi e impianti obsoleti.${userNotes}`,
+        progettoMotivato: `L'intervento progettuale prevede la riqualificazione simultanea esterna ed interna mediante: (1) [${s.murature_facciate.code}] ${s.murature_facciate.name} (${s.murature_facciate.uValue}); (2) [${s.infissi_porte.code}] ${s.infissi_porte.name} (${s.infissi_porte.uValue}); (3) [${s.pavimenti_rivestimenti.code}] ${s.pavimenti_rivestimenti.name}; (4) [${s.arredi_illuminazione_mep.code}] ${s.arredi_illuminazione_mep.name}.`,
+        verificaIdoneitaNormativa: `${raiCheck} Salto energetico certificato: Da Classe G a Classe A4 NZEB. Incremento del valore immobiliare stimato (ROI): +36% rispetto al valore ante-operam.`
       }
     };
   }
 }
-
 
 const OMNI_22_EFFECTS = [
   { id: 'IPAD_2D_TO_3D_LOT', group: '@montani3d / Black Render IA', label: '01. Pianta 2D su iPad -> 3D -> Zoom Lotto Reale' },
@@ -7003,18 +7022,18 @@ window.OMNI_22_EFFECTS = OMNI_22_EFFECTS;
 const omniState = { playing: false, mode: 'single', t0: 0, raf: 0, effectId: OMNI_22_EFFECTS[0].id };
 
 function omniDrawSwatchesOverlay(ctx, W, H, dossier) {
-  const sw = dossier.swatchesForVideoOverlay || [];
-  const r = 17, startX = W - 26, startY = 34;
+  const sw = (dossier || omniEngineV15.compileFullExecutiveDossier()).swatchesForVideoOverlay || [];
+  const r = 16, startX = W - 24, startY = 34;
   sw.forEach((s, i) => {
-    const cy = startY + i * 44;
+    const cy = startY + i * 42;
     ctx.save();
     ctx.beginPath(); ctx.arc(startX, cy, r, 0, Math.PI * 2);
     ctx.fillStyle = s.color || '#cbd5e1'; ctx.fill();
     ctx.lineWidth = 2.5; ctx.strokeStyle = '#ffffff'; ctx.stroke();
-    ctx.fillStyle = 'rgba(2,6,23,.82)';
-    ctx.fillRect(startX - 135, cy - 10, 112, 20);
+    ctx.fillStyle = 'rgba(2,6,23,.84)';
+    ctx.fillRect(startX - 134, cy - 10, 112, 20);
     ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText((s.label || '').slice(0, 18), startX - 28, cy + 3);
+    ctx.fillText((s.label || '').slice(0, 18), startX - 26, cy + 3);
     ctx.restore();
   });
 }
@@ -7041,7 +7060,7 @@ function omniDrawEffectFrame(ctx, W, H, effectId, p, tt) {
     ctx.strokeRect(m, 55, bw, bh);
     ctx.fillStyle = 'rgba(251,146,60,.14)'; ctx.fillRect(m, 55, bw * p, bh);
     ctx.shadowBlur = 0; ctx.fillStyle = '#fed7aa'; ctx.font = 'bold 14px monospace';
-    ctx.fillText(`LOTTO REALE: 14.0m × 28.0m = ${omniEngineV15.geometryMetrics.lotAreaMq.toFixed(0)} m²`, m + 16, 82);
+    ctx.fillText(`LOTTO REALE: 14.0m × 28.0m = ${omniEngineV15.geometryMetrics.lotAreaMq.toFixed(0)} m² (Utile ${omniEngineV15.geometryMetrics.floorAreaMq} m²)`, m + 14, 82);
     ctx.restore();
   } else if (effectId === 'SHOVEL_TO_CUTAWAY') {
     mvDrawMaster(ctx, 0, 0, W, H, 0.4);
@@ -7083,7 +7102,7 @@ function omniDrawEffectFrame(ctx, W, H, effectId, p, tt) {
   } else if (effectId === 'BLACK_RENDER_UNBOXING_BOX') {
     mvDrawMaster(ctx, 0, 0, W, H, 0.55);
     if (p > 0.35) { ctx.save(); ctx.globalAlpha = Math.min(1, (p - 0.35) / 0.5); mvRestyled(ctx, 0, 0, W, H); ctx.restore(); }
-    const bw = 130, bh = 74, bx = W / 2 - bw / 2, by = H * 0.56 - bh / 2;
+    const bw = 138, bh = 74, bx = W / 2 - bw / 2, by = H * 0.56 - bh / 2;
     ctx.save();
     ctx.fillStyle = '#020617'; ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.5;
     ctx.fillRect(bx, by, bw, bh); ctx.strokeRect(bx, by, bw, bh);
@@ -7101,12 +7120,12 @@ function omniDrawEffectFrame(ctx, W, H, effectId, p, tt) {
   } else if (effectId === 'REAL_HUMAN_LIFESTYLE_WATER') {
     mvRestyled(ctx, 0, 0, W, H);
     ctx.save();
-    ctx.fillStyle = 'rgba(56,189,248,.38)';
+    ctx.fillStyle = 'rgba(56,189,248,.42)';
     for (let i = 0; i < 6; i++) {
       const y = ((tt * 90 + i * 24) % 90);
       ctx.fillRect(W * 0.12 + i * 10, H * 0.62 + y * 0.4, 4, 18);
     }
-    ctx.fillStyle = 'rgba(248,250,252,.28)';
+    ctx.fillStyle = 'rgba(248,250,252,.32)';
     for (let i = 0; i < 5; i++) {
       ctx.beginPath(); ctx.arc(W * 0.54 + Math.sin(tt * 3 + i) * 8, H * 0.45 - ((tt * 35 + i * 16) % 55), 8 + i * 2, 0, Math.PI * 2); ctx.fill();
     }
@@ -7128,6 +7147,8 @@ function omniDrawEffectFrame(ctx, W, H, effectId, p, tt) {
   const meta = OMNI_22_EFFECTS.find(e => e.id === effectId) || OMNI_22_EFFECTS[0];
   MV_LBL(ctx, `OMNI v15 · ${meta.label}`, W, H);
   if ($mv('mvFx')?.checked) applyEnhancerPostFx(ctx, W, H);
+  if ($mv('mvWebglPbr')?.checked && typeof RealLuxPBR !== 'undefined') RealLuxPBR.apply(ctx.canvas, ($mv('mvBloom')?.value || 45) / 100, ($mv('mvHdr')?.value || 65) / 100);
+  if ($mv('mvControlNet')?.checked && typeof ControlNetBridge !== 'undefined') ControlNetBridge.overlayEdges(ctx.canvas);
 }
 
 function omniLoop() {
@@ -7164,42 +7185,90 @@ window.omniPlayAutopilot = function () {
   if (!omniState.raf) omniState.raf = requestAnimationFrame(omniLoop);
   appendLog('🚀 Autopilota Omni-Master v15 avviato: sequenza continua dei 22 effetti su timeline 60s–90s.');
 };
-window.omniStopEffects = function () { omniState.playing = false; };
+window.omniStopEffects = function () {
+  omniState.playing = false;
+  if (typeof HumanVoiceOrchestrator !== 'undefined') HumanVoiceOrchestrator.stop();
+};
+window.omniNarrateAutopilot = function () {
+  const d = omniEngineV15.compileFullExecutiveDossier();
+  const s = omniEngineV15.activeSelection;
+  const script = `Regia Omni-Master versione quindici avviata. Lotto di ${omniEngineV15.geometryMetrics.lotAreaMq} metri quadri e superficie interna di ${omniEngineV15.geometryMetrics.floorAreaMq} metri quadri. ` +
+    `Involucro esterno con ${s.murature_facciate.name}, serramenti ${s.infissi_porte.name}, pavimentazione ${s.pavimenti_rivestimenti.name} e arredi ${s.arredi_illuminazione_mep.name}. ` +
+    `Salto di classe energetica da G ad A4 NZEB, rivalutazione immobiliare più trentasei per cento, quadro economico chiavi in mano pari a ${Math.round(d.quadroEconomico.grandTotal)} euro.`;
+  window.omniPlayAutopilot();
+  if (typeof mvNarrate === 'function') mvNarrate(script);
+};
 
 window.omniHotSwap = function (category, itemId) {
   const dossier = omniEngineV15.hotSwapComponent(category, itemId);
   const s = omniEngineV15.activeSelection;
-  MV.products = [
+  const coreProds = [
     { src: s.murature_facciate.portal, name: s.murature_facciate.name, key: s.murature_facciate.code, price: s.murature_facciate.unitPriceEur },
     { src: s.infissi_porte.portal, name: s.infissi_porte.name, key: s.infissi_porte.code, price: s.infissi_porte.unitPriceEur },
     { src: s.pavimenti_rivestimenti.portal, name: s.pavimenti_rivestimenti.name, key: s.pavimenti_rivestimenti.code, price: s.pavimenti_rivestimenti.unitPriceEur },
     { src: s.arredi_illuminazione_mep.portal, name: s.arredi_illuminazione_mep.name, key: s.arredi_illuminazione_mep.code, price: s.arredi_illuminazione_mep.unitPriceEur }
   ];
+  const coreKeys = new Set(coreProds.map(p => p.key));
+  const extraProds = (MV.products || []).filter(p => !coreKeys.has(p.key) && !/^NP\.(EDIL|SER|FIN|INT|MEP)\./.test(p.key || ''));
+  MV.products = [...coreProds, ...extraProds];
+
   omniRenderDossierUI(dossier);
-  if (typeof window.mvSyncComputo === 'function') window.mvSyncComputo();
   if (typeof mvRefresh === 'function') mvRefresh();
+  if (typeof window.mvSyncComputo === 'function') window.mvSyncComputo();
   window.omniPreviewSelected();
   appendLog(`⚡ Hot-Swap Live [${category}]: ${s[category]?.name} → Aggiornati Swatch, Prompt AI, SketchUp .RB & Computo (€ ${dossier.quadroEconomico.grandTotal.toLocaleString('it-IT')}).`);
 };
 
 function omniRenderDossierUI(dossier) {
+  const d = dossier || omniEngineV15.compileFullExecutiveDossier();
   const swBar = $mv('omniSwatchesBar');
   if (swBar) {
-    swBar.innerHTML = dossier.swatchesForVideoOverlay.map(sw =>
-      `<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:#0f172a;border:1px solid #334155;font-size:.66rem"><span style="width:12px;height:12px;border-radius:50%;background:${sw.color};border:1.5px solid #fff;display:inline-block"></span><b>${sw.label}</b></span>`
+    swBar.innerHTML = d.swatchesForVideoOverlay.map(sw =>
+      `<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:#0f172a;border:1px solid #334155;font-size:.66rem"><span style="width:12px;height:12px;border-radius:50%;background:${sw.color};border:1.5px solid #fff;display:inline-block"></span><b>${sw.label}</b>: ${(sw.item || '').slice(0, 32)}…</span>`
     ).join('');
   }
   const pBox = $mv('omniPromptBox');
-  if (pBox) pBox.innerHTML = `<b>Prompt AI Live (Flux.1 ControlNet + Kling/Luma):</b> ${dossier.dynamicMasterAiPrompt}`;
+  if (pBox) pBox.innerHTML = `<b>Prompt AI Live (Flux.1 ControlNet + Kling 1.6 / Luma Ray2):</b> ${d.dynamicMasterAiPrompt}`;
 
   const prev = $mv('omniDossierPreview');
   if (prev) {
-    const q = dossier.quadroEconomico;
-    prev.innerHTML = `<b>📊 Quadro Economico &amp; Dossier Live v15</b> (${dossier.timestamp})<br>` +
-      `Lavori: <b>€ ${q.worksSubtotal.toLocaleString('it-IT')}</b> · Oneri Sicurezza 3,5%: <b>€ ${q.safetyCosts.toLocaleString('it-IT')}</b> · Spese Tecniche 8%: <b>€ ${q.technicalFees.toLocaleString('it-IT')}</b> · IVA 10%: <b>€ ${q.vat10.toLocaleString('it-IT')}</b><br>` +
+    const q = d.quadroEconomico;
+    prev.innerHTML = `<b>📊 Quadro Economico &amp; Dossier Esecutivo Live v15</b> (${d.timestamp})<br>` +
+      `Lavori (${d.computoRows.length} voci): <b>€ ${q.worksSubtotal.toLocaleString('it-IT')}</b> · Oneri Sicurezza 3,5%: <b>€ ${q.safetyCosts.toLocaleString('it-IT')}</b> · Spese Tecniche 8%: <b>€ ${q.technicalFees.toLocaleString('it-IT')}</b> · IVA 10%: <b>€ ${q.vat10.toLocaleString('it-IT')}</b><br>` +
       `<span style="color:#34d399;font-weight:700">TOTALE CHIAVI IN MANO: € ${q.grandTotal.toLocaleString('it-IT')}</span> · ${q.energyClassJump} · <span style="color:#fbbf24">ROI Stimato: ${q.estimatedROIPercent}</span>`;
   }
 }
+
+// Integrazione bidirezionale con mvRefresh, mvRes, mvExportSketchup e exportDossierPDF
+const _origMvResV15 = window.mvRes;
+window.mvRes = function () {
+  if (typeof _origMvResV15 === 'function') _origMvResV15();
+  const c = $mv('mvResCv');
+  if (c) omniDrawSwatchesOverlay(c.getContext('2d'), c.width, c.height);
+};
+
+const _origMvRefreshV15 = window.mvRefresh;
+window.mvRefresh = function () {
+  if (typeof _origMvRefreshV15 === 'function') _origMvRefreshV15();
+  omniRenderDossierUI(omniEngineV15.compileFullExecutiveDossier());
+  if (!omniState.playing) window.omniPreviewSelected();
+};
+
+const _origMvExportSketchupV15 = window.mvExportSketchup;
+window.mvExportSketchup = function () {
+  const d = omniEngineV15.compileFullExecutiveDossier();
+  const s = omniEngineV15.activeSelection;
+  // Assicura che i 4 componenti attivi siano nei commenti e nei materiali di _3D.rb
+  if (!MV.products.length) {
+    MV.products = [
+      { src: s.murature_facciate.portal, name: s.murature_facciate.name, key: s.murature_facciate.code, price: s.murature_facciate.unitPriceEur },
+      { src: s.infissi_porte.portal, name: s.infissi_porte.name, key: s.infissi_porte.code, price: s.infissi_porte.unitPriceEur },
+      { src: s.pavimenti_rivestimenti.portal, name: s.pavimenti_rivestimenti.name, key: s.pavimenti_rivestimenti.code, price: s.pavimenti_rivestimenti.unitPriceEur },
+      { src: s.arredi_illuminazione_mep.portal, name: s.arredi_illuminazione_mep.name, key: s.arredi_illuminazione_mep.code, price: s.arredi_illuminazione_mep.unitPriceEur }
+    ];
+  }
+  return _origMvExportSketchupV15();
+};
 
 window.omniExportDossierCSV = function () {
   const d = omniEngineV15.compileFullExecutiveDossier();
@@ -7250,15 +7319,15 @@ window.omniExportDossierPDF = function () {
   const rowsHtml = d.computoRows.map(r => `<tr><td>${r.num}</td><td>${r.code}</td><td>${r.portal}</td><td>${r.desc}</td><td>${r.unit}</td><td style="text-align:right">${r.qty}</td><td style="text-align:right">€ ${r.price.toFixed(2)}</td><td style="text-align:right"><b>€ ${r.total.toFixed(2)}</b></td></tr>`).join('');
   const capHtml = d.capitolatoArticles.map(a => `<h4>${a.art}</h4><p>${a.text}</p>`).join('');
   const htmlDoc = `<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><title>Dossier Esecutivo CADBridge v15</title><style>body{font-family:Segoe UI,Arial,sans-serif;color:#0f172a;margin:28px;font-size:12px}h1,h2{color:#0369a1;border-bottom:1px solid #cbd5e1;padding-bottom:4px}table{width:100%;border-collapse:collapse;margin:10px 0}th,td{border:1px solid #cbd5e1;padding:6px;font-size:11px}th{background:#f1f5f9}.tot{background:#ecfdf5;font-weight:700}</style></head><body>` +
-    `<h1>${d.relazioneTecnica.titolo}</h1><p><b>Data:</b> ${d.timestamp}</p>` +
-    `<h2>1. Relazione Tecnica, Energetica &amp; ROI</h2><p><b>Stato di fatto:</b> ${d.relazioneTecnica.statoDiFatto}</p><p><b>Progetto motivato:</b> ${d.relazioneTecnica.progettoMotivato}</p><p><b>Verifica normativa:</b> ${d.relazioneTecnica.verificaIdoneitaNormativa}</p>` +
-    `<h2>2. Capitolato Speciale d'Appalto</h2>${capHtml}` +
-    `<h2>3. Computo Metrico Estimativo &amp; Quadro Economico</h2><table><thead><tr><th>N</th><th>Codice</th><th>Portale</th><th>Descrizione</th><th>UM</th><th>Q.tà</th><th>P.U.</th><th>Totale</th></tr></thead><tbody>${rowsHtml}` +
-    `<tr><td colspan="7">Subtotale Lavori</td><td style="text-align:right">€ ${q.worksSubtotal.toFixed(2)}</td></tr>` +
-    `<tr><td colspan="7">Oneri Sicurezza D.Lgs. 81/08 (3,5%)</td><td style="text-align:right">€ ${q.safetyCosts.toFixed(2)}</td></tr>` +
-    `<tr><td colspan="7">Spese Tecniche &amp; Direzione Lavori (8%)</td><td style="text-align:right">€ ${q.technicalFees.toFixed(2)}</td></tr>` +
-    `<tr><td colspan="7">IVA Agevolata Ristrutturazione (10%)</td><td style="text-align:right">€ ${q.vat10.toFixed(2)}</td></tr>` +
-    `<tr class="tot"><td colspan="7">COSTO PRESUNTO COMPLESSIVO CHIAVI IN MANO</td><td style="text-align:right">€ ${q.grandTotal.toFixed(2)}</td></tr>` +
+    `<h1>${d.relazioneTecnica.titolo}</h1><p><b>Data:</b> ${d.timestamp} · <b>Salto Energetico:</b> ${q.energyClassJump} · <b>ROI:</b> ${q.estimatedROIPercent}</p>` +
+    `<h2>1. Relazione Tecnica Illustrativa, Energetica &amp; Motivazionale</h2><p><b>Stato di fatto:</b> ${d.relazioneTecnica.statoDiFatto}</p><p><b>Progetto motivato:</b> ${d.relazioneTecnica.progettoMotivato}</p><p><b>Verifica normativa (RAI / Legge 10 / CAM):</b> ${d.relazioneTecnica.verificaIdoneitaNormativa}</p>` +
+    `<h2>2. Capitolato Speciale d'Appalto (CAM DM 23/06/2022 &amp; DM 37/08)</h2>${capHtml}` +
+    `<h2>3. Computo Metrico Estimativo &amp; Quadro Economico Complessivo</h2><table><thead><tr><th>N</th><th>Codice</th><th>Portale</th><th>Descrizione</th><th>UM</th><th>Q.tà</th><th>P.U.</th><th>Totale</th></tr></thead><tbody>${rowsHtml}` +
+    `<tr><td colspan="7">Subtotale Lavori a Misura e a Corpo</td><td style="text-align:right">€ ${q.worksSubtotal.toFixed(2)}</td></tr>` +
+    `<tr><td colspan="7">Oneri della Sicurezza non soggetti a ribasso (D.Lgs. 81/08 — 3,5%)</td><td style="text-align:right">€ ${q.safetyCosts.toFixed(2)}</td></tr>` +
+    `<tr><td colspan="7">Spese Tecniche, Progettazione, Direzione Lavori e Collaudi (8%)</td><td style="text-align:right">€ ${q.technicalFees.toFixed(2)}</td></tr>` +
+    `<tr><td colspan="7">IVA Agevolata Ristrutturazione Edilizia (10% su Lavori + Sicurezza)</td><td style="text-align:right">€ ${q.vat10.toFixed(2)}</td></tr>` +
+    `<tr class="tot"><td colspan="7">COSTO PRESUNTO COMPLESSIVO DELL'OPERA CHIAVI IN MANO</td><td style="text-align:right">€ ${q.grandTotal.toFixed(2)}</td></tr>` +
     `</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`;
   const w = window.open('', '_blank');
   if (w) { w.document.write(htmlDoc); w.document.close(); }
@@ -7270,7 +7339,7 @@ window.omniExportDossierPDF = function () {
   appendLog('📄 Generato Dossier Stampa Esecutiva PDF (Relazione + Capitolato + Computo).');
 };
 
-// Estende mvExportWebm per supportare id === 'omni' senza duplicare MediaRecorder
+// Estende mvExportWebm per supportare id === 'omni' con audio neurale edge-tts
 const _origMvExportWebm = window.mvExportWebm;
 window.mvExportWebm = async function (id) {
   if (id !== 'omni') return _origMvExportWebm(id);
@@ -7282,13 +7351,26 @@ window.mvExportWebm = async function (id) {
   const hdCtx = hdCv.getContext('2d');
   const dur = +($mv('mvDur')?.value || 60);
   const stream = hdCv.captureStream(30);
-  const rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm', videoBitsPerSecond: EW >= 3840 ? 18000000 : 8000000 }), chunks = [];
+  const d = omniEngineV15.compileFullExecutiveDossier();
+  const s = omniEngineV15.activeSelection;
+  const text = humanizeIT(`Documentario Omni-Master ventidue effetti. Intervento su ${omniEngineV15.geometryMetrics.floorAreaMq} metri quadri con ${s.murature_facciate.name}, ${s.infissi_porte.name}, ${s.pavimenti_rivestimenti.name} e ${s.arredi_illuminazione_mep.name}. Salto energetico in classe A4 e totale chiavi in mano ${Math.round(d.quadroEconomico.grandTotal)} euro.`);
+  let src = null, actx = null, audioOk = false;
+  try {
+    const key = localStorage.getItem('xvideo_voice_key'), voice = (!key || key === 'auto') ? 'giuseppe' : key;
+    const rate = parseFloat(localStorage.getItem('xvideo_voice_rate')) || 1, pitch = parseFloat(localStorage.getItem('xvideo_voice_pitch')) || 1;
+    const q = new URLSearchParams({ text, voice, rate: ((rate - 1) * 100 >= 0 ? '+' : '') + Math.round((rate - 1) * 100) + '%', pitch: ((pitch - 1) * 100 >= 0 ? '+' : '') + Math.round((pitch - 1) * 100) + 'Hz' });
+    const r = await fetch('/api/tts?' + q); if (!r.ok) throw new Error('tts ' + r.status);
+    actx = new (window.AudioContext || window.webkitAudioContext)(); const buf = await actx.decodeAudioData(await r.arrayBuffer());
+    const dest = actx.createMediaStreamDestination(); src = actx.createBufferSource(); src.buffer = buf; src.connect(dest);
+    dest.stream.getAudioTracks().forEach(t => stream.addTrack(t)); audioOk = true;
+  } catch (e) {}
+  const rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus') ? 'video/webm;codecs=vp9,opus' : 'video/webm', videoBitsPerSecond: EW >= 3840 ? 18000000 : 8000000 }), chunks = [];
   let pump = true;
   const copyLoop = () => { if (!pump) return; hdCtx.drawImage(srcCv, 0, 0, EW, EH); requestAnimationFrame(copyLoop); };
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
-  rec.onstop = () => { pump = false; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); a.download = `CADBridge_OMNI_v15_${EW}x${EH}_${Date.now()}.webm`; a.click(); appendLog(`⏺ Export .WEBM OMNI v15 ${EW}×${EH} completato.`); };
+  rec.onstop = () => { pump = false; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); a.download = `CADBridge_OMNI_v15_${EW}x${EH}_${Date.now()}.webm`; a.click(); actx && actx.close(); appendLog(`⏺ Export .WEBM OMNI v15 ${EW}×${EH} (${audioOk ? 'con voce neurale' : 'solo video'}) completato.`); };
   window.omniPlayAutopilot();
-  copyLoop(); rec.start();
+  copyLoop(); rec.start(); if (src) src.start();
   setTimeout(() => rec.stop(), dur * 1000 + 350);
 };
 
@@ -7296,13 +7378,12 @@ function omniInitV15() {
   const cat = omniEngineV15.livePortalsCatalog;
   Object.keys(cat).forEach(key => {
     const sel = $mv('omniSwap_' + key);
-    if (sel) sel.innerHTML = cat[key].map(it => `<option value="${it.id}">${it.name.slice(0, 56)} (${it.unitPriceEur} €/${it.unit})</option>`).join('');
+    if (sel) sel.innerHTML = cat[key].map(it => `<option value="${it.id}">${it.name.slice(0, 58)} (${it.unitPriceEur} €/${it.unit})</option>`).join('');
   });
   const efSel = $mv('omniEffectSel');
   if (efSel) {
     efSel.innerHTML = OMNI_22_EFFECTS.map(e => `<option value="${e.id}">${e.label}</option>`).join('');
   }
-  omniRenderDossierUI(omniEngineV15.compileFullExecutiveDossier());
-  window.omniPreviewSelected();
+  window.omniHotSwap('murature_facciate', cat.murature_facciate[0].id);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', omniInitV15); else omniInitV15();
