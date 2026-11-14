@@ -1,0 +1,1678 @@
+/* ============================================================================
+   XviDeo AI Professional Studio 4K + CADBridge Pro — v2.0 Ultra-Responsive CSS
+   Guaranteed 0px horizontal overflow across:
+   - iPhone Portrait (320px, 375px, 390px, 414px, 430px) + Dynamic Island Safe Zone
+   - iPhone / Android Landscape 90° (568px–932px width, short height)
+   - iPad / Tablet Portrait & Landscape (768px–1180px)
+   - Desktop / Workstation Monitors (1200px–3840px 4K)
+   ============================================================================ */
+
+:root {
+  --bg-primary: #05070A;
+  --bg-secondary: #0F141F;
+  --bg-card: #131A29;
+  --bg-elevated: #1C2539;
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --border-active: rgba(34, 211, 238, 0.45);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --accent-cad: #FF6B00;
+  --accent-skp: #22D3EE;
+  --accent-green: #10B981;
+  --accent-warn: #F59E0B;
+  --accent-danger: #EF4444;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box !important;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  background-color: var(--bg-primary);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  line-height: 1.4;
+}
+
+/* Force all media, canvases, iframes and pre blocks to never exceed container width */
+img, video, canvas, iframe, svg {
+  max-width: 100% !important;
+  display: block;
+}
+
+#studio-canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 380px;
+  object-fit: contain;
+}
+
+#cadCanvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Subtle blueprint background grid */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================================================
+   TOP BAR / HEADER (PROTECTED AGAINST IPHONE DYNAMIC ISLAND & CLOCK OVERLAP)
+   ========================================================================== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  width: 100%;
+  max-width: 100%;
+  background: #05070A;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-top: max(10px, var(--safe-top));
+  padding-bottom: 10px;
+  padding-left: max(12px, var(--safe-left));
+  padding-right: max(12px, var(--safe-right));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.brand-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  padding: 2px;
+  background: linear-gradient(135deg, #22d3ee, #10b981, #ff6b00);
+  flex-shrink: 0;
+}
+
+.brand-icon-inner {
+  width: 100%;
+  height: 100%;
+  background: #05070a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-text-wrap {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.brand-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-sub {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-owner {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.badge-guest {
+  background: rgba(34, 211, 238, 0.14);
+  color: var(--accent-skp);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+}
+
+.badge-locked {
+  background: rgba(239, 68, 68, 0.15);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-warn);
+  flex-shrink: 0;
+}
+
+.dot.online {
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+}
+
+/* ==========================================================================
+   GUEST READ-ONLY / IP-BOUND BANNER
+   ========================================================================== */
+.guest-security-banner {
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.12), rgba(255, 107, 0, 0.12));
+  border-bottom: 1px solid rgba(34, 211, 238, 0.3);
+  padding: 8px max(12px, var(--safe-right)) 8px max(12px, var(--safe-left));
+  font-size: 0.74rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
+/* ==========================================================================
+   MAIN WORKSPACE SHELL & ZERO-OVERFLOW GRIDS
+   ========================================================================== */
+.app-shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding-top: 12px;
+  padding-bottom: calc(84px + var(--safe-bottom));
+  padding-left: max(10px, var(--safe-left));
+  padding-right: max(10px, var(--safe-right));
+  overflow-x: hidden;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(255, 107, 0, 0.22), rgba(34, 211, 238, 0.18));
+  color: var(--text-primary);
+  border-color: var(--accent-skp);
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 14px;
+  align-items: start;
+  width: 100%;
+  max-width: 100%;
+}
+
+.workspace-grid > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100%;
+}
+
+.tab-panel {
+  display: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* ==========================================================================
+   CARDS & PANELS (STRICT WIDTH CONTAINMENT)
+   ========================================================================== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.card-header > div {
+  min-width: 0;
+  flex: 1 1 180px;
+}
+
+.card-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.3;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.card-subtitle {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Mobile Camera & Universal Upload Grid */
+.cam-capture-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.cam-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  background: #121826;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: #f8fafc;
+  font-size: 0.73rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  min-width: 0;
+  width: 100%;
+  word-break: break-word;
+}
+
+/* Universal Drag & Drop Zone */
+.universal-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 2px dashed rgba(56, 189, 248, 0.45);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.65);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.universal-dropzone:hover, .universal-dropzone.drag-active {
+  border-color: #00e5ff;
+  background: rgba(14, 165, 233, 0.15);
+  transform: translateY(-1px);
+}
+
+.studio-docs-container {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  width: 100%;
+}
+
+.studio-doc-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  font-size: 0.72rem;
+  flex-wrap: wrap;
+}
+
+/* 4 Operational AI Agents Grid */
+.agents-4-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.agent-card {
+  background: #111726;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.agent-card.active-agent {
+  border-color: #22d3ee;
+  background: linear-gradient(145deg, rgba(34, 211, 238, 0.14), rgba(16, 185, 129, 0.08));
+}
+
+.agent-card.supervisor {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.14), rgba(17, 23, 38, 0.95));
+}
+
+/* Format & Style Pill Bar */
+.format-style-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 6px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+/* Wipe Split Bar */
+.split-control-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  background: var(--bg-primary);
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.split-control-bar input[type="range"] {
+  flex: 1 1 110px;
+  min-width: 80px;
+  accent-color: #22d3ee;
+  cursor: pointer;
+}
+
+/* Target Engine Switcher */
+.engine-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  background: var(--bg-primary);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.engine-opt {
+  padding: 7px 4px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.engine-opt.active[data-engine="both"] {
+  background: linear-gradient(90deg, rgba(255, 107, 0, 0.25), rgba(34, 211, 238, 0.25));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.engine-opt.active[data-engine="autocad"] {
+  background: rgba(255, 107, 0, 0.22);
+  color: #FF8533;
+  border: 1px solid var(--accent-cad);
+}
+
+.engine-opt.active[data-engine="sketchup"] {
+  background: rgba(34, 211, 238, 0.18);
+  color: var(--accent-skp);
+  border: 1px solid var(--accent-skp);
+}
+
+/* ==========================================================================
+   VOICE & NATURAL TEXT / PASTE INPUT ROWS
+   ========================================================================== */
+.voice-box {
+  background: linear-gradient(145deg, rgba(28, 37, 57, 0.9), rgba(15, 20, 31, 0.95));
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  margin-bottom: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.voice-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.mic-btn {
+  width: 42px;
+  min-height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 107, 0, 0.5);
+  background: rgba(255, 107, 0, 0.16);
+  color: var(--accent-cad);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cmd-input {
+  flex: 1 1 160px;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 9px 10px;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  font-family: var(--font-sans);
+}
+
+.send-cmd-btn {
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--accent-cad), #FF3D00);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.voice-chips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.voice-chip {
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   GUIDED PRE-COMPILED COMMAND PADS
+   ========================================================================== */
+.category-pills {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.cat-pill {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cat-pill.active {
+  background: var(--bg-elevated);
+  color: var(--accent-skp);
+  border-color: var(--accent-skp);
+}
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.macro-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  min-height: 80px;
+  min-width: 0;
+  width: 100%;
+}
+
+.macro-btn .macro-tag {
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(255, 107, 0, 0.15);
+  color: #FF8533;
+  margin-bottom: 5px;
+}
+
+.macro-btn .macro-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+
+.macro-btn .macro-desc {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+.param-drawer {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  border: 1px solid rgba(255, 107, 0, 0.4);
+  width: 100%;
+  min-width: 0;
+}
+
+.param-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.field-group {
+  min-width: 0;
+  width: 100%;
+}
+
+.field-group label {
+  display: block;
+  font-size: 0.69rem;
+  color: var(--text-secondary);
+  margin-bottom: 3px;
+  font-family: var(--font-mono);
+  word-break: break-word;
+}
+
+.field-group input,
+.field-group select {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================================
+   2D/3D INTERACTIVE CAD PREVIEW CANVAS & CODE OUTPUT
+   ========================================================================== */
+.canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  background: #06080C;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.canvas-overlay {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+
+.canvas-hud {
+  background: rgba(9, 12, 16, 0.82);
+  border: 1px solid var(--border-subtle);
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  color: var(--accent-skp);
+}
+
+.code-tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.code-tab {
+  padding: 5px 8px;
+  font-size: 0.69rem;
+  font-family: var(--font-mono);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.code-tab.active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--accent-cad);
+}
+
+.code-output {
+  background: #06080C;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #A5F3FC;
+  max-height: 190px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ==========================================================================
+   GOOGLE MAPS & GEOLOCATION SURVEY MODULE
+   ========================================================================== */
+.map-frame-wrap {
+  width: 100%;
+  height: 240px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  margin: 8px 0;
+  background: #0B0F17;
+}
+
+.map-frame-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.geo-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.stat-box {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 8px 9px;
+  border-radius: var(--radius-sm);
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 0.63rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.stat-value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--accent-skp);
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+/* ==========================================================================
+   BUTTONS & UTILITIES
+   ========================================================================== */
+.btn-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 7px;
+  width: 100%;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  text-decoration: none;
+  text-align: center;
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-cad), #E04F00);
+  border-color: transparent;
+  color: #fff;
+}
+
+.btn-cyan {
+  background: rgba(34, 211, 238, 0.15);
+  border-color: rgba(34, 211, 238, 0.45);
+  color: var(--accent-skp);
+}
+
+.btn-green {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34D399;
+}
+
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 190px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.log-item {
+  padding: 7px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  border-left: 3px solid var(--accent-skp);
+  font-size: 0.73rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+  word-break: break-word;
+}
+
+.log-item.remote {
+  border-left-color: var(--accent-cad);
+}
+
+.log-time {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+
+/* ==========================================================================
+   MODALS
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(5, 7, 11, 0.92);
+  backdrop-filter: blur(16px);
+  display: none;
+  place-items: center;
+  padding: max(16px, var(--safe-top)) max(14px, var(--safe-right)) max(16px, var(--safe-bottom)) max(14px, var(--safe-left));
+  overflow-y: auto;
+}
+
+.modal-backdrop.active {
+  display: grid;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 107, 0, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+/* ==========================================================================
+   MOBILE BOTTOM DOCK
+   ========================================================================== */
+.mobile-dock {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 600;
+  background: #05070A;
+  border-top: 1px solid var(--border-subtle);
+  padding: 6px max(6px, var(--safe-right)) calc(6px + var(--safe-bottom)) max(6px, var(--safe-left));
+  justify-content: space-around;
+  width: 100%;
+}
+
+.dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.63rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 3px 4px;
+  min-width: 0;
+}
+
+.dock-item.active {
+  color: var(--accent-skp);
+}
+
+/* ==========================================================================
+   BREAKPOINTS:
+   1. <= 1080px (Tablet Portrait / Small Laptop)
+   2. <= 768px (iPhone & Android Portrait)
+   3. Landscape 90° (Girato di 90 gradi su Cellulare)
+   ========================================================================== */
+
+@media (max-width: 1080px) {
+  .workspace-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Smartphone Portrait (iPhone / Android Verticale) */
+@media (max-width: 768px) {
+  .nav-tabs {
+    display: none;
+  }
+  .mobile-dock {
+    display: flex;
+  }
+  /* Extra safe top padding so iOS Clock (12:55) & Dynamic Island NEVER touch the topbar! */
+  .topbar {
+    padding-top: max(14px, var(--safe-top));
+    padding-bottom: 8px;
+  }
+  body.ios-standalone-portrait .topbar {
+    padding-top: max(50px, var(--safe-top)) !important;
+  }
+  /* When running as installed iOS WebApp/Home Screen, guarantee clearance below Dynamic Island */
+  @media (display-mode: standalone) {
+    .topbar {
+      padding-top: max(50px, var(--safe-top)) !important;
+    }
+  }
+  .brand-sub,
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .cam-capture-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .agents-4-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .macro-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .btn-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .voice-input-row .cmd-input {
+    flex: 1 1 100%;
+  }
+  .voice-input-row .btn,
+  .voice-input-row .send-cmd-btn {
+    flex: 1 1 calc(50% - 6px);
+  }
+}
+
+/* Ultra-compact iPhone SE / Mini (<= 380px) */
+@media (max-width: 380px) {
+  .brand-title {
+    font-size: 0.78rem;
+  }
+  .badge {
+    font-size: 0.56rem;
+    padding: 2px 5px;
+  }
+  .cam-capture-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .macro-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Smartphone Landscape (Girato di 90 gradi) */
+@media (max-height: 540px) and (orientation: landscape) {
+  .topbar {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    padding-left: max(18px, var(--safe-left));
+    padding-right: max(18px, var(--safe-right));
+  }
+  .brand-sub,
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .app-shell {
+    padding-left: max(16px, var(--safe-left));
+    padding-right: max(16px, var(--safe-right));
+    padding-bottom: calc(56px + var(--safe-bottom));
+  }
+  /* Side-by-side 2-column studio in Landscape 90°! */
+  .workspace-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 10px;
+  }
+  .cam-capture-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .agents-4-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .btn-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #studio-canvas {
+    max-height: 220px;
+  }
+  .canvas-wrap,
+  .map-frame-wrap {
+    height: 195px;
+  }
+  .mobile-dock {
+    padding-top: 4px;
+    padding-bottom: max(4px, var(--safe-bottom));
+  }
+  .dock-item {
+    flex-direction: row;
+    gap: 5px;
+    font-size: 0.7rem;
+  }
+}
+
+/* ==========================================================================
+   MODALITÀ SPETTATORE BLINDATO (ANTI-THEFT SPECTATOR MODE)
+   - Solo Visione Completa
+   - Nessuna Operazione / Nessuna Modifica (pointer-events: none)
+   - Selezione Testo Inibita & Codice Interno Mascherato
+   - Filigrana Diagonale Anti-Furto con Nome Amico + IP
+   ========================================================================== */
+body.spectator-armored-mode,
+body.spectator-armored-mode * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+body.spectator-armored-mode input,
+body.spectator-armored-mode select,
+body.spectator-armored-mode textarea,
+body.spectator-armored-mode .cam-action-btn,
+body.spectator-armored-mode .send-cmd-btn,
+body.spectator-armored-mode .mic-btn,
+body.spectator-armored-mode .macro-btn,
+body.spectator-armored-mode .voice-chip,
+body.spectator-armored-mode .agent-card,
+body.spectator-armored-mode #studio-canvas,
+body.spectator-armored-mode #cadCanvas,
+body.spectator-armored-mode .btn:not(#enterStudioSplashBtn):not(.allow-spectator-view) {
+  pointer-events: none !important;
+  opacity: 0.78 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(18%);
+}
+
+body.spectator-armored-mode .code-output {
+  color: #f87171 !important;
+  background: rgba(127, 29, 29, 0.22) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  padding: 18px 12px !important;
+}
+
+.spectator-watermark-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none !important;
+  overflow: hidden;
+  display: none;
+  flex-wrap: wrap;
+  align-content: space-around;
+  justify-content: space-around;
+  gap: 70px 40px;
+  padding: 20px;
+  opacity: 0.17;
+}
+
+body.spectator-armored-mode .spectator-watermark-overlay {
+  display: flex !important;
+}
+
+.spectator-watermark-stamp {
+  transform: rotate(-26deg);
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 2vw, 0.95rem);
+  font-weight: 800;
+  color: #38bdf8;
+  border: 1.5px dashed rgba(56, 189, 248, 0.65);
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.anti-theft-toast {
+  position: fixed;
+  top: max(68px, env(safe-area-inset-top, 68px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: rgba(153, 27, 27, 0.96);
+  color: #ffffff;
+  border: 1.5px solid #f87171;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75);
+  display: none;
+  text-align: center;
+  max-width: 92vw;
+}
+
+
+
+/* ============================================================================
+   CADBRIDGE PRO v16.0 — 12 MONITOR COLOR THEMES + ERGONOMIC BUTTONS +
+   RESPONSIVE PC / TABLET / MOBILE (PORTRAIT 0° & LANDSCAPE 90° SPLIT-VIEW)
+   ============================================================================ */
+
+:root,
+body[data-monitor-theme="1-obsidian-oled"] {
+  --cb-bg-main: #060913;
+  --cb-bg-panel: #0f172a;
+  --cb-bg-card: #1e293b;
+  --cb-text-main: #f8fafc;
+  --cb-text-muted: #cbd5e1;
+  --cb-accent: #f59e0b;
+  --cb-accent-2: #38bdf8;
+  --cb-btn-bg: #1e293b;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #475569;
+  --cb-btn-hover-bg: #f59e0b;
+  --cb-btn-hover-text: #000000;
+  --cb-code-bg: #020617;
+  --cb-code-text: #38bdf8;
+  --cb-border: rgba(148, 163, 184, 0.35);
+}
+
+/* 2. AutoCAD Classic Navy */
+body[data-monitor-theme="2-autocad-navy"] {
+  --cb-bg-main: #071326;
+  --cb-bg-panel: #0d213f;
+  --cb-bg-card: #15325c;
+  --cb-text-main: #ffffff;
+  --cb-text-muted: #bae6fd;
+  --cb-accent: #00f5d4;
+  --cb-accent-2: #fde047;
+  --cb-btn-bg: #15325c;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #00f5d4;
+  --cb-btn-hover-bg: #00f5d4;
+  --cb-btn-hover-text: #041020;
+  --cb-code-bg: #040b16;
+  --cb-code-text: #fde047;
+  --cb-border: rgba(0, 245, 212, 0.45);
+}
+
+/* 3. Archiproducts Warm Ivory (Chiaro riposante) */
+body[data-monitor-theme="3-archiproducts-ivory"] {
+  --cb-bg-main: #f6f3ec;
+  --cb-bg-panel: #ffffff;
+  --cb-bg-card: #ede8df;
+  --cb-text-main: #111827;
+  --cb-text-muted: #374151;
+  --cb-accent: #b45309;
+  --cb-accent-2: #0369a1;
+  --cb-btn-bg: #1e293b;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #0f172a;
+  --cb-btn-hover-bg: #b45309;
+  --cb-btn-hover-text: #ffffff;
+  --cb-code-bg: #1e293b;
+  --cb-code-text: #fde68a;
+  --cb-border: #cbd5e1;
+}
+
+/* 4. High-Contrast Cantiere (Luce Solare Diretta) */
+body[data-monitor-theme="4-sunlight-cantiere"] {
+  --cb-bg-main: #ffffff;
+  --cb-bg-panel: #f8fafc;
+  --cb-bg-card: #e2e8f0;
+  --cb-text-main: #000000;
+  --cb-text-muted: #1e293b;
+  --cb-accent: #d97706;
+  --cb-accent-2: #1d4ed8;
+  --cb-btn-bg: #000000;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #000000;
+  --cb-btn-hover-bg: #facc15;
+  --cb-btn-hover-text: #000000;
+  --cb-code-bg: #000000;
+  --cb-code-text: #4ade80;
+  --cb-border: #000000;
+}
+
+/* 5. Olivetti Studio Sage */
+body[data-monitor-theme="5-studio-sage"] {
+  --cb-bg-main: #091917;
+  --cb-bg-panel: #112a26;
+  --cb-bg-card: #1a3c36;
+  --cb-text-main: #ecfdf5;
+  --cb-text-muted: #a7f3d0;
+  --cb-accent: #10b981;
+  --cb-accent-2: #fbbf24;
+  --cb-btn-bg: #1a3c36;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #10b981;
+  --cb-btn-hover-bg: #10b981;
+  --cb-btn-hover-text: #022c22;
+  --cb-code-bg: #04100e;
+  --cb-code-text: #6ee7b7;
+  --cb-border: rgba(16, 185, 129, 0.45);
+}
+
+/* 6. Black Render Titanium */
+body[data-monitor-theme="6-blackrender-titanium"] {
+  --cb-bg-main: #121214;
+  --cb-bg-panel: #1c1c21;
+  --cb-bg-card: #27272f;
+  --cb-text-main: #ffffff;
+  --cb-text-muted: #d4d4d8;
+  --cb-accent: #ff6b00;
+  --cb-accent-2: #facc15;
+  --cb-btn-bg: #27272f;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #ff6b00;
+  --cb-btn-hover-bg: #ff6b00;
+  --cb-btn-hover-text: #000000;
+  --cb-code-bg: #09090b;
+  --cb-code-text: #fb923c;
+  --cb-border: rgba(255, 107, 0, 0.5);
+}
+
+/* 7. Blueprint Tecnico Ciano */
+body[data-monitor-theme="7-blueprint-cyan"] {
+  --cb-bg-main: #002b49;
+  --cb-bg-panel: #003b64;
+  --cb-bg-card: #004d80;
+  --cb-text-main: #ffffff;
+  --cb-text-muted: #e0f2fe;
+  --cb-accent: #38bdf8;
+  --cb-accent-2: #fde047;
+  --cb-btn-bg: #004d80;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #ffffff;
+  --cb-btn-hover-bg: #ffffff;
+  --cb-btn-hover-text: #002b49;
+  --cb-code-bg: #001c30;
+  --cb-code-text: #ffffff;
+  --cb-border: rgba(255, 255, 255, 0.5);
+}
+
+/* 8. Luxury Borgogna & Champagne */
+body[data-monitor-theme="8-luxury-burgundy"] {
+  --cb-bg-main: #1a0910;
+  --cb-bg-panel: #2b111b;
+  --cb-bg-card: #3f1928;
+  --cb-text-main: #fff1f2;
+  --cb-text-muted: #fecdd3;
+  --cb-accent: #fb7185;
+  --cb-accent-2: #fcd34d;
+  --cb-btn-bg: #3f1928;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #fb7185;
+  --cb-btn-hover-bg: #fcd34d;
+  --cb-btn-hover-text: #1a0910;
+  --cb-code-bg: #110509;
+  --cb-code-text: #fda4af;
+  --cb-border: rgba(251, 113, 133, 0.45);
+}
+
+/* 9. Nordic Daylight (Grigio Tecnico Chiaro) */
+body[data-monitor-theme="9-nordic-daylight"] {
+  --cb-bg-main: #e2e8f0;
+  --cb-bg-panel: #f8fafc;
+  --cb-bg-card: #ffffff;
+  --cb-text-main: #0f172a;
+  --cb-text-muted: #334155;
+  --cb-accent: #1d4ed8;
+  --cb-accent-2: #047857;
+  --cb-btn-bg: #0f172a;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #1e293b;
+  --cb-btn-hover-bg: #1d4ed8;
+  --cb-btn-hover-text: #ffffff;
+  --cb-code-bg: #0f172a;
+  --cb-code-text: #38bdf8;
+  --cb-border: #94a3b8;
+}
+
+/* 10. Terminal Matrix CAD */
+body[data-monitor-theme="10-matrix-terminal"] {
+  --cb-bg-main: #020b05;
+  --cb-bg-panel: #051a0c;
+  --cb-bg-card: #092c15;
+  --cb-text-main: #dcfce7;
+  --cb-text-muted: #86efac;
+  --cb-accent: #22c55e;
+  --cb-accent-2: #eab308;
+  --cb-btn-bg: #092c15;
+  --cb-btn-text: #4ade80;
+  --cb-btn-border: #22c55e;
+  --cb-btn-hover-bg: #22c55e;
+  --cb-btn-hover-text: #000000;
+  --cb-code-bg: #000000;
+  --cb-code-text: #22c55e;
+  --cb-border: rgba(34, 197, 94, 0.5);
+}
+
+/* 11. Cyber-Arch Neon */
+body[data-monitor-theme="11-cyber-neon"] {
+  --cb-bg-main: #0d051a;
+  --cb-bg-panel: #190b30;
+  --cb-bg-card: #28124a;
+  --cb-text-main: #fae8ff;
+  --cb-text-muted: #e9d5ff;
+  --cb-accent: #e879f9;
+  --cb-accent-2: #22d3ee;
+  --cb-btn-bg: #28124a;
+  --cb-btn-text: #ffffff;
+  --cb-btn-border: #e879f9;
+  --cb-btn-hover-bg: #22d3ee;
+  --cb-btn-hover-text: #090312;
+  --cb-code-bg: #07020f;
+  --cb-code-text: #22d3ee;
+  --cb-border: rgba(232, 121, 249, 0.5);
+}
+
+/* 12. Sepia Carta da Lucido (Eye-Care) */
+body[data-monitor-theme="12-sepia-eyecare"] {
+  --cb-bg-main: #f3ead6;
+  --cb-bg-panel: #fbf6eb;
+  --cb-bg-card: #e8dec5;
+  --cb-text-main: #231b12;
+  --cb-text-muted: #4a3b2c;
+  --cb-accent: #9a3412;
+  --cb-accent-2: #1e40af;
+  --cb-btn-bg: #2b2118;
+  --cb-btn-text: #fbf6eb;
+  --cb-btn-border: #4a3b2c;
+  --cb-btn-hover-bg: #9a3412;
+  --cb-btn-hover-text: #ffffff;
+  --cb-code-bg: #231b12;
+  --cb-code-text: #fdba74;
+  --cb-border: #bfa988;
+}
+
+/* ============================================================================
+   TIPOGRAFIA GLOBALE AD ALTA LEGGIBILITÀ E PULSANTI ERGONOMICI TOUCH-FIRST
+   ============================================================================ */
+html, body {
+  background-color: var(--cb-bg-main) !important;
+  color: var(--cb-text-main) !important;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Rende TUTTI i pulsanti (anche quelli piccoli o bianchi illeggibili) grandi, nitidi e facili da premere */
+button,
+input[type="button"],
+input[type="submit"],
+.btn,
+[role="button"] {
+  background: var(--cb-btn-bg) !important;
+  color: var(--cb-btn-text) !important;
+  border: 2px solid var(--cb-btn-border) !important;
+  border-radius: 10px !important;
+  padding: 10px 16px !important;
+  min-height: 44px !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease !important;
+  text-shadow: none !important;
+}
+
+button:hover,
+button:focus-visible {
+  background: var(--cb-btn-hover-bg) !important;
+  color: var(--cb-btn-hover-text) !important;
+  border-color: var(--cb-accent) !important;
+  transform: translateY(-1px) !important;
+}
+
+button:active {
+  transform: scale(0.97) !important;
+}
+
+/* Input, Select e Textarea ad alta leggibilità */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+select,
+textarea {
+  background: var(--cb-bg-card) !important;
+  color: var(--cb-text-main) !important;
+  border: 2px solid var(--cb-border) !important;
+  border-radius: 10px !important;
+  padding: 9px 12px !important;
+  min-height: 42px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+/* Blocchi Codice AutoLISP (.LSP) / SketchUp (.RB) / DXF */
+pre, code, #cadCodeOutput {
+  background: var(--cb-code-bg) !important;
+  color: var(--cb-code-text) !important;
+  border: 2px solid var(--cb-border) !important;
+  border-radius: 12px !important;
+  padding: 14px !important;
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  overflow-x: auto !important;
+}
+
+/* Slider Range più grandi e facili da trascinare col dito */
+input[type="range"] {
+  height: 10px !important;
+  accent-color: var(--cb-accent) !important;
+  cursor: pointer !important;
+}
+
+/* ============================================================================
+   LAYOUT RESPONSIVO: PC DESKTOP, TABLET E CELLULARE (0° DRITTO & 90° RUOTATO)
+   ============================================================================ */
+
+/* Contenitore principale adattivo */
+.cb-responsive-workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 12px;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+/* Griglia elastica per le file di pulsanti (13 Archetipi, 4 Video Master, CAD Tools) */
+.cb-ergonomic-btn-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)) !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+/* MODALITÀ CELLULARE / TABLET DRITTO (VERTICALE PORTRAIT 0°) */
+@media screen and (orientation: portrait) and (max-width: 900px) {
+  .cb-responsive-workspace {
+    grid-template-columns: 1fr !important;
+    padding: 8px !important;
+  }
+  .cb-ergonomic-btn-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  button {
+    width: 100% !important;
+    font-size: 13px !important;
+    padding: 12px 10px !important;
+  }
+}
+
+/* MODALITÀ RUOTATA DI 90° (ORIZZONTALE LANDSCAPE SU CELLULARE, TABLET O SIMULATA DA TASTO) */
+@media screen and (orientation: landscape) and (max-height: 620px),
+body.cb-force-landscape-90 .cb-responsive-workspace {
+  grid-template-columns: 48% 52% !important;
+  align-items: start !important;
+  gap: 14px !important;
+}
+
+body.cb-force-landscape-90 .cb-viewport-column,
+@media screen and (orientation: landscape) and (max-height: 620px) {
+  .cb-viewport-column {
+    position: sticky !important;
+    top: 64px !important;
+    max-height: calc(100vh - 76px) !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* MODALITÀ PC DESKTOP ULTRA-WIDE */
+@media screen and (min-width: 1280px) {
+  .cb-responsive-workspace {
+    grid-template-columns: 50% 50%;
+    align-items: start;
+  }
+}
+
+
+/* Sincronizzazione pannelli, card, box codice e griglie responsive v16.0 */
+.card, #tab-multivideo .mvc, #tab-direzione .dc, .topbar, .nav-tabs, #computoHub, #omniHotSwapBox {
+  background: var(--cb-bg-panel) !important;
+  color: var(--cb-text-main) !important;
+  border-color: var(--cb-border) !important;
+}
+#tab-multivideo .mvbox, #tab-direzione .node, #tab-direzione .bl {
+  background: var(--cb-bg-card) !important;
+  color: var(--cb-text-main) !important;
+  border-color: var(--cb-border) !important;
+  font-size: 13px !important;
+}
+#tab-multivideo h3, #tab-direzione h3, .card-title {
+  color: var(--cb-accent) !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+#tab-multivideo label, label, .card-sub {
+  color: var(--cb-text-muted) !important;
+  font-size: 13px !important;
+}
+#cbMonitorControlBarV16 .cb-theme-pill-btn {
+  width: auto !important;
+  flex-shrink: 0 !important;
+}
+@media screen and (orientation: landscape) and (max-height: 620px),
+body.cb-force-landscape-90 .workspace-grid {
+  display: grid !important;
+  grid-template-columns: 48% 52% !important;
+  align-items: start !important;
+  gap: 14px !important;
+}
