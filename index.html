@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="XviDeo AI 4K" />
   <link rel="manifest" href="manifest.json?v=3.0" />
-  <link rel="stylesheet" href="styles.css?v=16.1" />
+  <link rel="stylesheet" href="styles.css?v=18.0" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -102,7 +102,7 @@
   <!-- ======================================================================
        GRAND OPENING SPLASH SCREEN WITH EXPANDED XVIDEO AI 4K LOGO
        ====================================================================== -->
-  <div id="heroSplashScreen" class="splash-screen">
+  <div id="heroSplashScreen" class="splash-screen hidden-splash">
     <div class="logo-hero-box">
       <div class="logo-hero-inner">
         <div class="logo-ring"></div>
@@ -2048,7 +2048,7 @@
         <h3>🎬 OMNI-MASTER v15.0 — 22 Effetti Cinematografici (@montani3d + 4 Video Master) &amp; Autopilota 60s–90s</h3>
         <div class="mvr">
           <select id="omniEffectSel" onchange="omniPreviewSelected()" style="flex:1;min-width:240px"></select>
-          <button type="button" class="btn btn-cyan" onclick="omniPlayAutopilot()">🚀 Autopilota 1-Click (22 Effetti / 60s–90s)</button>
+          <button type="button" class="btn btn-cyan" onclick="omniPlayAutopilot()">🎬 AVVIA AUTOPILOTA 1-CLICK (22 Effetti · Flux.1 + Kling 1.6 / Luma Ray2 · 60s–90s)</button>
           <button type="button" class="btn" onclick="omniPlayEffect()">▶ Anteprima Effetto</button>
           <button type="button" class="btn" onclick="omniStopEffects()">⏹ Stop</button>
           <button type="button" class="btn" onclick="mvExportWebm('omni')">⏺ Export .WEBM</button>
@@ -2119,6 +2119,22 @@
         #tab-direzione .node b{color:#f8fafc}
         #tab-direzione .bl{font-size:.7rem;color:#e2e8f0;background:#020617;border:1px solid #1e293b;border-radius:6px;padding:5px;margin:3px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
       </style>
+      <div class="dc" id="cedCommandChainV18" style="border:2px solid var(--cb-accent);margin-bottom:12px">
+        <h3>🧭 CATENA DI COMANDO CONTINUA v18.0: 6 Agenti ➔ Vaglio Sotto-Direttore (CED) ➔ Sviluppo Diretto CEO</h3>
+        <div class="node" style="margin-bottom:8px">
+          <b>📦 Meta-Skill Madre Attiva (Vercel):</b> <code id="findSkillsCmdV18">npx skills add vercel-labs/skills --skill find-skills -g -a claude-code -y</code>
+          <button type="button" class="btn" onclick="navigator.clipboard?.writeText(document.getElementById('findSkillsCmdV18').textContent);appendLog('📋 Comando find-skills copiato.')" style="min-height:32px !important;padding:4px 10px !important;font-size:11px !important;width:auto !important">📋 Copia</button><br>
+          <b>🛡️ Sotto-Direttore (CED):</b> Coordina i 6 Agenti in loop continuo, verifica autori certificati (<code>vercel-labs</code>, <code>anthropics</code>, <code>microsoft</code>, &gt;1.000 installazioni) e sottopone le migliorie validate al CEO.
+        </div>
+        <div class="dr" style="margin-bottom:8px">
+          <button type="button" class="btn btn-cyan" onclick="cedApproveAndDevelopAllV18()">⚡ CEO: Approva &amp; Sviluppa Tutto in Diretta</button>
+          <button type="button" class="btn" onclick="cedRunContinuousAuditV18()">🔄 Avvia Loop 6 Agenti &amp; Vaglio CED</button>
+          <button type="button" class="btn" onclick="omniExportDossierPDF()">📄 Esporta Dossier Esecutivo PDF</button>
+        </div>
+        <div id="cedAgentsGridV18" class="org" style="margin-bottom:8px"></div>
+        <div id="cedLiveAuditLogV18" class="bl" style="white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:12px"></div>
+      </div>
+
       <div class="dc">
         <h3>🏢 Direzione &amp; Agenti — Organigramma Operativo (Vice CEO + 3 Direttori + 12 Agenti)</h3>
         <div class="node" style="margin-bottom:8px">
@@ -2308,6 +2324,6 @@
     window.addEventListener('orientationchange', updateIosSafeMode);
     updateIosSafeMode();
   </script>
-  <script src="app.js?v=16.1"></script>
+  <script src="app.js?v=18.0"></script>
 </body>
 </html>
