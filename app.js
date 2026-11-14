@@ -7493,7 +7493,7 @@ class MonitorThemeAndResponsiveControllerV16 {
     // Rende tutte le barre di pulsanti una griglia spaziosa e leggibile
     document.querySelectorAll("div, section").forEach(container => {
       const directButtons = Array.from(container.children).filter(el => el.tagName === "BUTTON");
-      if (directButtons.length >= 4) {
+      if (directButtons.length >= 4 && !container.classList.contains("mobile-dock") && !container.classList.contains("nav-tabs") && !container.classList.contains("topbar-actions")) {
         container.classList.add("cb-ergonomic-btn-grid");
       }
     });

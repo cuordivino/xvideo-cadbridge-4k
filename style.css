@@ -1676,3 +1676,113 @@ body.cb-force-landscape-90 .workspace-grid {
   align-items: start !important;
   gap: 14px !important;
 }
+
+
+/* ===== v16.1: IPHONE MOBILE DOCK & COMPACT MOBILE BUTTONS FIX ===== */
+/* Ripristina dimensioni compatte ed eleganti per la barra inferiore iPhone (.mobile-dock / .dock-item) */
+@media (min-width: 769px) {
+  .mobile-dock {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-dock {
+    display: grid !important;
+    grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+    gap: 2px !important;
+    background: var(--cb-bg-panel) !important;
+    border-top: 1.5px solid var(--cb-border) !important;
+    padding: 3px max(4px, env(safe-area-inset-right, 4px)) calc(3px + env(safe-area-inset-bottom, 6px)) max(4px, env(safe-area-inset-left, 4px)) !important;
+    height: auto !important;
+    max-height: 58px !important;
+    align-items: center !important;
+  }
+}
+
+.mobile-dock button.dock-item,
+button.dock-item {
+  background: transparent !important;
+  color: var(--cb-text-muted) !important;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+  min-height: 38px !important;
+  max-height: 44px !important;
+  height: 42px !important;
+  padding: 2px 1px !important;
+  margin: 0 !important;
+  font-size: 8.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.2px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.mobile-dock button.dock-item span:first-child {
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.mobile-dock button.dock-item span:last-child {
+  display: block !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.mobile-dock button.dock-item.active,
+button.dock-item.active {
+  background: var(--cb-bg-card) !important;
+  color: var(--cb-accent) !important;
+  border-color: var(--cb-accent) !important;
+}
+
+/* Su iPhone in verticale (0° Portrait): tasti normali proporzionati e barra superiore anti-Dynamic Island */
+@media screen and (max-width: 768px) {
+  #cbMonitorControlBarV16 {
+    padding: max(8px, env(safe-area-inset-top, 8px)) 8px 6px 8px !important;
+    gap: 5px !important;
+  }
+  #cbMonitorControlBarV16 span {
+    font-size: 11px !important;
+  }
+  #cbMonitorControlBarV16 select,
+  #cbMonitorControlBarV16 #btnToggleLandscape90V16 {
+    min-height: 32px !important;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    width: auto !important;
+  }
+  #cbMonitorControlBarV16 .cb-theme-pill-btn {
+    min-height: 26px !important;
+    padding: 3px 7px !important;
+    font-size: 10.5px !important;
+    width: auto !important;
+  }
+  button:not(.dock-item):not(.cb-theme-pill-btn),
+  .btn:not(.dock-item) {
+    min-height: 36px !important;
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+    border-width: 1.5px !important;
+    border-radius: 8px !important;
+  }
+  .topbar-actions button.btn {
+    min-height: 30px !important;
+    padding: 4px 7px !important;
+    font-size: 11px !important;
+    width: auto !important;
+  }
+  .app-shell {
+    padding-bottom: calc(62px + env(safe-area-inset-bottom, 10px)) !important;
+  }
+}
