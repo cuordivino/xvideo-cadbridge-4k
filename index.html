@@ -2022,10 +2022,39 @@
           <button class="btn" onclick="mvSyncComputo()">📊 Sincronizza in Computo</button>
           <button class="btn" onclick="exportDossierPDF()" style="background:#059669;color:#fff">📄 Esporta Dossier PDF</button>
         </div>
+        <div id="omniHotSwapBox" style="margin:6px 0;padding:8px;border-radius:8px;background:#020617;border:1px solid rgba(56,189,248,.35)">
+          <div style="font-size:.72rem;font-weight:700;color:#38bdf8;margin-bottom:4px">⚡ Live Hot-Swap Componenti (Edilportale &amp; Archiproducts → Aggiorna Swatch, AI Prompt, SketchUp .RB &amp; Computo)</div>
+          <div class="mvg" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px">
+            <label>1. Murature/Facciate (Edilportale)<br><select id="omniSwap_murature_facciate" onchange="omniHotSwap('murature_facciate',this.value)" style="width:100%"></select></label>
+            <label>2. Infissi/Porte (Edilportale/Archiprod.)<br><select id="omniSwap_infissi_porte" onchange="omniHotSwap('infissi_porte',this.value)" style="width:100%"></select></label>
+            <label>3. Pavimenti/Rivestimenti (Archiprod.)<br><select id="omniSwap_pavimenti_rivestimenti" onchange="omniHotSwap('pavimenti_rivestimenti',this.value)" style="width:100%"></select></label>
+            <label>4. Arredi/Luci 2700K/MEP (Archiprod.)<br><select id="omniSwap_arredi_illuminazione_mep" onchange="omniHotSwap('arredi_illuminazione_mep',this.value)" style="width:100%"></select></label>
+          </div>
+          <div id="omniSwatchesBar" class="mvr" style="margin-top:6px"></div>
+          <div id="omniPromptBox" class="mvbox" style="margin-top:4px;font-size:.66rem;color:#93c5fd"></div>
+          <div class="mvr" style="margin-top:6px">
+            <button type="button" class="btn" onclick="omniExportDossierPDF()" style="background:#059669;color:#fff">📄 PDF Stampa Esecutiva (Relazione + Capitolato + Computo)</button>
+            <button type="button" class="btn" onclick="omniExportDossierCSV()">📊 Esporta Computo .CSV</button>
+            <button type="button" class="btn" onclick="omniExportDossierMD()">📝 Esporta Capitolato &amp; Relazione .MD</button>
+          </div>
+        </div>
         <div id="mvPbrList" class="mvr"></div>
         <div id="mvCatList" class="mvg"></div>
         <div class="mvbox" id="mvInjected" style="margin-top:6px"></div>
         <div style="font-size:.6rem;color:#94a3b8">Accesso multi-canale: catalogo tecnico locale (32+ voci), estrazione da appunti/link Edilportale-Archiproducts, import schede PDF/CSV/Excel e texture PBR aperte (PolyHaven CC0).</div>
+      </div>
+
+      <div class="mvc" id="omniMaster22Box">
+        <h3>🎬 OMNI-MASTER v15.0 — 22 Effetti Cinematografici (@montani3d + 4 Video Master) &amp; Autopilota 60s–90s</h3>
+        <div class="mvr">
+          <select id="omniEffectSel" onchange="omniPreviewSelected()" style="flex:1;min-width:240px"></select>
+          <button type="button" class="btn btn-cyan" onclick="omniPlayAutopilot()">🚀 Autopilota 1-Click (22 Effetti / 60s–90s)</button>
+          <button type="button" class="btn" onclick="omniPlayEffect()">▶ Anteprima Effetto</button>
+          <button type="button" class="btn" onclick="omniStopEffects()">⏹ Stop</button>
+          <button type="button" class="btn" onclick="mvExportWebm('omni')">⏺ Export .WEBM</button>
+        </div>
+        <canvas id="omniEffectsCv" width="640" height="360"></canvas>
+        <div id="omniDossierPreview" class="mvbox" style="margin-top:6px"></div>
       </div>
 
       <div class="mvc" id="mvChaptersBox">
